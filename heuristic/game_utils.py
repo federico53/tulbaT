@@ -1,4 +1,3 @@
-import json
 from logger import logger
 import random  
 
@@ -192,27 +191,6 @@ def select_best_move(valid_moves, board, color):
             return None  # Se non ci sono mosse valide, restituisci None
     except Exception as e:
         logger.error(f"Error in select_best_move: {e}")
-        raise
-
-def convert_move_for_server(move, color):
-    try:
-
-        from_pos = coordinate_to_algebraic(move[0][0], move[0][1])
-        to_pos = coordinate_to_algebraic(move[1][0], move[1][1])
-        return json.dumps({"from": from_pos, "to": to_pos, "turn": color.upper()})
-    
-    except Exception as e:
-        logger.error(f"Error in convert_move_for_server: {e}")
-        raise
-
-def coordinate_to_algebraic(row, col):
-    try:
-
-        columns = 'abcdefghi'  # Colonne dalla 'a' alla 'i'
-        return columns[col] + str(row + 1)  # Le righe vanno da 1 a 9
-    
-    except Exception as e:
-        logger.error(f"Error in coordinate_to_algebraic: {e}")
         raise
 
 def is_gray_tile(row, col):

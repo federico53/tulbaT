@@ -1,5 +1,5 @@
 from driver import GameDriver
-from game_utils import generate_all_possible_moves, select_best_move, convert_move_for_server
+from game_utils import generate_all_possible_moves, select_best_move
 from logger import logger
 
 class Player:
@@ -51,12 +51,10 @@ class Player:
                 best_move = select_best_move(valid_moves, board, self.color)
                 logger.info(f"Best move selected: {best_move}")
 
-                move_for_server = convert_move_for_server(best_move, self.color)
-
                 # Invia la mossa al server
-                logger.info(f"Sending move: {move_for_server}")
-                self.driver.send_move(move_for_server)
-                print(f"Sending move: {move_for_server}")
+                logger.info(f"Sending move: {best_move}")
+                self.driver.send_move(best_move, self.color)
+                print(f"Sending move: {best_move}")
 
             except Exception as e:
                 logger.error(f"An error occurred during the game loop: {e}")
