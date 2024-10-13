@@ -104,6 +104,35 @@ def evaluate_move(move, board, color):
                                 else:
                                     score += 100  # Black threatening the king
 
+                    # Cattura del re tra due neri o tra un nero e una casella grigia
+                    capture_row, capture_col = adj_row + dr, adj_col + dc
+                    if 0 <= capture_row < len(board) and 0 <= capture_col < len(board[0]):
+                        if board[adj_row][adj_col] == 'KING':
+                            if (board[capture_row][capture_col] == 'BLACK' or is_gray_tile(capture_row, capture_col)):
+                                score += 1000  # King captured
+
+                    # Cattura del re nel castello (throne)
+                    if is_castle(adj_row, adj_col):
+                        surround_count = 0
+                        for dr_castle, dc_castle in directions:
+                            surround_r, surround_c = adj_row + dr_castle, adj_col + dc_castle
+                            if 0 <= surround_r < len(board) and 0 <= surround_c < len(board[0]):
+                                if board[surround_r][surround_c] == 'BLACK':
+                                    surround_count += 1
+                        if surround_count == 4:  # Re circondato su tutti e quattro i lati nel castello
+                            score += 1000
+
+                    # Cattura del re adiacente al castello
+                    if is_adjacent_to_castle(adj_row, adj_col):
+                        open_sides = 0
+                        for dr_adj, dc_adj in directions:
+                            check_row, check_col = adj_row + dr_adj, adj_col + dc_adj
+                            if (check_row, check_col) != (4, 4) and 0 <= check_row < len(board) and 0 <= check_col < len(board[0]):
+                                if board[check_row][check_col] != 'BLACK':
+                                    open_sides += 1
+                        if open_sides == 1:  # Re catturato con tre lati circondati vicino al castello
+                            score += 1000
+
                     elif board[adj_row][adj_col] == 'WHITE':
                         score += 50  # Black threatening a white piece
 
@@ -112,36 +141,6 @@ def evaluate_move(move, board, color):
                 if 0 <= capture_row < len(board) and 0 <= capture_col < len(board[0]):
                     if board[adj_row][adj_col] == 'WHITE' and (board[capture_row][capture_col] == 'BLACK' or is_gray_tile(capture_row, capture_col)):
                         score += 120  # Black capturing a white piece (between blacks or black and gray)
-
-                # Cattura del re: controlla se il re è catturato tra due neri o tra un nero e una casella grigia
-                if board[adj_row][adj_col] == 'KING':
-                    # Verifica se il re è catturato tra due neri o un nero e una casella grigia
-                    capture_row, capture_col = adj_row + dr, adj_col + dc
-                    if 0 <= capture_row < len(board) and 0 <= capture_col < len(board[0]):
-                        if (board[capture_row][capture_col] == 'BLACK' or is_gray_tile(capture_row, capture_col)):
-                            score += 1000  # King captured
-
-                    # Se il re è nel castello, è catturato se è circondato su tutti e 4 i lati
-                    if is_castle(adj_row, adj_col):
-                        surrounded = True
-                        for surround_dr, surround_dc in directions:
-                            check_row, check_col = adj_row + surround_dr, adj_col + surround_dc
-                            if not (0 <= check_row < len(board) and 0 <= check_col < len(board[0])) or board[check_row][check_col] != 'BLACK':
-                                surrounded = False
-                                break
-                        if surrounded:
-                            score += 1000  # King captured in the castle
-
-                    # Se il re è adiacente al castello, controlla i tre lati liberi
-                    if is_adjacent_to_castle(adj_row, adj_col):
-                        free_sides = 0
-                        for side_dr, side_dc in directions:
-                            check_row, check_col = adj_row + side_dr, adj_col + side_dc
-                            if 0 <= check_row < len(board) and 0 <= check_col < len(board[0]):
-                                if not is_castle(check_row, check_col) and board[check_row][check_col] != 'BLACK':
-                                    free_sides += 1
-                        if free_sides == 1:  # Tre lati liberi sono occupati da neri
-                            score += 1000  # King captured adjacent to the castle
 
             score += 5  # Neutral move
 
@@ -172,6 +171,7 @@ def evaluate_move(move, board, color):
     except Exception as e:
         logger.error(f"Error in evaluate_move: {e}")
         raise
+
 
 def select_best_move(valid_moves, board, color):
     try:
@@ -221,13 +221,18 @@ def is_gray_tile(row, col):
         raise
 
 def is_castle(row, col):
-    castle_row, castle_col = 4, 4
+    """Verifica se la posizione è il castello (trono)."""
+    castle_row, castle_col = 4, 4  # Il castello si trova al centro della scacchiera
     return row == castle_row and col == castle_col
 
 def is_adjacent_to_castle(row, col):
-    castle_row, castle_col = 4, 4
+    """Verifica se la posizione è adiacente al castello."""
+    castle_row, castle_col = 4, 4  # Il castello si trova nella posizione (4, 4)
     adjacent_positions = [
-        (castle_row + 1, castle_col), (castle_row - 1, castle_col),
-        (castle_row, castle_col + 1), (castle_row, castle_col - 1)
+        (castle_row + 1, castle_col),  # Sotto
+        (castle_row - 1, castle_col),  # Sopra
+        (castle_row, castle_col + 1),  # Destra
+        (castle_row, castle_col - 1)   # Sinistra
     ]
     return (row, col) in adjacent_positions
+
