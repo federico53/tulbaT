@@ -8,6 +8,7 @@ The project structure is modular, allowing for flexible extension with other str
 
 ## Project Structure
 
+```
 tablut_project/ 
 │ 
 ├── driver.py # Handles communication between the client and the Tablut server. 
@@ -17,6 +18,7 @@ tablut_project/
 ├── player.py # Contains the Player class that interacts with the server and manages game flow. 
 └── logs/ 
     └── game.log # Log file storing information about game events and errors.
+```
 
 ## Heuristic Strategy
 
