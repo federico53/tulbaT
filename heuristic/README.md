@@ -8,10 +8,15 @@ The project structure is modular, allowing for flexible extension with other str
 
 ## Project Structure
 
-tablut_project/ │ ├── driver.py # Handles communication between the client and the Tablut server. ├── game_utils.py # Contains functions for generating and evaluating game moves based on heuristic rules. ├── logger.py # Implements logging functionalities to track game events and errors. ├── main.py # The main entry point of the application that orchestrates game execution. ├── player.py # Contains the Player class that interacts with the server and manages game flow. └── logs/ └── game.log # Log file storing information about game events and errors.
-
-tablut_project/ │ ├── driver.py # Handles communication with the Tablut server. ├── game_utils.py # Contains functions for generating and evaluating game moves. ├── logger.py # Centralized logging configuration for the project. ├── main.py # Entry point of the application. ├── player.py # Implements the Player class and game interaction logic. └── logs/ └── game.log # Stores logs generated during game execution.
-
+tablut_project/ 
+│ 
+├── driver.py # Handles communication between the client and the Tablut server. 
+├── game_utils.py # Contains functions for generating and evaluating game moves based on heuristic rules. 
+├── logger.py # Implements logging functionalities to track game events and errors. 
+├── main.py # The main entry point of the application that orchestrates game execution. 
+├── player.py # Contains the Player class that interacts with the server and manages game flow. 
+└── logs/ 
+    └── game.log # Log file storing information about game events and errors.
 
 ## Heuristic Strategy
 
