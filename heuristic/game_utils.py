@@ -1,5 +1,6 @@
 import json
 from logger import logger
+import random  
 
 def is_valid_move(move, board, color):
     try:
@@ -167,24 +168,28 @@ def evaluate_move(move, board, color):
             score += 5  # Neutral move
 
         return score
-    
     except Exception as e:
         logger.error(f"Error in evaluate_move: {e}")
         raise
 
-
 def select_best_move(valid_moves, board, color):
     try:
-        best_move = None
         best_score = float('-inf')
-        
+        best_moves = []  # Lista di mosse con il punteggio massimo
+
         for move in valid_moves:
             score = evaluate_move(move, board, color)
             if score > best_score:
-                best_move = move
                 best_score = score
-        
-        return best_move
+                best_moves = [move]  # Resetta la lista con la nuova best move
+            elif score == best_score:
+                best_moves.append(move)  # Aggiungi alla lista le mosse con lo stesso punteggio
+
+        # Seleziona randomicamente una delle mosse migliori se ce ne sono più di una
+        if best_moves:
+            return random.choice(best_moves)
+        else:
+            return None  # Se non ci sono mosse valide, restituisci None
     except Exception as e:
         logger.error(f"Error in select_best_move: {e}")
         raise
