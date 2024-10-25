@@ -1,6 +1,8 @@
 from logger import logger
 import random  
 
+### Move validation function ###
+
 def is_valid_move(move, board, color):
     try:
 
@@ -45,6 +47,8 @@ def is_valid_move(move, board, color):
         logger.error(f"Error in is_valid_move: {e}")
         raise
 
+### Moves generation function ###
+
 def generate_all_possible_moves(board, color):
     try:
 
@@ -69,107 +73,62 @@ def generate_all_possible_moves(board, color):
         logger.error(f"Error in generate_all_possible_moves: {e}")
         raise
 
+### Evaluation functions ###
+
 def evaluate_move(move, board, color):
     try:
-
-        # Lista delle 16 caselle di vittoria del re
-        winning_positions = [
-            (0, 1), (0, 2), (0, 6), (0, 7),  # Bordo superiore
-            (8, 1), (8, 2), (8, 6), (8, 7),  # Bordo inferiore
-            (1, 0), (2, 0), (6, 0), (7, 0),  # Bordo sinistro
-            (1, 8), (2, 8), (6, 8), (7, 8)   # Bordo destro
-        ]
-
         from_pos, to_pos = move
         from_row, from_col = from_pos
         to_row, to_col = to_pos
         score = 0
 
         if color == 'black':
-            # Heuristic for black (trap the king, attack white pieces, capture white, block king)
-            directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-            for dr, dc in directions:
-                adj_row, adj_col = to_row + dr, to_col + dc
-                if 0 <= adj_row < len(board) and 0 <= adj_col < len(board[0]):
-                    if board[adj_row][adj_col] == 'KING':
-                        score += 100  # Black threatening the king
-                        
-                        # Controlla se il re è vicino a una posizione di vittoria
-                        for win_row, win_col in winning_positions:
-                            if (adj_row, adj_col) == (win_row, win_col):
-                                # Controlla se la mossa del nero blocca il re dal raggiungere la vittoria
-                                block_row, block_col = adj_row + dr, adj_col + dc
-                                if (to_row == block_row and to_col == block_col):
-                                    score += 200  # Black blocking the king from reaching a winning position
-                                else:
-                                    score += 100  # Black threatening the king
-
-                    # Cattura del re tra due neri o tra un nero e una casella grigia
-                    capture_row, capture_col = adj_row + dr, adj_col + dc
-                    if 0 <= capture_row < len(board) and 0 <= capture_col < len(board[0]):
-                        if board[adj_row][adj_col] == 'KING':
-                            if (board[capture_row][capture_col] == 'BLACK' or is_gray_tile(capture_row, capture_col)):
-                                score += 1000  # King captured
-
-                    # Cattura del re nel castello (throne)
-                    if is_castle(adj_row, adj_col):
-                        surround_count = 0
-                        for dr_castle, dc_castle in directions:
-                            surround_r, surround_c = adj_row + dr_castle, adj_col + dc_castle
-                            if 0 <= surround_r < len(board) and 0 <= surround_c < len(board[0]):
-                                if board[surround_r][surround_c] == 'BLACK':
-                                    surround_count += 1
-                        if surround_count == 4:  # Re circondato su tutti e quattro i lati nel castello
-                            score += 1000
-
-                    # Cattura del re adiacente al castello
-                    if is_adjacent_to_castle(adj_row, adj_col):
-                        open_sides = 0
-                        for dr_adj, dc_adj in directions:
-                            check_row, check_col = adj_row + dr_adj, adj_col + dc_adj
-                            if (check_row, check_col) != (4, 4) and 0 <= check_row < len(board) and 0 <= check_col < len(board[0]):
-                                if board[check_row][check_col] != 'BLACK':
-                                    open_sides += 1
-                        if open_sides == 1:  # Re catturato con tre lati circondati vicino al castello
-                            score += 1000
-
-                    elif board[adj_row][adj_col] == 'WHITE':
-                        score += 50  # Black threatening a white piece
-
-                # Cattura: verifica se un bianco è intrappolato tra due neri o tra un nero e una casella grigia
-                capture_row, capture_col = adj_row + dr, adj_col + dc
-                if 0 <= capture_row < len(board) and 0 <= capture_col < len(board[0]):
-                    if board[adj_row][adj_col] == 'WHITE' and (board[capture_row][capture_col] == 'BLACK' or is_gray_tile(capture_row, capture_col)):
-                        score += 120  # Black capturing a white piece (between blacks or black and gray)
-
-            score += 5  # Neutral move
-
+            score += evaluate_black_move(to_row, to_col, board)
         elif color == 'white':
-            # Heuristic for white (protect the king, avoid adjacent black pieces)
-            if board[from_row][from_col] == 'KING':
-                if to_row in [0, 8] and to_col in [0, 8]:
-                    score += 100  # King moving to a winning position
-                directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-                for dr, dc in directions:
-                    adj_row, adj_col = to_row + dr, to_col + dc
-                    if 0 <= adj_row < len(board) and 0 <= adj_col < len(board[0]):
-                        if board[adj_row][adj_col] == 'BLACK':
-                            score -= 50  # King moving near a black piece
-
-            elif board[from_row][from_col] == 'WHITE':
-                directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-                for dr, dc in directions:
-                    adj_row, adj_col = to_row + dr, to_col + dc
-                    if 0 <= adj_row < len(board) and 0 <= adj_col < len(board[0]):
-                        if board[adj_row][adj_col] == 'BLACK':
-                            score -= 50  # White piece moving near a black piece
-
-            score += 5  # Neutral move
+            score += evaluate_white_move(from_row, from_col, to_row, to_col, board)
 
         return score
+
     except Exception as e:
         logger.error(f"Error in evaluate_move: {e}")
         raise
+
+def evaluate_black_move(to_row, to_col, board):
+    score = 0
+    winning_positions = get_winning_positions()
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+    for dr, dc in directions:
+        adj_row, adj_col = to_row + dr, to_col + dc
+
+        if is_within_bounds(adj_row, adj_col, board):
+            score += check_king_threat(adj_row, adj_col, to_row, to_col, winning_positions, directions, board)
+            score += check_capture_king(adj_row, adj_col, dr, dc, board)
+            score += check_surrounding_king(adj_row, adj_col, directions, board)
+            score += check_adjacent_to_castle(adj_row, adj_col, directions, board)
+
+            if board[adj_row][adj_col] == 'WHITE':
+                score += 50  # Black threatening a white piece
+
+        score += 5  # Neutral move
+
+    return score
+
+def evaluate_white_move(from_row, from_col, to_row, to_col, board):
+    score = 0
+
+    if board[from_row][from_col] == 'KING':
+        if to_row in [0, 8] and to_col in [0, 8]:
+            score += 100  # King moving to a winning position
+        score += check_black_adjacent(to_row, to_col, board)
+
+    elif board[from_row][from_col] == 'WHITE':
+        score += check_black_adjacent(to_row, to_col, board)
+
+    score += 5  # Neutral move
+    return score
+
+### Move selection function ###
 
 def select_best_move(valid_moves, board, color):
     try:
@@ -192,6 +151,68 @@ def select_best_move(valid_moves, board, color):
     except Exception as e:
         logger.error(f"Error in select_best_move: {e}")
         raise
+
+### Check functions for moves ###
+
+def check_king_threat(adj_row, adj_col, to_row, to_col, winning_positions, directions, board):
+    score = 0
+    if board[adj_row][adj_col] == 'KING':
+        score += 100  # Black threatening the king
+        for win_row, win_col in winning_positions:
+            if (adj_row, adj_col) == (win_row, win_col):
+                block_row, block_col = adj_row + directions[0][0], adj_col + directions[0][1]  # Using the first direction for blocking
+                if (to_row == block_row and to_col == block_col):
+                    score += 200  # Black blocking the king from reaching a winning position
+                else:
+                    score += 100  # Black threatening the king
+    return score
+
+def check_capture_king(adj_row, adj_col, dr, dc, board):
+    score = 0
+    capture_row, capture_col = adj_row + dr, adj_col + dc
+    if is_within_bounds(capture_row, capture_col, board):
+        if board[adj_row][adj_col] == 'KING':
+            if (board[capture_row][capture_col] == 'BLACK' or is_gray_tile(capture_row, capture_col)):
+                score += 1000  # King captured
+    return score
+
+def check_surrounding_king(adj_row, adj_col, directions, board):
+    score = 0
+    if is_castle(adj_row, adj_col):
+        surround_count = sum(1 for dr, dc in directions if is_within_bounds(adj_row + dr, adj_col + dc, board) and board[adj_row + dr][adj_col + dc] == 'BLACK')
+        if surround_count == 4:  # King surrounded on all four sides in the castle
+            score += 1000
+    return score
+
+def check_adjacent_to_castle(adj_row, adj_col, directions, board):
+    score = 0
+    if is_adjacent_to_castle(adj_row, adj_col):
+        open_sides = sum(1 for dr, dc in directions if is_within_bounds(adj_row + dr, adj_col + dc, board) and (adj_row + dr, adj_col + dc) != (4, 4) and board[adj_row + dr][adj_col + dc] != 'BLACK')
+        if open_sides == 1:  # King captured with three sides surrounded near the castle
+            score += 1000
+    return score
+
+def check_black_adjacent(to_row, to_col, board):
+    score = 0
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    for dr, dc in directions:
+        adj_row, adj_col = to_row + dr, to_col + dc
+        if is_within_bounds(adj_row, adj_col, board) and board[adj_row][adj_col] == 'BLACK':
+            score -= 50  # King or white piece moving near a black piece
+    return score
+
+### Utility functions ###
+
+def is_within_bounds(row, col, board):
+    return 0 <= row < len(board) and 0 <= col < len(board[0])
+
+def get_winning_positions():
+    return [
+        (0, 1), (0, 2), (0, 6), (0, 7),  # Top edge
+        (8, 1), (8, 2), (8, 6), (8, 7),  # Bottom edge
+        (1, 0), (2, 0), (6, 0), (7, 0),  # Left edge
+        (1, 8), (2, 8), (6, 8), (7, 8)   # Right edge
+    ]
 
 def is_gray_tile(row, col):
     try:
@@ -218,4 +239,3 @@ def is_adjacent_to_castle(row, col):
         (castle_row, castle_col - 1)   # Sinistra
     ]
     return (row, col) in adjacent_positions
-
