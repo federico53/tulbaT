@@ -83,6 +83,17 @@ def evaluate_white_move(from_row, from_col, to_row, to_col, board):
 
     elif board[from_row][from_col] == 'WHITE':
         score += check_black_adjacent(to_row, to_col, board)
+        
+        if is_protecting_king(to_row, to_col, board):
+            score += 80
+            
+        # Bonus per mantenere una formazione difensiva
+        if is_defensive_formation(to_row, to_col, board):
+            score += 60
+            
+        # Bonus per aprire percorsi di fuga per il re
+        if is_opening_escape_path(to_row, to_col, board):
+            score += 70
 
     score += 5  # Neutral move
     return score
@@ -198,3 +209,49 @@ def is_adjacent_to_castle(row, col):
         (castle_row, castle_col - 1)   # Sinistra
     ]
     return (row, col) in adjacent_positions
+
+def is_protecting_king(to_row, to_col, board):
+    """Verifica se un pezzo bianco sta proteggendo il re."""
+    king_pos = find_king_position(board)
+    if king_pos:
+        king_row, king_col = king_pos
+        # Verifica se il pezzo è adiacente al re
+        return abs(to_row - king_row) + abs(to_col - king_col) == 1
+    return False
+
+def is_defensive_formation(to_row, to_col, board):
+    """Verifica se la mossa contribuisce a una formazione difensiva."""
+    white_pieces = 0
+    directions = [(1,0), (-1,0), (0,1), (0,-1)]
+    for dr, dc in directions:
+        new_row, new_col = to_row + dr, to_col + dc
+        if is_within_bounds(new_row, new_col, board):
+            if board[new_row][new_col] in ['WHITE', 'KING']:
+                white_pieces += 1
+    return white_pieces >= 2
+
+def is_opening_escape_path(to_row, to_col, board):
+    """Verifica se la mossa apre un percorso di fuga per il re."""
+    king_pos = find_king_position(board)
+    if not king_pos:
+        return False
+        
+    king_row, king_col = king_pos
+    
+    # Verifica se la mossa libera un percorso verso gli angoli
+    corners = [(0,0), (0,8), (8,0), (8,8)]
+    for corner_row, corner_col in corners:
+        # Se il pezzo si sposta dalla linea diretta tra il re e l'angolo
+        if (min(king_row, corner_row) <= to_row <= max(king_row, corner_row) and 
+            min(king_col, corner_col) <= to_col <= max(king_col, corner_col)):
+            # E la posizione precedente bloccava il percorso
+            return True
+    return False
+
+def find_king_position(board):
+    """Trova la posizione del re sulla scacchiera."""
+    for row in range(len(board)):
+        for col in range(len(board[row])):
+            if board[row][col] == 'KING':
+                return (row, col)
+    return None
