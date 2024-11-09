@@ -4,6 +4,48 @@ import random
 ### Move validation function ###
 
 def is_valid_move(move, board, color):
+    
+    try:
+
+        from_pos, to_pos = move
+        from_row, from_col = from_pos
+        to_row, to_col = to_pos
+
+        # Controlla se la mossa è sul trono o in una citadel
+        if board[to_row][to_col] != 'EMPTY':
+            return False  # Non puoi muoverti su una casella già occupata
+        
+        if board[to_row][to_col] == 'THRONE':
+            return False  # Non puoi muoverti sul trono
+
+        # Citadel positions (as in GameAshtonTablut.java)
+        citadels = ['a4', 'a5', 'a6', 'b5', 'd1', 'e1', 'f1', 'e2', 'i4', 'i5', 'i6', 'h5', 'd9', 'e9', 'f9', 'e8']
+        columns = 'abcdefghi'
+        to_box = columns[to_col] + str(9 - to_row)
+        from_box = columns[from_col] + str(9 - from_row)
+
+        if to_box in citadels and from_box not in citadels:
+            return False  # Non puoi muoverti in una citadel da fuori
+
+        # Controlla che non ci siano ostacoli nel percorso (le mosse non possono scavalcare altre pedine)
+        if from_row == to_row:  # Movimento orizzontale
+            step = 1 if to_col > from_col else -1
+            for col in range(from_col + step, to_col, step):
+                if board[from_row][col] != 'EMPTY':
+                    return False
+        elif from_col == to_col:  # Movimento verticale
+            step = 1 if to_row > from_row else -1
+            for row in range(from_row + step, to_row, step):
+                if board[row][from_col] != 'EMPTY':
+                    return False
+        else:
+            return False  # Il movimento in diagonale non è consentito
+
+        # Se tutti i controlli sono passati, la mossa è valida
+        return True
+    
+    except Exception as e:
+        logger.error(f"Error in is_valid_move: {e}")
         raise
 
 ### Moves generation function ###
