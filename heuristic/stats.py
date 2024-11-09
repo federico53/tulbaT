@@ -168,24 +168,24 @@ def is_empty_and_reachable(board, position, color):
         for direction in move_directions:
             new_position = (position[0] + direction[0], position[1] + direction[1])
             while new_position[0] >= 0 and new_position[0] <= 8 and new_position[1] >= 0 and new_position[1] <= 8:
-                if board[new_position[0]][new_position[1]] != 'EMPTY':
-                    break
                 if new_position in black_camps_positions:
                     if board[new_position[0]][new_position[1]] == color:
                         return True
                     new_position = (new_position[0] + direction[0], new_position[1] + direction[1])
                 else:
                     break
+                if board[new_position[0]][new_position[1]] != 'EMPTY':
+                    break
 
     for direction in move_directions:
         new_position = (position[0] + direction[0], position[1] + direction[1])
         while new_position[0] >= 0 and new_position[0] <= 8 and new_position[1] >= 0 and new_position[1] <= 8:
+            if board[new_position[0]][new_position[1]] == color: # if the position is a piece of the color
+                return True
             if board[new_position[0]][new_position[1]] != 'EMPTY': # if the position is not empty
                 break
             if new_position in black_camps_positions or new_position == castle_position: # if the position is a black camp or the castle
                 break
-            if board[new_position[0]][new_position[1]] == color: # if the position is a piece of the color
-                return True
             new_position = (new_position[0] + direction[0], new_position[1] + direction[1])
     return False
 
