@@ -1,6 +1,7 @@
 from driver import GameDriver
 from game_utils import generate_all_possible_moves, select_best_move
 from logger import logger
+from stats import stats_of_the_board
 
 class Player:
     def __init__(self, name, color, server_address):
@@ -37,6 +38,9 @@ class Player:
                     logger.info(f"Waiting for the opponent's turn... (Current turn: {turn})")
                     print(f"Waiting for the opponent's turn... (Current turn: {turn})")
                     continue
+
+                # Stampare lo stato di gioco
+                stats_of_the_board(board)
 
                 # Genera tutte le mosse valide
                 valid_moves = generate_all_possible_moves(board, self.color)
