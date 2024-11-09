@@ -1,6 +1,98 @@
 from logger import logger
 import random  
 
+
+### MinMax ### 
+
+def minimax_alpha_beta(board, depth, alpha, beta, turn, player):
+    '''
+    Minimax algorithm with alpha-beta pruning
+    Args:
+        board: current board state
+        depth: depth limit for the search tree
+        alpha: alpha value for alpha-beta pruning
+        beta: beta value for alpha-beta pruning
+        turn: current turn (black/white)
+        player: player color (black/white)
+    Returns: 
+        best_score: best score for the current player
+        best_move: best move for the current player
+    '''
+    # Base case: depth limit reached or game over
+    if depth == 0 or is_game_over(board):
+        return heuristic_evaluation(board, turn, player), None  # Return score and no move
+
+    best_move = None
+
+    is_max = (turn == player)
+
+    if is_max:
+        max_eval = float('-inf')
+        for move in generate_all_possible_moves(board, player):
+            # Apply move for max
+            new_board = apply_move(board, move)
+            eval, _ = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player)
+            if eval > max_eval:
+                max_eval = eval
+                best_move = move
+            alpha = max(alpha, eval)
+            if beta <= alpha:
+                break  # Beta cut-off
+        return max_eval, best_move
+    else:
+        min_eval = float('inf')
+        for move in generate_all_possible_moves(board, player):
+            # Apply move for min
+            new_board = apply_move(board, move)
+            eval, _ = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player)
+            if eval < min_eval:
+                min_eval = eval
+                best_move = move
+            beta = min(beta, eval)
+            if beta <= alpha:
+                break  # Alpha cut-off
+        return min_eval, best_move
+
+
+def heuristic_evaluation(board, turn, player):
+    '''
+    Heuristic evaluation function for the current board state
+    Args:
+        board: current board state
+        turn: current turn (black/white)
+        player: player color (black/white)
+    Returns:
+        score: evaluation score for the current board state
+    '''
+    return NotImplemented
+
+
+def apply_move(board, move):
+    '''
+    Apply the move to the board
+    Args:
+        board: current board state
+        move: move to apply
+    Returns:
+        new_board: new board state after applying the move
+    '''
+    return NotImplemented
+
+
+def get_opposite_turn(turn):
+    '''
+    Return the opposite turn
+    '''
+    return 'white' if turn == 'black' else 'black'
+
+
+def is_game_over(board):
+    '''
+    Determine if the current board state represents a terminal position
+    '''
+    return NotImplemented
+
+
 ### Move validation function ###
 
 def is_valid_move(move, board, color):

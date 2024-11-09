@@ -1,5 +1,5 @@
 from driver import GameDriver
-from game_utils import generate_all_possible_moves, select_best_move
+from game_utils import minimax_alpha_beta
 from logger import logger
 from stats import stats_of_the_board
 
@@ -42,18 +42,9 @@ class Player:
                 # Printing the board stats
                 stats_of_the_board(board, self.color)
 
-                # Genera tutte le mosse valide
-                valid_moves = generate_all_possible_moves(board, self.color)
-                logger.info(f"Valid moves generated: {len(valid_moves)}")
-
-                if not valid_moves:
-                    logger.warning("No valid moves available.")
-                    print("No valid moves available.")
-                    break
-
-                # Seleziona la miglior mossa
-                best_move = select_best_move(valid_moves, board, self.color)
-                logger.info(f"Best move selected: {best_move}")
+                # Find the best move using minmax algorithm
+                best_score, best_move = minimax_alpha_beta(board, depth=3, alpha=float('-inf'), beta=float('inf'), turn=turn, player=self.color)
+                logger.info(f"Best move for black: {best_move} with score: {best_score}")
 
                 # Invia la mossa al server
                 logger.info(f"Sending move: {best_move}")
