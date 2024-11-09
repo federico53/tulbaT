@@ -44,7 +44,7 @@ def count_black_starting_position(board):
     return count
 
 # Function that return the king position
-def king_position(board):
+def get_king_position(board):
     for i in range(9):
         for j in range(9):
             if board[i][j] == 'KING':
@@ -63,7 +63,7 @@ king_winning_direction_heatmap = [[0, 0, 0, 0, 0, 0, 0, 0, 0],
                                   [0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
 def king_winning_direction_score(board):
-    king_position = king_position(board)
+    king_position = get_king_position(board)
     return king_winning_direction_heatmap[king_position[0]][king_position[1]]
 
 # Function that return how many side of the king are free and how many are blocked, and also which pieces are blocking the king
@@ -75,7 +75,7 @@ black_camps_positions = [(0, 3), (0, 4), (0, 5), (1, 4), (3, 0), (3, 1), (3, 2),
 castle_position = (4, 4)
 
 def king_free_sides(board):
-    king_position = king_position(board)
+    king_position = get_king_position(board)
 
     free_sides = 0
     blocked_sides = 0
@@ -137,7 +137,7 @@ def king_free_sides(board):
 winning_positions = [(0, 1), (0, 2), (0, 6), (0, 7), (1, 0), (2, 0), (6, 0), (7, 0), (8, 1), (8, 2), (8, 6), (8, 7), (1, 8), (2, 8), (6, 8), (7, 8)]
 
 def black_checkmate(board):
-    king_position = king_position(board)
+    king_position = get_king_position(board)
     move_directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
     for direction in move_directions:
         new_position = (king_position[0] + direction[0], king_position[1] + direction[1])
@@ -204,7 +204,7 @@ def king_adjacent_to_castle(king_position):
     # another black piece can with one move capture the king
 
 def king_can_be_captured_between_two_blacks(board):
-    king_position = king_position(board)
+    king_position = get_king_position(board)
     if king_in_the_castle(king_position) or king_adjacent_to_castle(king_position):
         return False
     if (board[king_position[0] - 1][king_position[1]] == 'BLACK' or board[king_position[0] - 1][king_position[1]] in black_camps_positions) and is_empty_and_reachable(board, (king_position[0] + 1, king_position[1]), 'BLACK'):
@@ -224,7 +224,7 @@ def king_can_be_captured_between_two_blacks(board):
     # for the remaining side there is a black piece that with one move can capture the king
 
 def king_adjacent_to_castle_can_be_captured(board):
-    king_position = king_position(board)
+    king_position = get_king_position(board)
     if not king_adjacent_to_castle(king_position):
         return False
     if king_position == (3, 4):
@@ -264,7 +264,7 @@ def king_adjacent_to_castle_can_be_captured(board):
     # for the remaining side there is a black piece that with one move can capture the king
 
 def king_in_the_castle_can_be_captured(board):
-    king_position = king_position(board)
+    king_position = get_king_position(board)
     if not king_in_the_castle(king_position):
         return False
     if board[3][4] == 'BLACK' and board[4][3] == 'BLACK' and board[4][5] == 'BLACK' and is_empty_and_reachable(board, (5, 4), 'BLACK'):
@@ -293,7 +293,7 @@ def white_checkmate(board):
 
 def stats_of_the_board(board, turn):
 
-    print("----------NUMBER OF PIECES-----------\n")
+    print("\n----------NUMBER OF PIECES-----------\n")
     print(f"White pieces: {count_pieces(board, "WHITE")}/8 + the KING")
     print(f"Black pieces: {count_pieces(board, "BLACK")}/16")
     print("\n-------------------------------------\n")
@@ -305,8 +305,8 @@ def stats_of_the_board(board, turn):
 
     print("-----------KING SITUATION------------\n")
     print("The KING is in a position with a direction winning score of: ", king_winning_direction_score(board))
-    print("The KING is in the castle: ", king_in_the_castle(king_position(board)))
-    print("The KING is adjacent to the castle: ", king_adjacent_to_castle(king_position(board)))
+    print("The KING is in the castle: ", king_in_the_castle(get_king_position(board)))
+    print("The KING is adjacent to the castle: ", king_adjacent_to_castle(get_king_position(board)))
     free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers = king_free_sides(board)
     print(f"The KING has free sides: {free_sides}/4")
     print(f"The KING has blocked sides: {blocked_sides}/4")

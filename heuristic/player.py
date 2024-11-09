@@ -39,7 +39,7 @@ class Player:
                     print(f"Waiting for the opponent's turn... (Current turn: {turn})")
                     continue
 
-                # Stampare lo stato di gioco
+                # Printing the board stats
                 stats_of_the_board(board, self.color)
 
                 # Genera tutte le mosse valide

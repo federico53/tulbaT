@@ -2,6 +2,7 @@ import socket
 import struct
 import json
 import random
+from heuristic.stats import stats_of_the_board
 
 def recvall(sock, n):
     data = b''
@@ -195,7 +196,7 @@ def main():
             board = json_current_state_server['board']
             turn = json_current_state_server['turn'].lower()
 
-            print("Current state: ", json.dumps(json_current_state_server, indent=2))
+            #print("Current state: ", json.dumps(json_current_state_server, indent=2))
 
             # Check if the game is over
             if turn in ['whitewin', 'blackwin', 'draw']:
@@ -206,6 +207,9 @@ def main():
             if turn != color:
                 print(f"Waiting for the opponent's turn... (Current turn: {turn})")
                 continue  # Wait for our turn
+
+            # Stampare lo stato di gioco
+            stats_of_the_board(board, turn)
 
             # Generate all possible moves based on the updated board
             all_possible_moves = generate_all_possible_moves(board, color)
