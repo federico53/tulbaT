@@ -6,17 +6,20 @@ import random
 
 def minimax_alpha_beta(board, depth, alpha, beta, turn, player):
     '''
-    Minimax algorithm with alpha-beta pruning
+    Minimax algorithm with alpha-beta pruning.
+    
     Args:
-        board: current board state
-        depth: depth limit for the search tree
-        alpha: alpha value for alpha-beta pruning
-        beta: beta value for alpha-beta pruning
-        turn: current turn (black/white)
-        player: player color (black/white)
-    Returns: 
-        best_score: best score for the current player
-        best_move: best move for the current player
+        board: Current board state.
+        depth: Depth limit for the search tree.
+        alpha: Alpha value for alpha-beta pruning.
+        beta: Beta value for alpha-beta pruning.
+        turn: Current turn (e.g., 'black' or 'white').
+        player: Player color (e.g., 'black' or 'white').
+        
+    Returns:
+        tuple: A tuple containing:
+            - best_score: Best score for the current player.
+            - best_move: Best move for the current player.
     '''
     # Base case: depth limit reached or game over
     if depth == 0 or is_game_over(board):
