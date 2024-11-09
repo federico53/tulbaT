@@ -300,7 +300,7 @@ def stats_of_the_board(board, turn):
 
     print("-----PIECES ON STARTING POSITION-----\n")
     print(f"White pieces on starting position: {count_white_starting_position(board)}/8")
-    print(f"Black pieces on starting position: {count_black_starting_position(board)}/8")
+    print(f"Black pieces on starting position: {count_black_starting_position(board)}/16")
     print("\n-------------------------------------\n")
 
     print("-----------KING SITUATION------------\n")
