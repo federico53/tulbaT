@@ -315,12 +315,12 @@ def stats_of_the_board(board, turn):
     print(f"The KING has castle blockers: {castle_blockers}/{blocked_sides}")
     print("\n-------------------------------------\n")
 
-    if turn == "BLACK":
+    if turn == "black":
         print("---------BLACK CHECKMATE-------------\n")
         print("The BLACK is in checkmate: ", black_checkmate(board))
         print("\n-------------------------------------\n")
     
-    if turn == "WHITE":
+    if turn == "white":
         print("---------WHITE CHECKMATE-------------\n")
         print("The WHITE is in checkmate: ", white_checkmate(board))
         print("\n-------------------------------------\n")

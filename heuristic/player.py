@@ -40,7 +40,7 @@ class Player:
                     continue
 
                 # Stampare lo stato di gioco
-                stats_of_the_board(board)
+                stats_of_the_board(board, self.color)
 
                 # Genera tutte le mosse valide
                 valid_moves = generate_all_possible_moves(board, self.color)
