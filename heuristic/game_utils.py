@@ -88,29 +88,46 @@ def heuristic(board, turn):
 def heuristic_white(board):
 
     # Points for each eaten black piece
-    eaten_blacks_points = (16 - stats.count_black(board)) * 10
+    eaten_blacks_points = (16 - stats.count_pieces(board, 'BLACK')) * 10
 
     # Points for the sides of the king
     free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers= stats.king_free_sides(board)
     white_blockers_points = white_blockers * 20
     free_sides_points = free_sides * 10
-    castle_blockers_points = castle_blockers * 5
+    castle_blockers_points = castle_blockers * -5
 
     # Points for the position of the king
     winning_positioning_points = stats.king_winning_direction_score(board) * 15
 
     # Points for the chack mate
-    black_in_check_mate_point = 0
+    black_in_check_mate_points = 0
     if stats.black_checkmate(board):
-        black_in_check_mate_point = 50
+        black_in_check_mate_points = 50
     
 
-    return eaten_blacks_points + white_blockers_points + free_sides_points + castle_blockers_points + winning_positioning_points + black_in_check_mate_point
+    return eaten_blacks_points + white_blockers_points + free_sides_points + castle_blockers_points + winning_positioning_points + black_in_check_mate_points
 
 def heuristic_black(board):
     score = 0
+
+    # Points for each eaten black piece
+    eaten_whites_points = (8 - stats.count_pieces(board, 'WHITE')) * 15
+
+    # Points for the position of the king
+    winning_positioning_points = stats.king_winning_direction_score(board) * 15
+
+    # Points for the sides of the king
+    free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers= stats.king_free_sides(board)
+    black_blockers_points = black_blockers * 10 * (1+winning_positioning_points)
+    castle_blockers_points = castle_blockers * 5
+
+    # Points for the chack mate
+    white_in_check_mate_points = 0
+    if stats.white_checkmate(board):
+        white_in_check_mate_points = 100
     
-    return score
+
+    return eaten_whites_points + black_blockers_points + castle_blockers_points + winning_positioning_points + white_in_check_mate_points
    
 
 def apply_move(board, move):
