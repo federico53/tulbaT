@@ -1,4 +1,5 @@
 from logger import logger
+import stats
 import random  
 
 
@@ -76,12 +77,30 @@ def heuristic_evaluation(board, turn, player):
     Returns:
         score: evaluation score for the current board state, negative if it's a better move for min, positive if it's a better move for max
     '''
-"""     if turn==player:
-        return mia euristica
+    if turn==player:
+        return heuristic(board, turn)
     else:
-        return euristica di altro player con meno
-    return NotImplemented
- """
+        return -heuristic(board, turn)
+    
+def heuristic(board, turn):
+    if turn == 'white':
+        return heuristic_white(board)
+    else:
+        return heuristic_black(board)
+    
+def heuristic_white(board):
+    eaten_blacks_points = (16 - stats.count_black(board)) * 10
+    free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers= stats.king_free_sides(board)
+    white_blockers_points = white_blockers * 20
+    free_sides_points = free_sides * 15
+
+    return eaten_blacks_points + white_blockers_points + free_sides_points
+
+def heuristic_black(board):
+    score = 0
+    
+    return score
+   
 
 def apply_move(board, move):
     '''
