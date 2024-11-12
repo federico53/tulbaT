@@ -79,7 +79,13 @@ def apply_move(board, move):
     Returns:
         new_board: new board state after applying the move
     '''
-    return NotImplemented
+    from_pos, to_pos = move
+    from_row, from_col = from_pos
+    to_row, to_col = to_pos
+
+    new_board = [row.copy() for row in board]
+    new_board[to_row][to_col] = new_board[from_row][from_col]
+    new_board[from_row][from_col] = 'EMPTY'
 
 
 def get_opposite_turn(turn):
