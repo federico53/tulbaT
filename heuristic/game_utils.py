@@ -2,6 +2,30 @@ from logger import logger
 import random  
 
 
+enemies = {'BLACK': ['WHITE'], 'WHITE': ['BLACK'], 'KING': ['BLACK']}
+allies = {'BLACK': ['BLACK', ], 'WHITE': ['WHITE', 'KING'], 'KING': ['WHITE']} ## to be updated with camp and castle
+empty = [['EMPTY' for _ in range(9)] for _ in range(9)]
+empty[0][3] = 'CAMP'
+empty[0][4] = 'CAMP'
+empty[0][5] = 'CAMP'
+empty[1][4] = 'CAMP'
+empty[3][0] = 'CAMP'
+empty[3][8] = 'CAMP'
+empty[4][0] = 'CAMP'
+empty[4][1] = 'CAMP'
+empty[4][7] = 'CAMP'
+empty[4][8] = 'CAMP'
+empty[5][0] = 'CAMP'
+empty[5][8] = 'CAMP'
+empty[7][4] = 'CAMP'
+empty[8][3] = 'CAMP'
+empty[8][4] = 'CAMP'
+empty[8][5] = 'CAMP'
+empty[4][4] = 'THRONE'
+
+print(empty)
+
+
 ### MinMax ### 
 
 def minimax_alpha_beta(board, depth, alpha, beta, turn, player):
@@ -87,6 +111,14 @@ def apply_move(board, move):
     new_board[to_row][to_col] = new_board[from_row][from_col]
     new_board[from_row][from_col] = 'EMPTY'
 
+    # Check if a piece is captured
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    for dr, dc in directions:
+        if is_within_bounds(to_row + dr*2, to_col + dc*2, new_board) and new_board[to_row + dr][to_col + dc] in enemies[new_board[to_row][to_col]] and new_board[to_row + dr*2][to_col + dc*2] in allies[new_board[to_row][to_col]]:
+            # 
+            new_board[to_row + dr][to_col + dc] = empty[to_row + dr][to_col + dc]
+            break
+
 
 def get_opposite_turn(turn):
     '''
@@ -98,6 +130,12 @@ def get_opposite_turn(turn):
 def is_game_over(board):
     '''
     Determine if the current board state represents a terminal position
+    '''
+    return NotImplemented
+
+def  is_within_bounds(row, col, board):
+    '''
+    Check if the given position is within the bounds of the board
     '''
     return NotImplemented
 
