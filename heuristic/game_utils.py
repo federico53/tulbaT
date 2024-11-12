@@ -105,7 +105,7 @@ def heuristic_white(board):
         black_in_check_mate_point = 50
     
 
-    return eaten_blacks_points + white_blockers_points + free_sides_points + castle_blockers_points + black_in_check_mate_point
+    return eaten_blacks_points + white_blockers_points + free_sides_points + castle_blockers_points + winning_positioning_points + black_in_check_mate_point
 
 def heuristic_black(board):
     score = 0
