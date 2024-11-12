@@ -69,7 +69,7 @@ def king_winning_direction_score(board):
 # Function that return how many side of the king are free and how many are blocked, and also which pieces are blocking the king
 
     # Positions of the black camps
-black_camps_positions = [(0, 3), (0, 4), (0, 5), (1, 4), (3, 0), (3, 1), (3, 2), (4, 0), (4, 2), (4, 6), (4, 8), (5, 0),]
+black_camps_positions = [(0, 3), (0, 4), (0, 5), (1, 4), (3, 0), (3, 1), (3, 2), (4, 0), (4, 2), (4, 6), (4, 8), (5, 0)]
 
     # Position of the castle
 castle_position = (4, 4)
