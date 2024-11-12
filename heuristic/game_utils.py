@@ -3,7 +3,7 @@ import random
 
 
 enemies = {'BLACK': ['WHITE'], 'WHITE': ['BLACK'], 'KING': ['BLACK']}
-allies = {'BLACK': ['BLACK', ], 'WHITE': ['WHITE', 'KING'], 'KING': ['WHITE']} ## to be updated with camp and castle
+allies = {'BLACK': ['BLACK', 'CAMP', 'THRONE'], 'WHITE': ['WHITE', 'KING', 'CAMP', 'THRONE'], 'KING': ['WHITE', 'CAMP', 'THRONE']}
 empty = [['EMPTY' for _ in range(9)] for _ in range(9)]
 empty[0][3] = 'CAMP'
 empty[0][4] = 'CAMP'
@@ -115,9 +115,10 @@ def apply_move(board, move):
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
     for dr, dc in directions:
         if is_within_bounds(to_row + dr*2, to_col + dc*2, new_board) and new_board[to_row + dr][to_col + dc] in enemies[new_board[to_row][to_col]] and new_board[to_row + dr*2][to_col + dc*2] in allies[new_board[to_row][to_col]]:
-            # 
-            new_board[to_row + dr][to_col + dc] = empty[to_row + dr][to_col + dc]
-            break
+            if new_board[to_row + dr][to_col + dc] != 'KING':
+                new_board[to_row + dr][to_col + dc] = empty[to_row + dr][to_col + dc]
+
+    return new_board
 
 
 def get_opposite_turn(turn):
@@ -137,7 +138,7 @@ def  is_within_bounds(row, col, board):
     '''
     Check if the given position is within the bounds of the board
     '''
-    return NotImplemented
+    return 0 <= row < len(board) and 0 <= col < len(board[0])
 
 
 ### Move validation function ###
