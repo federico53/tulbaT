@@ -65,10 +65,14 @@ def heuristic_evaluation(board, turn, player):
         turn: current turn (black/white)
         player: player color (black/white)
     Returns:
-        score: evaluation score for the current board state
+        score: evaluation score for the current board state, negative if it's a better move for min, positive if it's a better move for max
     '''
+"""     if turn==player:
+        return mia euristica
+    else:
+        return euristica di altro player con meno
     return NotImplemented
-
+ """
 
 def apply_move(board, move):
     '''
@@ -90,10 +94,28 @@ def get_opposite_turn(turn):
 
 
 def is_game_over(board):
-    '''
-    Determine if the current board state represents a terminal position
-    '''
-    return NotImplemented
+    # 1. Check if the king is in an escape cell (white wins)
+    king_position = find_king_position(board)
+    escape_cells = get_winning_positions()
+    if king_position and king_position in escape_cells:
+        return 'white'  # White player wins
+    # 2. Check if the king is captured (black wins)
+    if is_king_captured(board):
+        return 'black'  # Black player wins
+    # 3. Check if a player has no possible moves (the other player wins)
+    if not generate_all_possible_moves(board, 'white'):
+        return 'black'  # Black player wins
+    if not generate_all_possible_moves(board, 'black'):
+        return 'white'  # White player wins
+
+"""     # 4. Check for a repeating board state (draw)
+    if board in previous_states:
+        return 'draw'  # Game is a draw due to repetition
+    previous_states.append(board)  # Add current board to previous states """
+
+    
+    
+    
 
 
 ### Move validation function ###
@@ -392,3 +414,56 @@ def find_king_position(board):
             if board[row][col] == 'KING':
                 return (row, col)
     return None
+
+def is_king_captured(board):
+    """
+    Check if the king is captured in the current board state.
+    
+    Args:
+        board: Current board state.
+    
+    Returns:
+        bool: True if the king is captured, False otherwise.
+    """
+    king_pos = find_king_position(board)
+    if not king_pos:
+        return False  # No king found, so it's not captured
+
+    king_row, king_col = king_pos
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]  # Down, Up, Right, Left
+
+    # Case 1: Check if the king is in the castle
+    if is_castle(king_row, king_col):
+        # King must be surrounded on all four sides by black pieces to be captured
+        return all(is_within_bounds(king_row + dr, king_col + dc, board) and
+                   board[king_row + dr][king_col + dc] == 'BLACK'
+                   for dr, dc in directions)
+
+    # Case 2: Check if the king is adjacent to the castle
+    elif is_adjacent_to_castle(king_row, king_col):
+        # King is captured if surrounded on three sides by black pieces
+        black_count = sum(1 for dr, dc in directions
+                          if is_within_bounds(king_row + dr, king_col + dc, board) and
+                          board[king_row + dr][king_col + dc] == 'BLACK')
+        return black_count >= 3
+
+    # Case 3: General capture condition for non-castle, non-adjacent cells
+    else:
+        # King must be surrounded on all four sides by black pieces or blocking cells
+        return all(is_within_bounds(king_row + dr, king_col + dc, board) and
+                   (board[king_row + dr][king_col + dc] == 'BLACK' or
+                    is_blocking_cell(king_row + dr, king_col + dc, board))
+                   for dr, dc in directions)
+
+def is_blocking_cell(row, col, board):
+    """
+    Check if a cell is a blocking cell (like a castle or citadel).
+    
+    Args:
+        row, col: Coordinates of the cell.
+        board: Current board state.
+    
+    Returns:
+        bool: True if the cell is a blocking cell, False otherwise.
+    """
+    return board[row][col] in ['CASTLE', 'CITADEL']
