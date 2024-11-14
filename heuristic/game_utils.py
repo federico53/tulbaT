@@ -28,40 +28,44 @@ def minimax_alpha_beta(board, depth, alpha, beta, turn, player):
             - best_score: Best score for the current player.
             - best_move: Best move for the current player.
     '''
-    # Base case: depth limit reached or game over
-    if depth == 0 or is_game_over(board):
-        return heuristic_evaluation(board, turn, player), None  # Return score and no move
+    try:
+        # Base case: depth limit reached or game over
+        if depth == 0 or is_game_over(board):
+            return heuristic_evaluation(board, turn, player), None  # Return score and no move
 
-    best_move = None
+        best_move = None
 
-    is_max = (turn == player)
+        is_max = (turn == player)
 
-    if is_max:
-        max_eval = float('-inf')
-        for move in generate_all_possible_moves(board, player):
-            # Apply move for max
-            new_board = apply_move(board, move)
-            eval, _ = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player)
-            if eval > max_eval:
-                max_eval = eval
-                best_move = move
-            alpha = max(alpha, eval)
-            if beta <= alpha:
-                break  # Beta cut-off
-        return max_eval, best_move
-    else:
-        min_eval = float('inf')
-        for move in generate_all_possible_moves(board, player):
-            # Apply move for min
-            new_board = apply_move(board, move)
-            eval, _ = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player)
-            if eval < min_eval:
-                min_eval = eval
-                best_move = move
-            beta = min(beta, eval)
-            if beta <= alpha:
-                break  # Alpha cut-off
-        return min_eval, best_move
+        if is_max:
+            max_eval = float('-inf')
+            for move in generate_all_possible_moves(board, player):
+                # Apply move for max
+                new_board = apply_move(board, move)
+                eval, _ = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player)
+                if eval > max_eval:
+                    max_eval = eval
+                    best_move = move
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break  # Beta cut-off
+            return max_eval, best_move
+        else:
+            min_eval = float('inf')
+            for move in generate_all_possible_moves(board, player):
+                # Apply move for min
+                new_board = apply_move(board, move)
+                eval, _ = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player)
+                if eval < min_eval:
+                    min_eval = eval
+                    best_move = move
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break  # Alpha cut-off
+            return min_eval, best_move
+    except Exception as e:
+        logger.error(f"Error in minimax_alpha_beta: {e}")
+        raise
 
 
 def heuristic_evaluation(board, turn, player):
@@ -88,48 +92,53 @@ def heuristic(board, turn):
         return heuristic_black(board)
     
 def heuristic_white(board):
+    try:
+        # Points for each eaten black piece
+        eaten_blacks_points = (16 - stats.count_pieces(board, 'BLACK')) * 10
 
-    # Points for each eaten black piece
-    eaten_blacks_points = (16 - stats.count_pieces(board, 'BLACK')) * 10
+        # Points for the sides of the king
+        free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers = stats.king_free_sides(board)
+        white_blockers_points = white_blockers * 20
+        free_sides_points = free_sides * 10
+        castle_blockers_points = castle_blockers * -5
 
-    # Points for the sides of the king
-    free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers= stats.king_free_sides(board)
-    white_blockers_points = white_blockers * 20
-    free_sides_points = free_sides * 10
-    castle_blockers_points = castle_blockers * -5
+        # Points for the position of the king
+        winning_positioning_points = stats.king_winning_direction_score(board) * 15
 
-    # Points for the position of the king
-    winning_positioning_points = stats.king_winning_direction_score(board) * 15
+        # Points for the checkmate
+        black_in_check_mate_points = 0
+        if stats.black_checkmate(board):
+            black_in_check_mate_points = 50
 
-    # Points for the chack mate
-    black_in_check_mate_points = 0
-    if stats.black_checkmate(board):
-        black_in_check_mate_points = 50
-    
-
-    return eaten_blacks_points + white_blockers_points + free_sides_points + castle_blockers_points + winning_positioning_points + black_in_check_mate_points
+        return eaten_blacks_points + white_blockers_points + free_sides_points + castle_blockers_points + winning_positioning_points + black_in_check_mate_points
+    except Exception as e:
+        logger.error(f"Error in heuristic_white: {e}")
+        raise
 
 def heuristic_black(board):
-    score = 0
+    try:
+        score = 0
 
-    # Points for each eaten black piece
-    eaten_whites_points = (8 - stats.count_pieces(board, 'WHITE')) * 15
+        # Points for each eaten black piece
+        eaten_whites_points = (8 - stats.count_pieces(board, 'WHITE')) * 15
 
-    # Points for the position of the king
-    winning_positioning_points = stats.king_winning_direction_score(board) * 15
+        # Points for the position of the king
+        winning_positioning_points = stats.king_winning_direction_score(board) * 15
 
-    # Points for the sides of the king
-    free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers= stats.king_free_sides(board)
-    black_blockers_points = black_blockers * 10 * (1+winning_positioning_points)
-    castle_blockers_points = castle_blockers * 5
+        # Points for the sides of the king
+        free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers = stats.king_free_sides(board)
+        black_blockers_points = black_blockers * 10 * (1 + winning_positioning_points)
+        castle_blockers_points = castle_blockers * 5
 
-    # Points for the chack mate
-    white_in_check_mate_points = 0
-    if stats.white_checkmate(board):
-        white_in_check_mate_points = 100
-    
+        # Points for the checkmate
+        white_in_check_mate_points = 0
+        if stats.white_checkmate(board):
+            white_in_check_mate_points = 100
 
-    return eaten_whites_points + black_blockers_points + castle_blockers_points + winning_positioning_points + white_in_check_mate_points
+        return eaten_whites_points + black_blockers_points + castle_blockers_points + winning_positioning_points + white_in_check_mate_points
+    except Exception as e:
+        logger.error(f"Error in heuristic_black: {e}")
+        raise
    
 
 def apply_move(board, move):
@@ -141,22 +150,26 @@ def apply_move(board, move):
     Returns:
         new_board: new board state after applying the move
     '''
-    from_pos, to_pos = move
-    from_row, from_col = from_pos
-    to_row, to_col = to_pos
+    try:
+        from_pos, to_pos = move
+        from_row, from_col = from_pos
+        to_row, to_col = to_pos
 
-    new_board = [row.copy() for row in board]
-    new_board[to_row][to_col] = new_board[from_row][from_col]
-    new_board[from_row][from_col] = 'EMPTY'
+        new_board = [row.copy() for row in board]
+        new_board[to_row][to_col] = new_board[from_row][from_col]
+        new_board[from_row][from_col] = 'EMPTY'
 
-    # Check if a piece is captured
-    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-    for dr, dc in directions:
-        if is_within_bounds(to_row + dr*2, to_col + dc*2, new_board) and new_board[to_row + dr][to_col + dc] in enemies[new_board[to_row][to_col]] and (new_board[to_row + dr*2][to_col + dc*2] in allies[new_board[to_row][to_col]] or ((to_row + dr*2, to_col + dc*2) in citadels and (to_row + dr, to_col + dc) not in citadels)):
-            if new_board[to_row + dr][to_col + dc] != 'KING':
-                new_board[to_row + dr][to_col + dc] = empty[to_row + dr][to_col + dc]
+        # Check if a piece is captured
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+        for dr, dc in directions:
+            if is_within_bounds(to_row + dr*2, to_col + dc*2, new_board) and new_board[to_row + dr][to_col + dc] in enemies[new_board[to_row][to_col]] and (new_board[to_row + dr*2][to_col + dc*2] in allies[new_board[to_row][to_col]] or ((to_row + dr*2, to_col + dc*2) in citadels and (to_row + dr, to_col + dc) not in citadels)):
+                if new_board[to_row + dr][to_col + dc] != 'KING':
+                    new_board[to_row + dr][to_col + dc] = empty[to_row + dr][to_col + dc]
 
-    return new_board
+        return new_board
+    except Exception as e:
+        logger.error(f"Error in apply_move: {e}")
+        raise
 
 
 def get_opposite_turn(turn):
@@ -167,19 +180,23 @@ def get_opposite_turn(turn):
 
 
 def is_game_over(board):
-    # 1. Check if the king is in an escape cell (white wins)
-    king_position = find_king_position(board)
-    escape_cells = get_winning_positions()
-    if king_position and king_position in escape_cells:
-        return 'white'  # White player wins
-    # 2. Check if the king is captured (black wins)
-    if is_king_captured(board):
-        return 'black'  # Black player wins
-    # 3. Check if a player has no possible moves (the other player wins)
-    if not generate_all_possible_moves(board, 'white'):
-        return 'black'  # Black player wins
-    if not generate_all_possible_moves(board, 'black'):
-        return 'white'  # White player wins
+    try:
+        # 1. Check if the king is in an escape cell (white wins)
+        king_position = find_king_position(board)
+        escape_cells = get_winning_positions()
+        if king_position and king_position in escape_cells:
+            return 'white'  # White player wins
+        # 2. Check if the king is captured (black wins)
+        if is_king_captured(board):
+            return 'black'  # Black player wins
+        # 3. Check if a player has no possible moves (the other player wins)
+        if not generate_all_possible_moves(board, 'white'):
+            return 'black'  # Black player wins
+        if not generate_all_possible_moves(board, 'black'):
+            return 'white'  # White player wins
+    except Exception as e:
+        logger.error(f"Error in is_game_over: {e}")
+        raise
 
 """     # 4. Check for a repeating board state (draw)
     if board in previous_states:
@@ -196,6 +213,30 @@ def  is_within_bounds(row, col, board):
     '''
     return 0 <= row < len(board) and 0 <= col < len(board[0])
 
+
+def format_board(board):
+    """Restituisce una rappresentazione formattata della scacchiera 9x9 come stringa."""
+    # Dizionario per sostituire i valori con le iniziali
+    symbols = {
+        'WHITE': 'W',
+        'BLACK': 'B',
+        'KING': 'K',
+        'THRONE': 'T',
+        'EMPTY': ' '
+    }
+
+    # Intestazione delle colonne
+    column_labels = "A B C D E F G H I"
+    board_str = "    " + "   ".join(column_labels.split()) + "\n"
+    board_str += "  +" + "---+" * 9 + "\n"
+
+    # Aggiungi le righe della scacchiera
+    for i, row in enumerate(board):
+        row_str = f"{i+1} | " + " | ".join(f"{symbols[cell]}" for cell in row) + " |"
+        board_str += row_str + "\n"
+        board_str += "  +" + "---+" * 9 + "\n"
+
+    return board_str
 
 ### Move validation function ###
 

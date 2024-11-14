@@ -57,7 +57,6 @@ class GameDriver:
             len_bytes = struct.unpack('>i', self.recvall(4))[0]
             current_state_server_bytes = self.recvall(len_bytes)
             game_state = json.loads(current_state_server_bytes.decode())
-            logger.debug(f"Received game state: {game_state}")
             return game_state
         except Exception as e:
             logger.error(f"Failed to receive game state: {e}")
