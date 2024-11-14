@@ -98,6 +98,7 @@ castle_position = (4, 4)
 def king_free_sides(board):
     try:
         king_position = get_king_position(board)
+        logger.debug(f"King position: {king_position}")
 
         free_sides = 0
         blocked_sides = 0
