@@ -74,13 +74,15 @@ def heuristic_evaluation(board, turn, player):
     Returns:
         score: evaluation score for the current board state, negative if it's a better move for min, positive if it's a better move for max
     '''
-    if turn==player:
+    # Since i have already changed the turn in the minimax function, in order to choose the right heuristic i have to reason as i was in the next turn
+    if turn!=player:
         return heuristic(board, turn)
     else:
         return -heuristic(board, turn)
     
 def heuristic(board, turn):
-    if turn == 'white':
+    # Same as before, i have to reason as i was in the next turn
+    if turn != 'white':
         return heuristic_white(board)
     else:
         return heuristic_black(board)
