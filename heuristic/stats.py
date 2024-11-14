@@ -98,13 +98,15 @@ castle_position = (4, 4)
 def king_free_sides(board):
     try:
         king_position = get_king_position(board)
-        logger.debug(f"King position: {king_position}")
 
         free_sides = 0
         blocked_sides = 0
         black_blockers = 0
         white_blockers = 0
         castle_blockers = 0
+
+        if king_position[0] == 0 or king_position[0] == 8 or king_position[1] == 0 or king_position[1] == 8:
+            return 0, 0, 0, 0, 0
 
         if board[king_position[0] - 1][king_position[1]] == 'EMPTY':
             free_sides += 1
@@ -165,6 +167,8 @@ winning_positions = [(0, 1), (0, 2), (0, 6), (0, 7), (1, 0), (2, 0), (6, 0), (7,
 def black_checkmate(board):
     try:
         king_position = get_king_position(board)
+        if king_position[0] == 0 or king_position[0] == 8 or king_position[1] == 0 or king_position[1] == 8:
+            return False
         move_directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         for direction in move_directions:
             new_position = (king_position[0] + direction[0], king_position[1] + direction[1])
@@ -248,6 +252,8 @@ def king_adjacent_to_castle(king_position):
 def king_can_be_captured_between_two_blacks(board):
     try:
         king_position = get_king_position(board)
+        if king_position[0] == 0 or king_position[0] == 8 or king_position[1] == 0 or king_position[1] == 8:
+            return False
         if king_in_the_castle(king_position) or king_adjacent_to_castle(king_position):
             return False
         if (board[king_position[0] - 1][king_position[1]] == 'BLACK' or board[king_position[0] - 1][king_position[1]] in black_camps_positions) and is_empty_and_reachable(board, (king_position[0] + 1, king_position[1]), 'BLACK'):
@@ -272,6 +278,8 @@ def king_can_be_captured_between_two_blacks(board):
 def king_adjacent_to_castle_can_be_captured(board):
     try:
         king_position = get_king_position(board)
+        if king_position[0] == 0 or king_position[0] == 8 or king_position[1] == 0 or king_position[1] == 8:
+            return False
         if not king_adjacent_to_castle(king_position):
             return False
         if king_position == (3, 4):
@@ -316,6 +324,8 @@ def king_adjacent_to_castle_can_be_captured(board):
 def king_in_the_castle_can_be_captured(board):
     try:
         king_position = get_king_position(board)
+        if king_position[0] == 0 or king_position[0] == 8 or king_position[1] == 0 or king_position[1] == 8:
+            return False
         if not king_in_the_castle(king_position):
             return False
         if board[3][4] == 'BLACK' and board[4][3] == 'BLACK' and board[4][5] == 'BLACK' and is_empty_and_reachable(board, (5, 4), 'BLACK'):
@@ -384,3 +394,28 @@ def stats_of_the_board(board, turn):
         result.append("\n-------------------------------------\n")
 
     return "\n".join(result)
+
+### BOARD REPRESENTATION ###
+def format_board(board):
+    """Restituisce una rappresentazione formattata della scacchiera 9x9 come stringa."""
+    # Dizionario per sostituire i valori con le iniziali
+    symbols = {
+        'WHITE': 'W',
+        'BLACK': 'B',
+        'KING': 'K',
+        'THRONE': 'T',
+        'EMPTY': ' '
+    }
+
+    # Intestazione delle colonne
+    column_labels = "A B C D E F G H I"
+    board_str = "    " + "   ".join(column_labels.split()) + "\n"
+    board_str += "  +" + "---+" * 9 + "\n"
+
+    # Aggiungi le righe della scacchiera
+    for i, row in enumerate(board):
+        row_str = f"{i+1} | " + " | ".join(f"{symbols[cell]}" for cell in row) + " |"
+        board_str += row_str + "\n"
+        board_str += "  +" + "---+" * 9 + "\n"
+
+    return board_str
