@@ -422,6 +422,9 @@ def king_can_be_captured_between_two_blacks_infuture(board):
     try:
         king_position = get_king_position(board)
 
+        if king_position[0] == 0 or king_position[0] == 8 or king_position[1] == 0 or king_position[1] == 8:
+            return False
+
         if king_in_the_castle(king_position) or king_adjacent_to_castle(king_position):
             return False
         
@@ -458,6 +461,7 @@ def king_in_the_castle_can_be_captured_infuture(board):
         king_position = get_king_position(board)
         if not king_in_the_castle(king_position):
             return False
+
 
         # Check if there are two black pieces on two sides and two more that can fill the remaining gaps
         if board[3][4] == 'BLACK' and board[4][3] == 'BLACK':
