@@ -622,6 +622,59 @@ def king_can_checkmate_in_future(board):
         logger.error(f"An error occurred in king_can_checkmate_in_future: {e}")
         raise
 
+def king_block_in_quadrant(board):
+    '''
+    For a given board return True if the king is blocked in a quadrant
+    '''
+    try:
+
+        row, col = get_king_position(board)
+
+        # If the king is on a corridor then is not blocked
+        if row == 4 or col == 4:
+            return False
+
+        # Based on the quadrant i get the areas to check
+        orizontal = []
+        vertical = []
+        blocked_orizontal = False
+        blocked_vertical = False
+
+        if row < 4:
+            orizontal = [(2, 3), (2, 4), (2, 5), (3, 3), (3, 4), (3, 5)]
+        else:
+            orizontal = [(5, 3), (5, 4), (5, 5), (6, 3), (6, 4), (6, 5)]
+
+        if col < 4:
+            vertical = [(3, 2), (3, 3), (4, 2), (4, 3), (5, 2), (5, 3)]
+        else:
+            vertical = [(3, 5), (3, 6), (4, 5), (4, 6), (5, 5), (5, 6)]
+
+        # If the king is in one of the area then i delete that position from the list
+        if (row, col) in orizontal:
+            orizontal.remove((row, col))
+        
+        if (row, col) in vertical:
+            vertical.remove((row, col))
+
+        # For the two areas i check if are they blocked
+        for t1 in orizontal:
+            for t2 in orizontal:
+                if board[t1[0]][t1[1]] == 'BLACK' and board[t2[0]][t2[1]] == 'BLACK' and t1[0] != t2[0] and abs(t1[1] - t2[1]) < 2:
+                    blocked_orizontal = True
+
+        for t1 in vertical:
+            for t2 in vertical:
+                if board[t1[0]][t1[1]] == 'BLACK' and board[t2[0]][t2[1]] == 'BLACK' and t1[1] != t2[1] and abs(t1[0] - t2[0]) < 2:
+                    blocked_vertical = True
+
+        return blocked_orizontal and blocked_vertical
+
+    
+    except Exception as e:
+        logger.error(f"An error occurred in king_block_in_quadrant: {e}")
+        raise
+
 
 # Function stats that returns an explanation of the situation of the board 
 # This function uses all the function above in this file
