@@ -1,6 +1,7 @@
 from logger import logger
 import stats
-import random  
+import random
+from neuralNetwork_utils import create_model, prepare_input
 
 
 enemies = {'BLACK': ['WHITE'], 'WHITE': ['BLACK'], 'KING': ['BLACK']}
@@ -9,6 +10,9 @@ empty = [['EMPTY' for _ in range(9)] for _ in range(9)]
 empty[4][4] = 'THRONE'
 citadels = [(0, 3), (0, 4), (0, 5), (1, 4), (3, 0), (3, 1), (3, 2), (4, 0), (4, 2), (4, 6), (4, 8), (5, 0)]
 winning_positions = [(0, 1), (0, 2), (0, 6), (0, 7), (1, 0), (1, 8), (2, 0), (2, 8), (6, 0), (6, 8), (7, 0), (7, 8), (8, 1), (8, 2), (8, 6), (8, 7)]
+
+# Obtaining the model from the neural network
+model = create_model()
 
 ### MinMax ### 
 
@@ -30,8 +34,11 @@ def minimax_alpha_beta(board, depth, alpha, beta, turn, player):
             - best_move: Best move for the current player.
     '''
     try:
+        
+
         # Base case: depth limit reached or game over
         if depth == 0 or is_game_over(board):
+            #return neural_network_evaluation(board, turn, player, model), None  # Return score and no move using the neural network
             return heuristic_evaluation(board, turn, player), None  # Return score and no move
 
         best_move = None
@@ -355,7 +362,39 @@ def heuristic_black(board):
         raise
     """
 
+### HEURISTIC WITH NEURAL NETWORK ###
+def neural_network_evaluation(board, turn, player, model):
+    '''
+    Heuristic evaluation function for the current board state
+    Args:
+        board: current board state
+        turn: current turn (black/white)
+        player: player color (black/white)
+    Returns:
+        score: evaluation score for the current board state, negative if it's a better move for min, positive if it's a better move for max
+    '''
+    try:
+        white_winning_prob = model.predict(prepare_input(board, turn))
+        black_winning_prob = 1 - white_winning_prob
 
+        # Since i have already changed the turn in the minimax function, in order to choose the right heuristic i have to reason as i was in the next turn
+        if turn!=player:
+            if player == 'white':
+                #print(f"Turn:{turn}. Player: {player}. White winning prob: {white_winning_prob}")
+                return white_winning_prob
+            else:
+                #print(f"Turn:{turn}. Player: {player}. Black winning prob: {black_winning_prob}")
+                return black_winning_prob
+        else:
+            if player == 'white':
+                #print(f"Turn:{turn}. Player: {player}. White winning prob: {white_winning_prob}")
+                return -white_winning_prob
+            else:
+                #print(f"Turn:{turn}. Player: {player}. Black winning prob: {black_winning_prob}")
+                return -black_winning_prob
+    except Exception as e:
+        logger.error(f"Error in neural_network_evaluation: {e}")
+        raise
 
 ### APPLY MOVE ###
 def apply_move(board, move):

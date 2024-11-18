@@ -41,7 +41,7 @@ class Player:
                 logger.debug(f"Stats of the board: {stats_of_the_board(board, self.color)}")
 
                 # Find the best move using minmax algorithm
-                best_score, best_move = minimax_alpha_beta(board, depth=3, alpha=float('-inf'), beta=float('inf'), turn=turn, player=self.color)
+                best_score, best_move = minimax_alpha_beta(board, depth=1, alpha=float('-inf'), beta=float('inf'), turn=turn, player=self.color)
                 logger.info(f"Best move for black: {best_move} with score: {best_score}")
 
                 # Invia la mossa al server
