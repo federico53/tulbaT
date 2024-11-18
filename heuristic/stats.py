@@ -345,6 +345,274 @@ def white_checkmate(board):
         logger.error(f"An error occurred in white_checkmate: {e}")
         raise
 
+
+# function that returns if the white is not yet in checkmate, but the blacks could kill the king in a couple of turns
+#the situations are the same of white_checkmate
+    #king is not in the castle nor adjacent to it, but king can be approached on one side and you have another black pawn which can go to the other side
+    #king is in the castle and there are already two black pawns adjacent to him, and two more that could reach him
+    #king is adjacent to the castle and there is one black pawn and two more that can reach him
+#in these two last cases, it's necessary that those two black pawns that can get to the king aren't the same.
+#maybe change is_empty_and_reachable so that it returns also the starting position, and check whether the positions of the two is different.
+
+def black_can_checkmate_in_future(board):
+    try:
+        return king_can_be_captured_between_two_blacks_infuture(board) or king_adjacent_to_castle_can_be_captured_infuture(board) or king_in_the_castle_can_be_captured_infuture(board)
+    except Exception as e:
+        logger.error(f"An error occurred in white_checkmate: {e}")
+        raise
+
+def is_empty_and_reachable_version2(board, position, color, exceptional_start=None):
+    """
+    Check if a position is empty and reachable by a piece of the specified color, excluding an exceptional start position.
+    Args:
+        board: Current board state.
+        position: Target position to check.
+        color: Color of the piece to check for reachability.
+        exceptional_start: Position to exclude from the check (default is None).
+    Returns:
+        tuple: (bool, tuple) - True if the position is reachable, and the starting position of the piece that can reach it.
+               False if the position is not reachable, and None.
+    """
+    try:
+        if board[position[0]][position[1]] != 'EMPTY':
+            return False, None
+
+        move_directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+        # Check for the special rule
+        if position in black_camps_positions:
+            for direction in move_directions:
+                new_position = (position[0] + direction[0], position[1] + direction[1])
+                while new_position[0] >= 0 and new_position[0] <= 8 and new_position[1] >= 0 and new_position[1] <= 8:
+                    if new_position in black_camps_positions:
+                        if board[new_position[0]][new_position[1]] == color and new_position != exceptional_start:
+                            return True, new_position
+                        new_position = (new_position[0] + direction[0], new_position[1] + direction[1])
+                    else:
+                        break
+                    if board[new_position[0]][new_position[1]] != 'EMPTY':
+                        break
+
+        for direction in move_directions:
+            new_position = (position[0] + direction[0], position[1] + direction[1])
+            while new_position[0] >= 0 and new_position[0] <= 8 and new_position[1] >= 0 and new_position[1] <= 8:
+                if board[new_position[0]][new_position[1]] == color and new_position != exceptional_start:  # if the position is a piece of the color and not the exceptional start
+                    return True, new_position
+                if board[new_position[0]][new_position[1]] != 'EMPTY':  # if the position is not empty
+                    break
+                if new_position in black_camps_positions or new_position == castle_position:  # if the position is a black camp or the castle
+                    break
+                new_position = (new_position[0] + direction[0], new_position[1] + direction[1])
+        return False, None
+    except Exception as e:
+        logger.error(f"An error occurred in is_empty_and_reachable_version2: {e}")
+        raise
+
+def king_can_be_captured_between_two_blacks_infuture(board):
+    try:
+        king_position = get_king_position(board)
+
+        if king_in_the_castle(king_position) or king_adjacent_to_castle(king_position):
+            return False
+        
+        reachable, starting_position = is_empty_and_reachable_version2(board, (king_position[0] - 1, king_position[1]),'BLACK')
+        if reachable and is_empty_and_reachable_version2(board, (king_position[0] + 1, king_position[1]), 'BLACK', starting_position)[0]:
+            return True
+        
+        reachable, starting_position = is_empty_and_reachable_version2(board, (king_position[0] + 1, king_position[1]),'BLACK')
+        if reachable and is_empty_and_reachable_version2(board, (king_position[0] - 1, king_position[1]), 'BLACK', starting_position)[0]:
+            return True
+        
+        reachable, starting_position = is_empty_and_reachable_version2(board, (king_position[0], king_position[1]-1),'BLACK')
+        if reachable and is_empty_and_reachable_version2(board, (king_position[0], king_position[1]+1), 'BLACK', starting_position)[0]:
+            return True
+        
+        reachable, starting_position = is_empty_and_reachable_version2(board, (king_position[0], king_position[1]+1),'BLACK')
+        if reachable and is_empty_and_reachable_version2(board, (king_position[0], king_position[1]-1), 'BLACK', starting_position)[0]:
+            return True
+        
+        return False
+    except Exception as e:
+        logger.error(f"An error occurred in king_can_be_captured_between_two_blacks_infuture: {e}")
+        raise
+
+def king_in_the_castle_can_be_captured_infuture(board):
+    """
+    Check if the king in the castle can be captured by two black pieces on two sides and two more that can fill the remaining gaps.
+    Args:
+        board: Current board state.
+    Returns:
+        bool: True if the king can be captured, False otherwise.
+    """
+    try:
+        king_position = get_king_position(board)
+        if not king_in_the_castle(king_position):
+            return False
+
+        # Check if there are two black pieces on two sides and two more that can fill the remaining gaps
+        if board[3][4] == 'BLACK' and board[4][3] == 'BLACK':
+            reachable1, start_pos1 = is_empty_and_reachable_version2(board, (4, 5), 'BLACK')
+            reachable2, _ = is_empty_and_reachable_version2(board, (5, 4), 'BLACK', exceptional_start=start_pos1)
+            if reachable1 and reachable2:
+                return True
+
+        if board[3][4] == 'BLACK' and board[4][5] == 'BLACK':
+            reachable1, start_pos1 = is_empty_and_reachable_version2(board, (4, 3), 'BLACK')
+            reachable2, _ = is_empty_and_reachable_version2(board, (5, 4), 'BLACK', exceptional_start=start_pos1)
+            if reachable1 and reachable2:
+                return True
+
+        if board[4][3] == 'BLACK' and board[5][4] == 'BLACK':
+            reachable1, start_pos1 = is_empty_and_reachable_version2(board, (4, 5), 'BLACK')
+            reachable2, _ = is_empty_and_reachable_version2(board, (3, 4), 'BLACK', exceptional_start=start_pos1)
+            if reachable1 and reachable2:
+                return True
+
+        if board[4][5] == 'BLACK' and board[5][4] == 'BLACK':
+            reachable1, start_pos1 = is_empty_and_reachable_version2(board, (4, 3), 'BLACK')
+            reachable2, _ = is_empty_and_reachable_version2(board, (3, 4), 'BLACK', exceptional_start=start_pos1)
+            if reachable1 and reachable2:
+                return True
+
+        if board[3][4] == 'BLACK' and board[5][4] == 'BLACK':
+            reachable1, start_pos1 = is_empty_and_reachable_version2(board, (4, 3), 'BLACK')
+            reachable2, _ = is_empty_and_reachable_version2(board, (4, 5), 'BLACK', exceptional_start=start_pos1)
+            if reachable1 and reachable2:
+                return True
+
+        if board[4][3] == 'BLACK' and board[4][5] == 'BLACK':
+            reachable1, start_pos1 = is_empty_and_reachable_version2(board, (3, 4), 'BLACK')
+            reachable2, _ = is_empty_and_reachable_version2(board, (5, 4), 'BLACK', exceptional_start=start_pos1)
+            if reachable1 and reachable2:
+                return True
+
+        return False
+    except Exception as e:
+        logger.error(f"An error occurred in king_in_the_castle_can_be_captured_infuture: {e}")
+        raise
+
+def king_adjacent_to_castle_can_be_captured_infuture(board):
+    """
+    Check if the king adjacent to the castle can be captured by one black piece and two more that can fill the remaining gaps.
+    Args:
+        board: Current board state.
+    Returns:
+        bool: True if the king can be captured, False otherwise.
+    """
+    try:
+        king_position = get_king_position(board)
+        if not king_adjacent_to_castle(king_position):
+            return False
+
+        # Check if there is one black piece and two more that can fill the remaining gaps
+        if king_position == (3, 4):
+            if (board[3][3] == 'BLACK' or board[3][3] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (3, 5), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (4, 4), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+            if (board[3][5] == 'BLACK' or board[3][5] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (3, 3), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (4, 4), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+            if (board[4][4] == 'BLACK' or board[4][4] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (3, 3), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (3, 5), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+
+        if king_position == (5, 4):
+            if (board[5][3] == 'BLACK' or board[5][3] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (5, 5), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (4, 4), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+            if (board[5][5] == 'BLACK' or board[5][5] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (5, 3), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (4, 4), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+            if (board[4][4] == 'BLACK' or board[4][4] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (5, 3), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (5, 5), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+
+        if king_position == (4, 3):
+            if (board[3][3] == 'BLACK' or board[3][3] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (5, 3), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (4, 4), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+            if (board[5][3] == 'BLACK' or board[5][3] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (3, 3), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (4, 4), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+            if (board[4][4] == 'BLACK' or board[4][4] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (3, 3), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (5, 3), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+
+        if king_position == (4, 5):
+            if (board[3][5] == 'BLACK' or board[3][5] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (5, 5), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (4, 4), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+            if (board[5][5] == 'BLACK' or board[5][5] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (3, 5), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (4, 4), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+            if (board[4][4] == 'BLACK' or board[4][4] in black_camps_positions):
+                reachable1, start_pos1 = is_empty_and_reachable_version2(board, (3, 5), 'BLACK')
+                reachable2, _ = is_empty_and_reachable_version2(board, (5, 5), 'BLACK', exceptional_start=start_pos1)
+                if reachable1 and reachable2:
+                    return True
+
+        return False
+    except Exception as e:
+        logger.error(f"An error occurred in king_adjacent_to_castle_can_be_captured: {e}")
+        raise
+
+def king_can_checkmate_in_future(board):
+    """
+    Check if the king can win in two moves.
+    Args:
+        board: Current board state.
+    Returns:
+        bool: True if the king can win in two moves, False otherwise.
+    """
+    try:
+        king_position = get_king_position(board)
+        move_directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+        # Check if the king can win in two moves
+        for direction in move_directions:
+            first_move = (king_position[0] + direction[0], king_position[1] + direction[1])
+            while first_move[0] >= 0 and first_move[0] <= 8 and first_move[1] >= 0 and first_move[1] <= 8:
+                if board[first_move[0]][first_move[1]] == 'EMPTY':
+                    for second_direction in move_directions:
+                        second_move = (first_move[0] + second_direction[0], first_move[1] + second_direction[1])
+                        while second_move[0] >= 0 and second_move[0] <= 8 and second_move[1] >= 0 and second_move[1] <= 8:
+                            if second_move in winning_positions:
+                                return True
+                            if board[second_move[0]][second_move[1]] != 'EMPTY' or second_move in black_camps_positions or second_move == castle_position:
+                                break
+                            second_move = (second_move[0] + second_direction[0], second_move[1] + second_direction[1])
+                if board[first_move[0]][first_move[1]] != 'EMPTY' or first_move in black_camps_positions or first_move == castle_position:
+                    break
+                first_move = (first_move[0] + direction[0], first_move[1] + direction[1])
+
+        return False
+    except Exception as e:
+        logger.error(f"An error occurred in king_can_checkmate_in_future: {e}")
+        raise
+
+
 # Function stats that returns an explanation of the situation of the board 
 # This function uses all the function above in this file
 

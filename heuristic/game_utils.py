@@ -158,13 +158,63 @@ def heuristic_evaluation(board, turn, player):
         return -heuristic(board, turn)
     
 def heuristic(board, turn):
-    # Same as before, i have to reason as i was in the next turn
+    # Same as before, i have to reason as if i was in the next turn
     if turn != 'white':
         return heuristic_white(board)
     else:
         return heuristic_black(board)
     
+
 def heuristic_white(board):
+    try:
+        # 1.   TODO
+        #king position
+        #2. TODO
+        #king sides
+
+        #3. black in checkmate
+        points_king_checkmate = 0
+        if stats.black_checkmate(board):
+            points_king_checkmate = 100
+
+        #4. difference between black eaten and white lost
+        white_lost = 8 - stats.count_pieces(board, 'WHITE')
+        black_eaten = 16 - stats.count_pieces(board, 'BLACK')
+        diff_between_white_black = 1600*(black_eaten - white_lost)*200
+        
+        #5. eaten black
+        score_black_eaten = 5000*black_eaten
+
+        #6. king not blocked in quadrant 10000  
+        score_king_not_blocked_quadrant = 0
+        # TODO
+        
+        #7. black can't make checkmate in one move
+        score_king_not_checkmated_infuture = 0
+        if not stats.black_can_checkmate_in_future(board):
+            score_king_not_checkmated_infuture = 20000
+        
+        #8. king not in checkmate from black
+        score_king_not_checkmated = 0
+        if not stats.white_checkmate(board):
+            score_black_cant_checkmate = 40000
+
+        # 9. If black has not won
+        white_didnt_win_points = 0
+        if not is_game_over(board) == 'black':
+            white_didnt_win_points = 80000
+
+        # 10. If white has won
+        black_won_points = 0
+        if is_game_over(board) == 'white':
+            black_won_points = 160000
+
+
+    except Exception as e:
+        logger.error(f"Error in heuristic_white: {e}")
+
+#obsolete
+""" def heuristic_white(board):
     try:
         # Points for each eaten black piece
         eaten_blacks_points = (16 - stats.count_pieces(board, 'BLACK')) * 10
@@ -186,11 +236,101 @@ def heuristic_white(board):
         return eaten_blacks_points + white_blockers_points + free_sides_points + castle_blockers_points + winning_positioning_points + black_in_check_mate_points
     except Exception as e:
         logger.error(f"Error in heuristic_white: {e}")
+        raise """
+
+#support function
+def calculate_black_starting_positions_points(board):
+    """
+    Calculate the points for black pieces based on their starting positions on the board.
+
+    Returns:
+        int: The total points for black pieces based on their starting positions.
+    Raises:
+        Exception: If an error occurs during the calculation.
+    """
+    
+    try:
+        points = 0
+
+        top_positions = [(0,4), (8,4), (4,0), (4,8)]
+        medium_positions = [(1,4), (7,4), (4,1), (4,7)]
+        low_positions = [(0,3),(0,5),(3,0),(5,0),(3,8),(5,8),(8,3),(8,5)]
+
+        # Assign points based on the position of the black pieces
+        for row, col in top_positions:
+            if board[row][col] == 'BLACK':
+                points += 3
+
+        for row, col in medium_positions:
+            if board[row][col] == 'BLACK':
+                points += 2
+
+        for row, col in low_positions:
+            if board[row][col] == 'BLACK':
+                points += 1
+
+        return points
+    except Exception as e:
+        logger.error(f"Error in calculate_black_starting_positions_points: {e}")
         raise
 
 def heuristic_black(board):
     try:
         score = 0
+        
+        # 1. Points for the starting positions of the black pieces
+        black_starting_positions_points = calculate_black_starting_positions_points(board)
+
+        # 2. Difference between white pieces eaten and black pieces lost
+        white_eaten = 8 - stats.count_pieces(board, 'WHITE')
+        black_lost = 16 - stats.count_pieces(board, 'BLACK')
+        diff_between_white_black = 480 + (white_eaten - black_lost) * 30
+
+        # 3. Points for each white piece eaten
+        points_white_eaten = white_eaten * 750
+
+        # 4. If the king cannot checkmate in one move
+        king_not_checkmate_points = 0
+        if not stats.king_can_checkmate_in_future(board):
+            king_not_checkmate_points = 6750
+
+        # 5. If the king is in checkmate
+        king_not_checkmate_points = 0
+        if stats.white_checkmate(board):
+            king_not_checkmate_points = 13500
+
+        # 6. If black is not in checkmate
+        black_checkmate_points = 0
+        if not stats.black_checkmate(board):
+            black_checkmate_points = 27000
+
+        # 7. If white has not won
+        white_didnt_win_points = 0
+        if not is_game_over(board) == 'white':
+            white_didnt_win_points = 54000
+
+        # 8. If black has won
+        black_won_points = 0
+        if is_game_over(board) == 'black':
+            black_won_points = 108000
+
+        return (diff_between_white_black + points_white_eaten + king_not_checkmate_points +
+                black_checkmate_points + king_not_checkmate_points + white_didnt_win_points + black_won_points)
+    except Exception as e:
+        logger.error(f"Error in heuristic_black: {e}")
+        raise
+
+
+#OBSOLETE!!! can be deleted when we are sure that the new heuristics works
+""" def heuristic_black(board):
+    try:
+        score = 0
+
+        white_eaten = 8 - stats.count_pieces(board, 'WHITE')
+        black_eaten = 16 - stats.count_pieces(board, 'BLACK')
+        diff_between_white_black = 480 + (white_eaten - black_eaten)*30
+
+        points_white_eaten = 750 * white_eaten
 
         # Points for each eaten black piece
         eaten_whites_points = (8 - stats.count_pieces(board, 'WHITE')) * 15
@@ -212,7 +352,7 @@ def heuristic_black(board):
     except Exception as e:
         logger.error(f"Error in heuristic_black: {e}")
         raise
-   
+    """
 
 
 
