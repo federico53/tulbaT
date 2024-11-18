@@ -679,6 +679,45 @@ def king_block_in_quadrant(board):
         logger.error(f"An error occurred in king_block_in_quadrant: {e}")
         raise
 
+# Function that return the situation of the king:
+
+    # 3 blacks and 1 empty around the king
+    # 2 opposit black and 2 empty around the king
+    # 2 opposit black and 2 empty around the king 
+    # 1 black and 3 empty around the king
+
+
+
+    # 3 white and 1 empty around the king
+    # 2 opposite white and 2 empty around the king
+    # 2 adjacent white and 2 empty around the king
+    # 1 white and 3 empty around the king
+def situation_king_sides(board):
+    free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers = king_free_sides(board)
+    king_position=get_king_position(board)
+    if king_position[0] == 0 or king_position[0] == 8 or king_position[1] == 0 or king_position[1] == 8:
+            return False, False
+    
+    white_opposite=False
+    black_opposite=False
+    
+    if white_blockers==2:
+        if board[king_position[0]-1][king_position[1]] == 'WHITE' and board[king_position[0]+1][king_position[1]] == 'WHITE':
+            white_opposite=True
+        if board[king_position[0]][king_position[1]-1] == 'WHITE' and board[king_position[0]][king_position[1]+1] == 'WHITE':
+            white_opposite=True
+    
+    if black_blockers==2:
+        if (board[king_position[0]-1][king_position[1]] == 'BLACK' or board[king_position[0]-1][king_position[1]] in black_camps_positions) and (board[king_position[0]+1][king_position[1]] == 'BLACK' or board[king_position[0]+1][king_position[1]] == 'BLACK'):
+            black_opposite=True
+        if (board[king_position[0]][king_position[1]-1] == 'BLACK' or board[king_position[0]][king_position[1]-1] in black_camps_positions) and (board[king_position[0]][king_position[1]+1] == 'BLACK' or board[king_position[0]][king_position[1]+1] == 'BLACK'):
+            black_opposite=True
+    
+    return white_opposite, black_opposite
+            
+        
+
+
 
 # Function stats that returns an explanation of the situation of the board 
 # This function uses all the function above in this file
