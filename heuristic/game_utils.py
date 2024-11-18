@@ -197,7 +197,7 @@ def heuristic_white(board):
         #8. king not in checkmate from black
         score_king_not_checkmated = 0
         if not stats.white_checkmate(board):
-            score_black_cant_checkmate = 40000
+            score_king_not_checkmated = 40000
 
         # 9. If black has not won
         white_didnt_win_points = 0
@@ -208,6 +208,9 @@ def heuristic_white(board):
         black_won_points = 0
         if is_game_over(board) == 'white':
             black_won_points = 160000
+
+        #TODO AGGIUNGERE I PUNTEGGI NUOVI CHE PRIMA ERANO COMMENTATI
+        return (points_king_checkmate + diff_between_white_black + score_black_eaten + score_king_not_blocked_quadrant + score_king_not_checkmated_infuture + score_king_not_checkmated + white_didnt_win_points + black_won_points)
 
 
     except Exception as e:
@@ -276,7 +279,6 @@ def calculate_black_starting_positions_points(board):
 
 def heuristic_black(board):
     try:
-        score = 0
         
         # 1. Points for the starting positions of the black pieces
         black_starting_positions_points = calculate_black_starting_positions_points(board)
@@ -290,9 +292,9 @@ def heuristic_black(board):
         points_white_eaten = white_eaten * 750
 
         # 4. If the king cannot checkmate in one move
-        king_not_checkmate_points = 0
+        king_not_checkamate_inonemove = 0
         if not stats.king_can_checkmate_in_future(board):
-            king_not_checkmate_points = 6750
+            king_not_checkamate_inonemove = 6750
 
         # 5. If the king is in checkmate
         king_not_checkmate_points = 0
@@ -314,8 +316,7 @@ def heuristic_black(board):
         if is_game_over(board) == 'black':
             black_won_points = 108000
 
-        return (diff_between_white_black + points_white_eaten + king_not_checkmate_points +
-                black_checkmate_points + king_not_checkmate_points + white_didnt_win_points + black_won_points)
+        return black_starting_positions_points + diff_between_white_black + points_white_eaten + king_not_checkamate_inonemove + king_not_checkmate_points + black_checkmate_points + white_didnt_win_points + black_won_points
     except Exception as e:
         logger.error(f"Error in heuristic_black: {e}")
         raise
