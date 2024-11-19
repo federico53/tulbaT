@@ -1,7 +1,7 @@
 from logger import logger
 import stats
 import random
-from neuralNetwork_utils import create_model, prepare_input
+from tensorflow.keras.models import load_model
 
 
 enemies = {'BLACK': ['WHITE'], 'WHITE': ['BLACK'], 'KING': ['BLACK']}
@@ -12,11 +12,13 @@ citadels = [(0, 3), (0, 4), (0, 5), (1, 4), (3, 0), (3, 1), (3, 2), (4, 0), (4, 
 winning_positions = [(0, 1), (0, 2), (0, 6), (0, 7), (1, 0), (1, 8), (2, 0), (2, 8), (6, 0), (6, 8), (7, 0), (7, 8), (8, 1), (8, 2), (8, 6), (8, 7)]
 
 # Obtaining the model from the neural network
-model = create_model()
+print("Loading the model...")
+model = load_model('../neuralNetwork/tablut_model_NN.keras')
+print("Model loaded successfully!")
 
 ### MinMax ### 
 
-def minimax_alpha_beta(board, depth, alpha, beta, turn, player):
+def minimax_alpha_beta(board, depth, mode, alpha, beta, turn, player):
     '''
     Minimax algorithm with alpha-beta pruning.
     
@@ -38,8 +40,11 @@ def minimax_alpha_beta(board, depth, alpha, beta, turn, player):
 
         # Base case: depth limit reached or game over
         if depth == 0 or is_game_over(board):
-            #return neural_network_evaluation(board, turn, player, model), None  # Return score and no move using the neural network
-            return heuristic_evaluation(board, turn, player), None  # Return score and no move
+            if mode == 1:
+                return heuristic_evaluation(board, turn, player), None  # Return score and no move using the heuristic
+            elif mode == 2:
+                return neural_network_evaluation(board, turn, player, model), None  # Return score and no move using the neural network
+            #return heuristic_evaluation(board, turn, player), None  # Return score and no move
 
         best_move = None
 
@@ -50,7 +55,7 @@ def minimax_alpha_beta(board, depth, alpha, beta, turn, player):
             for move in generate_all_possible_moves(board, player):
                 # Apply move for max
                 new_board = apply_move(board, move)
-                eval, _ = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player)
+                eval, _ = minimax_alpha_beta(new_board, depth - 1, mode, alpha, beta, get_opposite_turn(turn), player)
                 if eval > max_eval:
                     max_eval = eval
                     best_move = move
@@ -63,7 +68,7 @@ def minimax_alpha_beta(board, depth, alpha, beta, turn, player):
             for move in generate_all_possible_moves(board, player):
                 # Apply move for min
                 new_board = apply_move(board, move)
-                eval, _ = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player)
+                eval, _ = minimax_alpha_beta(new_board, depth - 1, mode, alpha, beta, get_opposite_turn(turn), player)
                 if eval < min_eval:
                     min_eval = eval
                     best_move = move
@@ -395,6 +400,42 @@ def neural_network_evaluation(board, turn, player, model):
     except Exception as e:
         logger.error(f"Error in neural_network_evaluation: {e}")
         raise
+
+### UTILS NEURAL NETWORK ###
+import numpy as np
+# Funzione per convertire la board in formato numerico
+def convert_board_state_v2(board_state):
+    # Definisco una mappatura dei valori
+    mapping = {
+        "EMPTY": 0,   # Cella vuota
+        "BLACK": 1,   # Pezzo nero
+        "WHITE": 2,   # Pezzo bianco
+        "KING": 3,    # Re
+        "THRONE": 4   # Trono
+    }
+    
+    # Converto ogni cella della board nel corrispondente valore numerico
+    board_numeric = []
+    for row in board_state:
+        for el in row:
+            row_values = [mapping[el]]
+            board_numeric.extend(row_values)
+    
+    return np.array(board_numeric)
+
+# Funzione per preparare l'input per la rete neurale
+def prepare_input(board, turn):
+    # Converti la board in formato numerico
+    board_numeric = convert_board_state_v2(board)
+    
+    # Mappa il turno in un valore numerico (0 per white, 1 per black)
+    turn_numeric = 0 if turn == "white" else 1
+    
+    # Concateno la board numerica con il turno
+    input_data = np.concatenate([board_numeric, [turn_numeric]])  # Risultato finale (81 + 1 = 82 elementi)
+    
+    # Reshapo per avere un input compatibile con la rete neurale (1, 82)
+    return input_data.reshape(1, -1)
 
 ### APPLY MOVE ###
 def apply_move(board, move):
