@@ -1,5 +1,5 @@
-#ifndef CHESS_UTILS_H
-#define CHESS_UTILS_H
+#ifndef GAME_UTILS_H
+#define GAME_UTILS_H
 
 #include <iostream>
 #include <vector>
@@ -44,4 +44,4 @@ pair<int, Move> minimax_alpha_beta(vector<vector<int>>& board, int depth, int al
 // APPLICAZIONE MOSSE
 std::vector<std::vector<std::string>> apply_move(const std::vector<std::vector<std::string>>& board, const std::pair<std::pair<int, int>, std::pair<int, int>>& move);
 
-#endif // CHESS_UTILS_H
+#endif 
