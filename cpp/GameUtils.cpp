@@ -4,8 +4,8 @@
 
 Move parseMove(const std::string& move) {
     Move res;
-    res.from = {move[0] - 'a', move[1] - '1'};
-    res.to = {move[2] - 'a', move[3] - '1'};
+    res.from = {move[1] - '1', move[0] - 'a'}; 
+    res.to = {move[3] - '1', move[2] - 'a'};
     return res;
 }
 

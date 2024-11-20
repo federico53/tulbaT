@@ -18,8 +18,10 @@ void HumanPlayer::play() {
     while (true) {
         try {
             // Ricevi lo stato di gioco
+            Logger::info("Waiting for the game state...");
             auto game_state = driver.receiveGameState();
             auto board = game_state["board"];
+            Logger::debug("Received game state: " + game_state.toStyledString());
 
             // Converti la scacchiera in un formato leggibile
             std::vector<std::vector<char>> board_vector;
@@ -55,9 +57,10 @@ void HumanPlayer::play() {
             std::cin >> move;
 
             // Verifica il formato della mossa
-            if (!isValidMoveFormat(move)) {
+            while (!isValidMoveFormat(move)) {
                 Logger::error("Invalid move format. Please use algebraic notation (e.g., 'e2e4').");
-                continue;
+                std::cout << "Enter your move again (e.g., 'e2e4'): ";
+                std::cin >> move;
             }
 
             // Converti la mossa nel formato richiesto dal server
