@@ -1,16 +1,6 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <stdexcept>
-#include <algorithm>
-#include <sstream>
 #include "MinMax.h"
-#include "GameUtils.h"
-#include "Stats.h"
-#include "Logger.h"
 
 using namespace std;
-
 
 // WHITE HEURISTIC
 

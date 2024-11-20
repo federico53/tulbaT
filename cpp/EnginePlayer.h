@@ -2,6 +2,9 @@
 #define ENGINE_PLAYER_H
 
 #include "Player.h"
+#include "Logger.h"
+#include "MinMax.h"
+#include "Stats.h"
 
 class EnginePlayer : public Player {
 public:

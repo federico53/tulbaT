@@ -1,17 +1,11 @@
 #ifndef MINMAX_H
 #define MINMAX_H
 
-#include <iostream>
 #include <vector>
-#include <string>
-#include <stdexcept>
-#include <algorithm>
-#include <sstream>
-#include "MinMax.h"
+#include <iostream>
+#include <limits>
 #include "GameUtils.h"
 #include "Stats.h"
-#include "Logger.h"
-
 
 using namespace std;
 

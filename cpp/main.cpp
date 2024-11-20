@@ -1,12 +1,10 @@
 #include <iostream>
-#include <string>
-#include <stdexcept>
-#include <cctype>
 #include <memory>
 #include "Logger.h"
-#include "Player.h" 
+#include "EnginePlayer.h"
 #include "HumanPlayer.h"
-#include "EnginePlayer.h" 
+
+using namespace std;
 
 int main() {
     try {

@@ -1,18 +1,6 @@
-#include <vector>
-#include <string>
-#include <stdexcept>
-#include <iostream>
-#include <sstream>
-#include <algorithm>
-#include <unordered_map>
-#include "Logger.h"
 #include "Stats.h"
 
-using namespace std;
-
-enum Piece { EMPTY, WHITE, BLACK, KING, THRONE };
-
-vector<vector<int>> king_winning_direction_heatmap = {
+const vector<vector<int>> king_winning_direction_heatmap = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 2, 3, 1, 0, 1, 3, 2, 0},
     {0, 3, 4, 2, 2, 2, 4, 3, 0},
@@ -24,11 +12,11 @@ vector<vector<int>> king_winning_direction_heatmap = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 
-vector<pair<int, int>> black_camps_positions = {
+const vector<pair<int, int>> black_camps_positions = {
     {0, 3}, {0, 4}, {0, 5}, {1, 4}, {3, 0}, {3, 1}, {3, 2}, {4, 0}, {4, 2}, {4, 6}, {4, 8}, {5, 0}
 };
 
-pair<int, int> castle_position = {4, 4};
+const pair<int, int> castle_position = {4, 4};
 
 const std::vector<std::pair<int, int>> winning_positions = {
     {0, 1}, {0, 2}, {0, 6}, {0, 7}, {1, 0}, {2, 0}, {6, 0}, {7, 0}, {8, 1}, {8, 2}, {8, 6}, {8, 7}, {1, 8}, {2, 8}, {6, 8}, {7, 8}
@@ -262,7 +250,7 @@ bool is_empty_and_reachable(const vector<vector<char>>& board, const std::pair<i
     }
 }
 
-std::pair<bool, std::pair<int, int>> is_empty_and_reachable_version2(const vector<vector<char>>& board, const std::pair<int, int>& position, const char color, const std::pair<int, int>& exceptional_start = {-1, -1}) {
+std::pair<bool, std::pair<int, int>> is_empty_and_reachable_version2(const vector<vector<char>>& board, const std::pair<int, int>& position, const char color, const std::pair<int, int>& exceptional_start) {
     try {
         if (board[position.first][position.second] != 'O') {
             return {false, {-1, -1}};
@@ -505,22 +493,22 @@ bool king_can_be_captured_between_two_blacks_infuture(const vector<vector<char>>
             return false;
         }
 
-        auto [reachable, starting_position] = is_empty_and_reachable_version2(board, {king_position.first - 1, king_position.second}, 'B');
+        auto [reachable, starting_position] = is_empty_and_reachable_version2(board, {king_position.first - 1, king_position.second}, 'B', {-1, -1});
         if (reachable && is_empty_and_reachable_version2(board, {king_position.first + 1, king_position.second}, 'B', starting_position).first) {
             return true;
         }
 
-        std::tie(reachable, starting_position) = is_empty_and_reachable_version2(board, {king_position.first + 1, king_position.second}, 'B');
+        std::tie(reachable, starting_position) = is_empty_and_reachable_version2(board, {king_position.first + 1, king_position.second}, 'B', {-1, -1});
         if (reachable && is_empty_and_reachable_version2(board, {king_position.first - 1, king_position.second}, 'B', starting_position).first) {
             return true;
         }
 
-        std::tie(reachable, starting_position) = is_empty_and_reachable_version2(board, {king_position.first, king_position.second - 1}, 'B');
+        std::tie(reachable, starting_position) = is_empty_and_reachable_version2(board, {king_position.first, king_position.second - 1}, 'B', {-1, -1});
         if (reachable && is_empty_and_reachable_version2(board, {king_position.first, king_position.second + 1}, 'B', starting_position).first) {
             return true;
         }
 
-        std::tie(reachable, starting_position) = is_empty_and_reachable_version2(board, {king_position.first, king_position.second + 1}, 'B');
+        std::tie(reachable, starting_position) = is_empty_and_reachable_version2(board, {king_position.first, king_position.second + 1}, 'B', {-1, -1});
         if (reachable && is_empty_and_reachable_version2(board, {king_position.first, king_position.second - 1}, 'B', starting_position).first) {
             return true;
         }
@@ -543,7 +531,7 @@ bool king_in_the_castle_can_be_captured_infuture(const vector<vector<char>>& boa
         // Check if there are two black pieces on two sides and two more that can fill the remaining gaps
         auto check_positions = [&](const std::pair<int, int>& pos1, const std::pair<int, int>& pos2, const std::pair<int, int>& check1, const std::pair<int, int>& check2) {
             if (board[pos1.first][pos1.second] == 'B' && board[pos2.first][pos2.second] == 'B') {
-                auto [reachable1, start_pos1] = is_empty_and_reachable_version2(board, check1, 'B');
+                auto [reachable1, start_pos1] = is_empty_and_reachable_version2(board, check1, 'B', {-1, -1});
                 auto [reachable2, _] = is_empty_and_reachable_version2(board, check2, 'B', start_pos1);
                 return reachable1 && reachable2;
             }
@@ -575,7 +563,7 @@ bool king_adjacent_to_castle_can_be_captured_infuture(const vector<vector<char>>
         // Check if there is one black piece and two more that can fill the remaining gaps
         auto check_positions = [&](const std::pair<int, int>& pos1, const std::pair<int, int>& pos2, const std::pair<int, int>& check1, const std::pair<int, int>& check2) {
             if (board[pos1.first][pos1.second] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), pos1) != black_camps_positions.end()) {
-                auto [reachable1, start_pos1] = is_empty_and_reachable_version2(board, check1, 'B');
+                auto [reachable1, start_pos1] = is_empty_and_reachable_version2(board, check1, 'B', {-1, -1});
                 auto [reachable2, _] = is_empty_and_reachable_version2(board, check2, 'B', start_pos1);
                 return reachable1 && reachable2;
             }

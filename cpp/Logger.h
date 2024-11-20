@@ -2,8 +2,11 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <string>
+#include <iostream>
 #include <mutex>
+#include <fstream>
+#include <experimental/filesystem>
+#include <iomanip>
 
 class Logger {
 public:
@@ -14,7 +17,10 @@ public:
         ERROR
     };
 
-    static Logger& getInstance();
+    static Logger& getInstance() {
+        static Logger instance;
+        return instance;
+    }
 
     void log(Level level, const std::string& message);
     void setConsoleLevel(Level level);

@@ -2,13 +2,10 @@
 #define STATS_H
 
 #include <vector>
-#include <string>
-#include <stdexcept>
-#include <iostream>
 #include <sstream>
-#include <algorithm>
 #include <unordered_map>
-#include <utility>
+#include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -32,7 +29,7 @@ tuple<int, int, int, int, int> king_free_sides(const vector<vector<char>>& board
 bool black_checkmate(const vector<vector<char>>& board);
 
 bool is_empty_and_reachable(const vector<vector<char>>& board, const pair<int, int>& position, const char color);
-std::pair<bool, std::pair<int, int>> is_empty_and_reachable_version2(const vector<vector<char>>& board, const std::pair<int, int>& position, const char color, const std::pair<int, int>& exceptional_start = {-1, -1});
+std::pair<bool, std::pair<int, int>> is_empty_and_reachable_version2(const vector<vector<char>>& board, const std::pair<int, int>& position, const char color, const std::pair<int, int>& exceptional_start);
 
 bool king_in_the_castle(const pair<int, int>& king_position);
 bool king_adjacent_to_castle(const pair<int, int>& king_position);

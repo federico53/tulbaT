@@ -1,88 +1,65 @@
-#include <iostream>
-#include <fstream>
-#include <filesystem>
-#include <chrono>
-#include <iomanip>
-#include <sstream>
-#include <memory>
-#include <mutex>
+#include "Logger.h"
 
-class Logger {
-public:
-    enum class Level {
-        DEBUG,
-        INFO,
-        WARNING,
-        ERROR
-    };
+Logger::Logger() {
+    if (!std::experimental::filesystem::exists("./logs")) {
+        std::experimental::filesystem::create_directory("./logs");
+    }
+    logFile_ = "./logs/" + getTimestamp() + ".log";
+}
 
-    static Logger& getInstance() {
-        static Logger instance;
-        return instance;
+void Logger::log(Level level, const std::string& message) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    std::string levelStr = levelToString(level);
+    std::string timestamp = getTimestamp();
+
+    std::ofstream file(logFile_, std::ios_base::app);
+    if (file.is_open()) {
+        file << timestamp << " - " << levelStr << " - " << message << std::endl;
     }
 
-    void log(Level level, const std::string& message) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        std::string levelStr = levelToString(level);
-        std::string timestamp = getTimestamp();
+    if (level >= consoleLevel_) {
+        std::cout << timestamp << " - " << levelStr << " - " << message << std::endl;
+    }
+}
 
-        std::ofstream file(logFile_, std::ios_base::app);
-        if (file.is_open()) {
-            file << timestamp << " - " << levelStr << " - " << message << std::endl;
-        }
+void Logger::setConsoleLevel(Level level) {
+    consoleLevel_ = level;
+}
 
-        if (level >= consoleLevel_) {
-            std::cout << timestamp << " - " << levelStr << " - " << message << std::endl;
-        }
-    }
+void Logger::info(const std::string& msg) {
+    getInstance().log(Level::INFO, msg);
+}
 
-    void setConsoleLevel(Level level) {
-        consoleLevel_ = level;
-    }
+void Logger::debug(const std::string& msg) {
+    getInstance().log(Level::DEBUG, msg);
+}
 
-    static void info(const std::string& msg) {
-        std::cout << "[INFO] " << msg << std::endl;
-    }
-    static void debug(const std::string& msg) {
-        std::cout << "[DEBUG] " << msg << std::endl;
-    }
-    static void error(const std::string& msg) {
-        std::cerr << "[ERROR] " << msg << std::endl;
-    }
-    static void critical(const std::string& msg) {
-        std::cerr << "[CRITICAL] " << msg << std::endl;
-    }
-    static void warning(const std::string& message) {
-        std::cout << "[WARNING] " << message << std::endl;
-    }
+void Logger::error(const std::string& msg) {
+    getInstance().log(Level::ERROR, msg);
+}
 
-private:
-    Logger() {
-        if (!std::filesystem::exists("./logs")) {
-            std::filesystem::create_directory("./logs");
-        }
-        logFile_ = "./logs/" + getTimestamp() + ".log";
-    }
+void Logger::critical(const std::string& msg) {
+    getInstance().log(Level::ERROR, msg);
+}
 
-    std::string getTimestamp() {
-        auto now = std::chrono::system_clock::now();
-        auto in_time_t = std::chrono::system_clock::to_time_t(now);
-        std::stringstream ss;
-        ss << std::put_time(std::localtime(&in_time_t), "%Y.%m.%d_%H:%M:%S");
-        return ss.str();
-    }
+void Logger::warning(const std::string& message) {
+    getInstance().log(Level::WARNING, message);
+}
 
-    std::string levelToString(Level level) {
-        switch (level) {
-            case Level::DEBUG: return "DEBUG";
-            case Level::INFO: return "INFO";
-            case Level::WARNING: return "WARNING";
-            case Level::ERROR: return "ERROR";
-            default: return "UNKNOWN";
-        }
-    }
+std::string Logger::getTimestamp() {
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%Y.%m.%d_%H:%M:%S");
+    return ss.str();
+}
 
-    std::string logFile_;
-    Level consoleLevel_ = Level::INFO;
-    std::mutex mutex_;
-};
+std::string Logger::levelToString(Level level) {
+    switch (level) {
+        case Level::DEBUG: return "DEBUG";
+        case Level::INFO: return "INFO";
+        case Level::WARNING: return "WARNING";
+        case Level::ERROR: return "ERROR";
+        default: return "UNKNOWN";
+    }
+}
