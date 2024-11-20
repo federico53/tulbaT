@@ -24,9 +24,9 @@ int main() {
         }
 
         if (color == "white") {
-            server_address = {"localhost", 5800};
+            server_address = {"127.0.0.1", 5800};
         } else {
-            server_address = {"localhost", 5801};
+            server_address = {"127.0.0.1", 5801};
         }
 
         Logger::info("Starting game for player " + player_name + " as " + color + 

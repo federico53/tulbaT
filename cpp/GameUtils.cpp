@@ -237,7 +237,8 @@ bool is_allie(const char& allie, const char& of){
     return false;
 }
 
-std::vector<std::vector<char>> apply_move(const std::vector<std::vector<char>>& board, Move& move) {
+
+std::vector<std::vector<char>> apply_move(const std::vector<std::vector<char>>& board, const Move& move) {
 
     try {
         // Decomponiamo la mossa
@@ -278,6 +279,7 @@ std::vector<std::vector<char>> apply_move(const std::vector<std::vector<char>>& 
         throw; // Rilancia l'eccezione
     }
 }
+
 
 // BOARD REPRESENTATION
 

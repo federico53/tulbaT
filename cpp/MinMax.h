@@ -17,7 +17,7 @@ int heuristic(const vector<vector<char>>& board, const char& turn);
 int heuristic_evaluation(const vector<vector<char>>& board, const char& turn, const char& player);
 
 // MINIMAX ALPHA BETA PRUNING
-pair<int, Move> minimax_alpha_beta(vector<vector<char>>& board, int depth, int alpha, int beta, const char& turn, const char& player);
+pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& turn, const char& player);
 
 
 #endif 
