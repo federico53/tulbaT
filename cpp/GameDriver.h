@@ -5,6 +5,7 @@
 #include <asio.hpp>   // Per la gestione del socket
 #include <jsoncpp/json/json.h> // Per la gestione dei dati JSON
 #include "Logger.h"    // Logger per il logging
+#include "GameUtils.h" //per la move
 
 class GameDriver {
 private:
@@ -21,13 +22,13 @@ public:
     void connect(const std::string& player_name);
 
     // Invio di una mossa al server
-    void sendMove(const std::pair<std::pair<int, int>, std::pair<int, int>>& move, const std::string& color);
+    void sendMove(Move& move, const std::string& color);
 
     // Ricezione dello stato di gioco
     Json::Value receiveGameState();
 
     // Conversione delle coordinate della mossa per il server
-    std::string convertMoveForServer(const std::pair<std::pair<int, int>, std::pair<int, int>>& move, const std::string& color);
+    std::string convertMoveForServer(Move& move, const std::string& color);
 
     // Conversione di coordinate da (riga, colonna) in notazione algebrica
     std::string coordinateToAlgebraic(int row, int col);

@@ -6,7 +6,7 @@
 
 GameDriver::GameDriver(const std::string& color, const std::string& server_address_str, int port)
     : color(color), socket(io_context) {
-    asio::ip::tcp::endpoint server_address = asio::ip::tcp::endpoint(asio::ip::address::from_string(server_address_str), port);
+    server_address = asio::ip::tcp::endpoint(asio::ip::address::from_string(server_address_str), port);
     Logger::info("GameDriver initialized with color " + this->color + " and server " + server_address.address().to_string() + ":" + std::to_string(port));
 }
 
@@ -15,7 +15,7 @@ void GameDriver::connect(const std::string& player_name) {
         socket.connect(server_address);
         Logger::info("Connected to server at " + server_address.address().to_string() + ":" + std::to_string(server_address.port()));
 
-        // Invia la lunghezza del nome del giocatore e il nome
+        // Send the length of the player's name and the name
         uint32_t name_length = player_name.size();
         asio::write(socket, asio::buffer(&name_length, sizeof(name_length)));
         asio::write(socket, asio::buffer(player_name));
@@ -27,7 +27,7 @@ void GameDriver::connect(const std::string& player_name) {
     }
 }
 
-void GameDriver::sendMove(const std::pair<std::pair<int, int>, std::pair<int, int>>& move, const std::string& color) {
+void GameDriver::sendMove(Move& move, const std::string& color) {
     try {
         std::string move_for_server = convertMoveForServer(move, color);
 
@@ -42,10 +42,10 @@ void GameDriver::sendMove(const std::pair<std::pair<int, int>, std::pair<int, in
     }
 }
 
-std::string GameDriver::convertMoveForServer(const std::pair<std::pair<int, int>, std::pair<int, int>>& move, const std::string& color) {
+std::string GameDriver::convertMoveForServer(Move& move, const std::string& color) {
     try {
-        std::string from_pos = coordinateToAlgebraic(move.first.first, move.first.second);
-        std::string to_pos = coordinateToAlgebraic(move.second.first, move.second.second);
+        std::string from_pos = coordinateToAlgebraic(move.from.first, move.from.second);
+        std::string to_pos = coordinateToAlgebraic(move.to.first, move.to.second);
 
         Json::Value json_move;
         json_move["from"] = from_pos;
