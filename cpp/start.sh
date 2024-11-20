@@ -1,0 +1,1 @@
+g++ main.cpp Player.cpp EnginePlayer.cpp HumanPlayer GameDriver.cpp GameUtils.cpp MinMax.cpp Stats.cpp Logger.cpp -o tablut
