@@ -2,8 +2,9 @@
 #include <string>
 #include <stdexcept>
 #include <cctype>
-#include "Player.h"
+//#include "Player.h"
 #include "Logger.h"
+#include "HumanPlayer.h"
 
 int main() {
     try {
@@ -29,10 +30,25 @@ int main() {
         }
 
         Logger::info("Starting game for player " + player_name + " as " + color + " connecting to " + server_address.first + ":" + std::to_string(server_address.second));
+        Logger::info("Select the game mode");
+        Logger::info("  1 -> Engine player");
+        Logger::info("  2 -> Human player");
 
-        Player player(player_name, color, server_address.first, server_address.second);
+        int mode;
+        std::getline(std::cin, player_name);
+        while(mode!=1 || mode!=2){
+            Logger::warning("Insert a number between 1 and 2");
+            std::getline(std::cin, player_name);
+        }
 
-        player.play();
+        if(mode==1){
+            Player player(player_name, color, server_address.first, server_address.second);
+            player.play();
+        }
+        else if(mode==2){
+            HumanPlayer humanplayer(player_name, color, server_address.first, server_address.second);
+            humanplayer.play();
+        }
 
     } catch (const std::exception &e) {
         Logger::critical("Failed to start the game: " + std::string(e.what()));
