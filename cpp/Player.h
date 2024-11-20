@@ -2,23 +2,18 @@
 #define PLAYER_H
 
 #include <string>
-#include "GameDriver.h" // Classe per gestire la connessione al server di gioco
-#include "Logger.h"     // Per la gestione dei log
-#include "GameUtils.h"  // Per minimax_alpha_beta e format_board
-#include "Stats.h"      // Per stats_of_the_board
+#include "GameDriver.h"
 
 class Player {
-private:
-    std::string name;   // Nome del giocatore
-    std::string color;  // Colore del giocatore (es. "white" o "black")
-    GameDriver driver;  // Oggetto che gestisce le interazioni con il server
+protected:
+    std::string name;
+    std::string color;
+    GameDriver driver;
 
 public:
-    // Costruttore
     Player(const std::string& name, const std::string& color, const std::string& server_address, int port);
-
-    // Metodo principale per avviare la partita
-    void play();
+    virtual void play() = 0; // Metodo virtuale puro
+    virtual ~Player() = default;
 };
 
 #endif // PLAYER_H

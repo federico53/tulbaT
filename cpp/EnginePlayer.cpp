@@ -1,15 +1,14 @@
-#include "Player.h"
-#include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include "GameUtils.h"
+#include "Player.h"
+#include "GameUtils.h"  // Funzioni minimax_alpha_beta, format_board
+#include "Stats.h"      // stats_of_the_board
 
-class HumanPlayer : public Player {
+class EnginePlayer : public Player {
 public:
-    HumanPlayer(const std::string& name, const std::string& color, const std::string& server_address, int port)
+    EnginePlayer(const std::string& name, const std::string& color, const std::string& server_address, int port)
         : Player(name, color, server_address, port) {
-        Logger::info("HumanPlayer " + this->name + " initialized as " + this->color);
+        Logger::info("EnginePlayer " + this->name + " initialized as " + this->color);
     }
 
     void play() override {
@@ -26,7 +25,7 @@ public:
                 auto game_state = driver.receiveGameState();
                 auto board = game_state["board"];
 
-                // Converti la scacchiera in un formato leggibile
+                // Convert the board into string
                 std::vector<std::vector<std::string>> board_vector;
                 for (const auto& row : board) {
                     std::vector<std::string> row_vector;
@@ -34,7 +33,7 @@ public:
                         row_vector.push_back(cell.asString());
                     }
                     board_vector.push_back(row_vector);
-                }
+}
                 std::string turn = game_state["turn"].asString();
                 std::transform(turn.begin(), turn.end(), turn.begin(), ::tolower);
 
@@ -53,23 +52,31 @@ public:
                     continue;
                 }
 
-                // Stampa la scacchiera e chiedi all'utente di inserire la mossa
-                Logger::info("Your turn! (" + color + ")");
-                std::string move;
-                std::cout << "Enter your move (e.g., 'e2e4'): ";
-                std::cin >> move;
+                // Stampa le statistiche della scacchiera
+                Logger::debug("Stats of the board: " + stats_of_the_board(board_vector, color));
 
-                // Verifica il formato della mossa
-                if (!isValidMoveFormat(move)) {
-                    Logger::error("Invalid move format. Please use algebraic notation (e.g., 'e2e4').");
-                    continue;
-                }
+                // Convert the board into integer
+                std::vector<std::vector<int>> board_int;
+                for (const auto& row : board) {
+                    std::vector<int> row_int;
+                    for (const auto& cell : row) {
+                        row_int.push_back(cell.asInt());
+                    }
+                    board_int.push_back(row_int);
+}
+                // Trova la miglior mossa usando Minimax
+                int best_score;
+                std::string best_move;
 
-                // Converti la mossa nel formato richiesto dal server
-                std::pair<std::pair<int, int>, std::pair<int, int>> parsed_move = parseMove(move);
+                std::pair<int, Move> result = minimax_alpha_beta(board_int, 3, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), turn, color);
+                best_score = result.first;
+                best_move = result.second;
+                
+                Logger::info("Best move for " + color + ": " + best_move + " with score: " + std::to_string(best_score));
 
                 // Invia la mossa al server
-                Logger::info("Sending move: " + move);
+                Logger::info("Sending move: " + best_move);
+                std::pair<std::pair<int, int>, std::pair<int, int>> parsed_move = parseMove(best_move);
                 driver.sendMove(parsed_move, color);
 
             } catch (const std::exception& e) {
@@ -79,12 +86,5 @@ public:
         }
 
         driver.close();
-    }
-
-private:
-    bool isValidMoveFormat(const std::string& move) {
-        return move.length() == 4 &&
-               std::isalpha(move[0]) && std::isdigit(move[1]) &&
-               std::isalpha(move[2]) && std::isdigit(move[3]);
     }
 };
