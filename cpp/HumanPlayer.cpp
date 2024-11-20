@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include "GameUtils.h"
+#include "Stats.h"
 
 class HumanPlayer : public Player {
 public:

@@ -7,25 +7,23 @@
 #include <stdexcept>
 #include <algorithm>
 #include <sstream>
-
-
-
-
+#include "MinMax.h"
+#include "Logger.h"
 
 using namespace std;
-
-struct Move {
-    int x;
-    int y;
-};
 
 // COSTANTI E UTILITY
 extern const vector<vector<string>> empty_board;
 extern const vector<pair<int, int>> citadels;
 extern const vector<pair<int, int>> winning_positions;
 
+struct Move {
+    std::pair<int, int> from;
+    std::pair<int, int> to;
+};
+
 // PARSE MOVE
-std::pair<std::pair<int, int>, std::pair<int, int>> parseMove(const std::string& move);
+Move parseMove(const std::string& move);
 
 // FUNZIONI DI VALIDAZIONE POSIZIONI
 bool is_within_bounds(int row, int col);
@@ -38,22 +36,18 @@ bool is_blocking_cell(int row, int col, const vector<vector<string>>& board);
 string get_opposite_turn(const string &turn);
 
 // FUNZIONI DI VALIDAZIONE MOSSE
-bool is_valid_move(pair<int, int> from, pair<int, int> to, const vector<vector<string>> &board, const string &color);
+bool is_valid_move(Move &move, const vector<vector<string>> &board, const string &color);
 
 // GENERAZIONE MOSSE
-vector<pair<pair<int, int>, pair<int, int>>> generate_all_possible_moves(const vector<vector<string>> &board, const string &color);
+vector<Move> generate_all_possible_moves(const vector<vector<string>> &board, const string &color);
 
-// EVALUAZIONE EURISTICA
-int heuristic_white(const vector<vector<int>>& board);
-int calculate_black_starting_positions_points(const vector<vector<string>>& board);
-int heuristic_black(const vector<vector<string>>& board);
-int heuristic_evaluation(const vector<vector<int>>& board, const string& turn, const string& player);
-int heuristic(const vector<vector<int>>& board, const string& turn);
-
-// MINIMAX ALPHA BETA PRUNING
-pair<int, Move> minimax_alpha_beta(vector<vector<int>>& board, int depth, int alpha, int beta, const string& turn, const string& player);
+// GAME OVER
+std::string is_game_over(const std::vector<std::vector<std::string>>& board);
 
 // APPLICAZIONE MOSSE
-std::vector<std::vector<std::string>> apply_move(const std::vector<std::vector<std::string>>& board, const std::pair<std::pair<int, int>, std::pair<int, int>>& move);
+std::vector<std::vector<std::string>> apply_move(const std::vector<std::vector<std::string>>& board, Move& move);
+
+// BOARD REPRESENTATION
+std::string format_board(const std::vector<std::vector<std::string>>& board);
 
 #endif 
