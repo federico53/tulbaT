@@ -9,7 +9,7 @@ public:
     void play() override; // Implementazione per il giocatore umano
 
 private:
-    bool isValidMoveFormat(const std::string& move); // Funzione di utilità per verificare il formato della mossa
+    bool isValidMoveFormat(Move& move); // Funzione di utilità per verificare il formato della mossa
 };
 
 #endif // HUMAN_PLAYER_H

@@ -28,11 +28,11 @@ public:
                 auto board = game_state["board"];
 
                 // Converti la scacchiera in un formato leggibile
-                std::vector<std::vector<std::char>> board_vector;
+                std::vector<std::vector<char>> board_vector;
                 for (const auto& row : board) {
-                    std::vector<std::string> row_vector;
+                    std::vector<char> row_vector;
                     for (const auto& cell : row) {
-                        row_vector.push_back(cell.asString());
+                        row_vector.push_back(cell.asString()[0]);
                     }
                     board_vector.push_back(row_vector);
                 }
@@ -67,7 +67,7 @@ public:
                 }
 
                 // Converti la mossa nel formato richiesto dal server
-                std::pair<std::pair<int, int>, std::pair<int, int>> parsed_move = parseMove(move);
+                Move parsed_move = parseMove(move);
 
                 // Invia la mossa al server
                 Logger::info("Sending move: " + move);

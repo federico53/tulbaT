@@ -179,10 +179,8 @@ def heuristic(board, turn):
 
 def heuristic_white(board):
     try:
-        # 1.   TODO
-        #king position
-        #2. TODO
-        #king sides
+        #1. TODO
+        #king position. in base a dov'è il king e alle sides del king,
 
         #3. black in checkmate
         points_king_checkmate = 0
@@ -199,7 +197,8 @@ def heuristic_white(board):
 
         #6. king not blocked in quadrant 10000  
         score_king_not_blocked_quadrant = 0
-        # TODO
+        if not stats.king_block_in_quadrant(board):
+            score_king_not_blocked_quadrant = 10000
         
         #7. black can't make checkmate in one move
         score_king_not_checkmated_infuture = 0
