@@ -3,7 +3,7 @@
 
 #include <string>
 #include <asio.hpp>   // Per la gestione del socket
-#include <json/json.h> // Per la gestione dei dati JSON
+#include <jsoncpp/json/json.h> // Per la gestione dei dati JSON
 #include "Logger.h"    // Logger per il logging
 
 class GameDriver {

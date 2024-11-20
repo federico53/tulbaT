@@ -40,6 +40,22 @@ public:
         consoleLevel_ = level;
     }
 
+    static void info(const std::string& msg) {
+        std::cout << "[INFO] " << msg << std::endl;
+    }
+    static void debug(const std::string& msg) {
+        std::cout << "[DEBUG] " << msg << std::endl;
+    }
+    static void error(const std::string& msg) {
+        std::cerr << "[ERROR] " << msg << std::endl;
+    }
+    static void critical(const std::string& msg) {
+        std::cerr << "[CRITICAL] " << msg << std::endl;
+    }
+    static void warning(const std::string& message) {
+        std::cout << "[WARNING] " << message << std::endl;
+    }
+
 private:
     Logger() {
         if (!std::filesystem::exists("./logs")) {

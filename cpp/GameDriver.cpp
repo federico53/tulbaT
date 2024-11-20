@@ -1,12 +1,12 @@
 #include "GameDriver.h"
 #include <asio.hpp>
-#include <json/json.h>
+#include <jsoncpp/json/json.h>
 #include <iostream>
 #include <sstream>
 
-GameDriver::GameDriver(const std::string& color, const std::string& server_address, int port)
+GameDriver::GameDriver(const std::string& color, const std::string& server_address_str, int port)
     : color(color), socket(io_context) {
-    server_address = asio::ip::tcp::endpoint(asio::ip::address::from_string(server_address), port);
+    asio::ip::tcp::endpoint server_address = asio::ip::tcp::endpoint(asio::ip::address::from_string(server_address_str), port);
     Logger::info("GameDriver initialized with color " + this->color + " and server " + server_address.address().to_string() + ":" + std::to_string(port));
 }
 

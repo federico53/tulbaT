@@ -18,6 +18,11 @@ public:
 
     void log(Level level, const std::string& message);
     void setConsoleLevel(Level level);
+    static void info(const std::string& msg);
+    static void debug(const std::string& msg);
+    static void error(const std::string& msg);
+    static void critical(const std::string& msg);
+    static void warning(const std::string& message);
 
 private:
     Logger();

@@ -260,6 +260,57 @@ bool is_empty_and_reachable(const std::vector<std::vector<std::string>>& board, 
     }
 }
 
+std::pair<bool, std::pair<int, int>> is_empty_and_reachable_version2(const std::vector<std::vector<std::string>>& board, const std::pair<int, int>& position, const std::string& color, const std::pair<int, int>& exceptional_start = {-1, -1}) {
+    try {
+        if (board[position.first][position.second] != "EMPTY") {
+            return {false, {-1, -1}};
+        }
+
+        std::vector<std::pair<int, int>> move_directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+        // Check for the special rule
+        if (std::find(black_camps_positions.begin(), black_camps_positions.end(), position) != black_camps_positions.end()) {
+            for (const auto& direction : move_directions) {
+                auto new_position = std::make_pair(position.first + direction.first, position.second + direction.second);
+                while (new_position.first >= 0 && new_position.first <= 8 && new_position.second >= 0 && new_position.second <= 8) {
+                    if (std::find(black_camps_positions.begin(), black_camps_positions.end(), new_position) != black_camps_positions.end()) {
+                        if (board[new_position.first][new_position.second] == color && new_position != exceptional_start) {
+                            return {true, new_position};
+                        }
+                        new_position = std::make_pair(new_position.first + direction.first, new_position.second + direction.second);
+                    } else {
+                        break;
+                    }
+                    if (board[new_position.first][new_position.second] != "EMPTY") {
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (const auto& direction : move_directions) {
+            auto new_position = std::make_pair(position.first + direction.first, position.second + direction.second);
+            while (new_position.first >= 0 && new_position.first <= 8 && new_position.second >= 0 && new_position.second <= 8) {
+                if (board[new_position.first][new_position.second] == color && new_position != exceptional_start) {  // if the position is a piece of the color and not the exceptional start
+                    return {true, new_position};
+                }
+                if (board[new_position.first][new_position.second] != "EMPTY") {  // if the position is not empty
+                    break;
+                }
+                if (std::find(black_camps_positions.begin(), black_camps_positions.end(), new_position) != black_camps_positions.end() || new_position == castle_position) {  // if the position is a black camp or the castle
+                    break;
+                }
+                new_position = std::make_pair(new_position.first + direction.first, new_position.second + direction.second);
+            }
+        }
+        return {false, {-1, -1}};
+    } catch (const std::exception& e) {
+        cout << "An error occurred in is_empty_and_reachable_version2: " << e.what() << endl; 
+        // logger.error("An error occurred in is_empty_and_reachable_version2: " + std::string(e.what()));
+        throw;
+    }
+}
+
 bool king_in_the_castle(const std::pair<int, int>& king_position) {
     try {
         return king_position == castle_position;
@@ -671,56 +722,6 @@ bool black_can_checkmate_in_future(const std::vector<std::vector<std::string>>& 
     }
 }
 
-std::pair<bool, std::pair<int, int>> is_empty_and_reachable_version2(const std::vector<std::vector<std::string>>& board, const std::pair<int, int>& position, const std::string& color, const std::pair<int, int>& exceptional_start = {-1, -1}) {
-    try {
-        if (board[position.first][position.second] != "EMPTY") {
-            return {false, {-1, -1}};
-        }
-
-        std::vector<std::pair<int, int>> move_directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-
-        // Check for the special rule
-        if (std::find(black_camps_positions.begin(), black_camps_positions.end(), position) != black_camps_positions.end()) {
-            for (const auto& direction : move_directions) {
-                auto new_position = std::make_pair(position.first + direction.first, position.second + direction.second);
-                while (new_position.first >= 0 && new_position.first <= 8 && new_position.second >= 0 && new_position.second <= 8) {
-                    if (std::find(black_camps_positions.begin(), black_camps_positions.end(), new_position) != black_camps_positions.end()) {
-                        if (board[new_position.first][new_position.second] == color && new_position != exceptional_start) {
-                            return {true, new_position};
-                        }
-                        new_position = std::make_pair(new_position.first + direction.first, new_position.second + direction.second);
-                    } else {
-                        break;
-                    }
-                    if (board[new_position.first][new_position.second] != "EMPTY") {
-                        break;
-                    }
-                }
-            }
-        }
-
-        for (const auto& direction : move_directions) {
-            auto new_position = std::make_pair(position.first + direction.first, position.second + direction.second);
-            while (new_position.first >= 0 && new_position.first <= 8 && new_position.second >= 0 && new_position.second <= 8) {
-                if (board[new_position.first][new_position.second] == color && new_position != exceptional_start) {  // if the position is a piece of the color and not the exceptional start
-                    return {true, new_position};
-                }
-                if (board[new_position.first][new_position.second] != "EMPTY") {  // if the position is not empty
-                    break;
-                }
-                if (std::find(black_camps_positions.begin(), black_camps_positions.end(), new_position) != black_camps_positions.end() || new_position == castle_position) {  // if the position is a black camp or the castle
-                    break;
-                }
-                new_position = std::make_pair(new_position.first + direction.first, new_position.second + direction.second);
-            }
-        }
-        return {false, {-1, -1}};
-    } catch (const std::exception& e) {
-        cout << "An error occurred in is_empty_and_reachable_version2: " << e.what() << endl; 
-        // logger.error("An error occurred in is_empty_and_reachable_version2: " + std::string(e.what()));
-        throw;
-    }
-}
 
 std::pair<bool, bool> situation_king_sides(const std::vector<std::vector<std::string>>& board) {
     try {

@@ -4,6 +4,10 @@
 #include <stdexcept>
 #include <algorithm>
 #include <sstream>
+#include <climits>
+#include <map>
+#include "Stats.h"
+
 
 using namespace std;
 
@@ -30,6 +34,15 @@ const vector<pair<int, int>> winning_positions = {
     {0, 1}, {0, 2}, {0, 6}, {0, 7}, {1, 0}, {1, 8}, {2, 0}, {2, 8},
     {6, 0}, {6, 8}, {7, 0}, {7, 8}, {8, 1}, {8, 2}, {8, 6}, {8, 7}
 };
+
+// PARSE MOVE
+
+std::pair<std::pair<int, int>, std::pair<int, int>> parseMove(const std::string& move) {
+    return {
+        {move[0] - 'a', move[1] - '1'}, // Inizio
+        {move[2] - 'a', move[3] - '1'}  // Fine
+    };
+}
 
 // POSITION VALIDATION
 
@@ -63,9 +76,14 @@ bool is_adjacent_to_castle(int row, int col) {
     return false;
 }
 
+bool is_blocking_cell(int row, int col, const std::vector<std::vector<std::string>>& board) {
+    // Verifica se la cella è una cella di blocco (come un castello o una cittadella)
+    return board[row][col] == "CASTLE" || board[row][col] == "CITADEL";
+}
+
 bool is_king_captured(const std::vector<std::vector<std::string>>& board) {
     try {
-        auto king_pos = stats.get_king_position(board);
+        auto king_pos = get_king_position(board);
         if (king_pos.empty()) {
             return false;  // No king found, so it's not captured
         }
@@ -81,7 +99,7 @@ bool is_king_captured(const std::vector<std::vector<std::string>>& board) {
             for (const auto& dir : directions) {
                 int new_row = king_row + dir.first;
                 int new_col = king_col + dir.second;
-                if (is_within_bounds(new_row, new_col, board) && board[new_row][new_col] == "BLACK") {
+                if (is_within_bounds(new_row, new_col) && board[new_row][new_col] == "BLACK") {
                     continue;
                 }
                 return false;  // If any side is not surrounded by black, king is not captured
@@ -96,7 +114,7 @@ bool is_king_captured(const std::vector<std::vector<std::string>>& board) {
             for (const auto& dir : directions) {
                 int new_row = king_row + dir.first;
                 int new_col = king_col + dir.second;
-                if (is_within_bounds(new_row, new_col, board) && board[new_row][new_col] == "BLACK") {
+                if (is_within_bounds(new_row, new_col) && board[new_row][new_col] == "BLACK") {
                     black_count++;
                 }
             }
@@ -109,7 +127,7 @@ bool is_king_captured(const std::vector<std::vector<std::string>>& board) {
             for (const auto& dir : directions) {
                 int new_row = king_row + dir.first;
                 int new_col = king_col + dir.second;
-                if (is_within_bounds(new_row, new_col, board) &&
+                if (is_within_bounds(new_row, new_col) &&
                     (board[new_row][new_col] == "BLACK" || is_blocking_cell(new_row, new_col, board))) {
                     continue;
                 }
@@ -121,11 +139,6 @@ bool is_king_captured(const std::vector<std::vector<std::string>>& board) {
         std::cerr << "Error in is_king_captured: " << e.what() << std::endl;
         throw;
     }
-}
-
-bool is_blocking_cell(int row, int col, const std::vector<std::vector<std::string>>& board) {
-    // Verifica se la cella è una cella di blocco (come un castello o una cittadella)
-    return board[row][col] == "CASTLE" || board[row][col] == "CITADEL";
 }
 
 
@@ -190,6 +203,36 @@ vector<pair<pair<int, int>, pair<int, int>>> generate_all_possible_moves(const v
     return moves;
 }
 
+// GAME OVER
+
+std::string is_game_over(const std::vector<std::vector<std::string>>& board) {
+    try {
+        // 1. Check if the king is in an escape cell (white wins)
+        auto king_position = get_king_position(board);
+        if (!king_position.empty() && std::find(winning_positions.begin(), winning_positions.end(), king_position) != winning_positions.end()) {
+            return "white";  // White player wins
+        }
+        
+        // 2. Check if the king is captured (black wins)
+        if (is_king_captured(board)) {
+            return "black";  // Black player wins
+        }
+
+        // 3. Check if a player has no possible moves (the other player wins)
+        if (generate_all_possible_moves(board, "white").empty()) {
+            return "black";  // Black player wins
+        }
+        if (generate_all_possible_moves(board, "black").empty()) {
+            return "white";  // White player wins
+        }
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in is_game_over: " << e.what() << std::endl;
+        throw;
+    }
+    return "";  // No winner yet
+}
+
 // WHITE HEURISTIC
 
 int heuristic_white(const vector<vector<int>>& board) {
@@ -199,13 +242,13 @@ int heuristic_white(const vector<vector<int>>& board) {
         
         // 3. Scacco matto al nero
         int points_king_checkmate = 0;
-        if (stats::black_checkmate(board)) {
+        if (black_checkmate(board)) {
             points_king_checkmate = 100;
         }
 
         // 4. Differenza tra i pezzi mangiati dal nero e quelli persi dal bianco
-        int white_lost = 8 - stats::count_pieces(board, "WHITE");
-        int black_eaten = 16 - stats::count_pieces(board, "BLACK");
+        int white_lost = 8 - count_pieces(board, "WHITE");
+        int black_eaten = 16 - count_pieces(board, "BLACK");
         int diff_between_white_black = 1600 * (black_eaten - white_lost) * 200;
 
         // 5. Nero mangiato
@@ -216,13 +259,13 @@ int heuristic_white(const vector<vector<int>>& board) {
 
         // 7. Il nero non può fare scacco matto in una mossa
         int score_king_not_checkmated_infuture = 0;
-        if (!stats::black_can_checkmate_in_future(board)) {
+        if (!black_can_checkmate_in_future(board)) {
             score_king_not_checkmated_infuture = 20000;
         }
 
         // 8. Il re non è in scacco matto dal nero
         int score_king_not_checkmated = 0;
-        if (!stats::white_checkmate(board)) {
+        if (!white_checkmate(board)) {
             score_king_not_checkmated = 40000;
         }
 
@@ -297,8 +340,8 @@ int heuristic_black(const std::vector<std::vector<std::string>>& board) {
         int black_starting_positions_points = calculate_black_starting_positions_points(board);
 
         // 2. Differenza tra i pezzi bianchi mangiati e i pezzi neri persi
-        int white_eaten = 8 - stats::count_pieces(board, "WHITE");
-        int black_lost = 16 - stats::count_pieces(board, "BLACK");
+        int white_eaten = 8 - count_pieces(board, "WHITE");
+        int black_lost = 16 - count_pieces(board, "BLACK");
         int diff_between_white_black = 480 + (white_eaten - black_lost) * 30;
 
         // 3. Punti per ogni pezzo bianco mangiato
@@ -306,19 +349,19 @@ int heuristic_black(const std::vector<std::vector<std::string>>& board) {
 
         // 4. Se il re non può dare scacco matto in una mossa
         int king_not_checkmate_inonemove = 0;
-        if (!stats::king_can_checkmate_in_future(board)) {
+        if (!king_can_checkmate_in_future(board)) {
             king_not_checkmate_inonemove = 6750;
         }
 
         // 5. Se il re è in scacco matto
         int king_not_checkmate_points = 0;
-        if (stats::white_checkmate(board)) {
+        if (white_checkmate(board)) {
             king_not_checkmate_points = 13500;
         }
 
         // 6. Se il nero non è in scacco matto
         int black_checkmate_points = 0;
-        if (!stats::black_checkmate(board)) {
+        if (!black_checkmate(board)) {
             black_checkmate_points = 27000;
         }
 
@@ -343,6 +386,15 @@ int heuristic_black(const std::vector<std::vector<std::string>>& board) {
 
 // HEURISTIC
 
+int heuristic(const vector<vector<int>>& board, const string& turn) {
+    // Funzione euristica per il calcolo del punteggio in base al turno
+    if (turn != "white") {
+        return heuristic_white(board);
+    } else {
+        return heuristic_black(board);
+    }
+}
+
 int heuristic_evaluation(const vector<vector<int>>& board, const string& turn, const string& player) {
     /*
     Funzione di valutazione euristica per lo stato attuale della scacchiera
@@ -364,14 +416,7 @@ int heuristic_evaluation(const vector<vector<int>>& board, const string& turn, c
     }
 }
 
-int heuristic(const vector<vector<int>>& board, const string& turn) {
-    // Funzione euristica per il calcolo del punteggio in base al turno
-    if (turn != "white") {
-        return heuristic_white(board);
-    } else {
-        return heuristic_black(board);
-    }
-}
+
 
 // MINIMAX ALPHA BETA PRUNING
 
@@ -462,7 +507,7 @@ std::vector<std::vector<std::string>> apply_move(
             int capture_col = to_col + 2*dc;
 
             // Verifica se la posizione è valida e se c'è un pezzo nemico da catturare
-            if (is_within_bounds(capture_row, capture_col, new_board) && 
+            if (is_within_bounds(capture_row, capture_col) && 
                 std::find(get_enemies(new_board[to_row][to_col]).begin(), get_enemies(new_board[to_row][to_col]).end(), new_board[check_row][check_col]) != get_enemies(new_board[to_row][to_col]).end()) {
                 
                 // Controlliamo se un pezzo può essere catturato
@@ -480,35 +525,6 @@ std::vector<std::vector<std::string>> apply_move(
     }
 }
 
-// GAME OVER
-
-std::string is_game_over(const std::vector<std::vector<std::string>>& board) {
-    try {
-        // 1. Check if the king is in an escape cell (white wins)
-        auto king_position = stats.get_king_position(board);
-        if (!king_position.empty() && std::find(winning_positions.begin(), winning_positions.end(), king_position) != winning_positions.end()) {
-            return "white";  // White player wins
-        }
-        
-        // 2. Check if the king is captured (black wins)
-        if (is_king_captured(board)) {
-            return "black";  // Black player wins
-        }
-
-        // 3. Check if a player has no possible moves (the other player wins)
-        if (generate_all_possible_moves(board, "white").empty()) {
-            return "black";  // Black player wins
-        }
-        if (generate_all_possible_moves(board, "black").empty()) {
-            return "white";  // White player wins
-        }
-        
-    } catch (const std::exception& e) {
-        std::cerr << "Error in is_game_over: " << e.what() << std::endl;
-        throw;
-    }
-    return "";  // No winner yet
-}
 
 // BOARD REPRESENTATION
 

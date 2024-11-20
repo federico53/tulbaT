@@ -8,12 +8,24 @@
 #include <algorithm>
 #include <sstream>
 
+
+
+
+
 using namespace std;
+
+struct Move {
+    int x;
+    int y;
+};
 
 // COSTANTI E UTILITY
 extern const vector<vector<string>> empty_board;
 extern const vector<pair<int, int>> citadels;
 extern const vector<pair<int, int>> winning_positions;
+
+// PARSE MOVE
+std::pair<std::pair<int, int>, std::pair<int, int>> parseMove(const std::string& move);
 
 // FUNZIONI DI VALIDAZIONE POSIZIONI
 bool is_within_bounds(int row, int col);

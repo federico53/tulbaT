@@ -15,7 +15,7 @@ private:
 
 public:
     // Costruttore
-    Player(const std::string& name, const std::string& color, const std::string& server_address);
+    Player(const std::string& name, const std::string& color, const std::string& server_address, int port);
 
     // Metodo principale per avviare la partita
     void play();

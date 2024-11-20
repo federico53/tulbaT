@@ -5,7 +5,7 @@
 #include "Player.h"
 #include "Logger.h"
 
-void main() {
+int main() {
     try {
         std::string player_name;
         std::string color;
@@ -30,7 +30,8 @@ void main() {
 
         Logger::info("Starting game for player " + player_name + " as " + color + " connecting to " + server_address.first + ":" + std::to_string(server_address.second));
 
-        Player player(player_name, color, server_address);
+        Player player(player_name, color, server_address.first, server_address.second);
+
         player.play();
 
     } catch (const std::exception &e) {
@@ -38,5 +39,5 @@ void main() {
         std::cerr << "Failed to start the game: " << e.what() << std::endl;
     }
 
-    return;
+    return 0;
 }
