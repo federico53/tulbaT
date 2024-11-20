@@ -28,7 +28,7 @@ public:
                 auto board = game_state["board"];
 
                 // Converti la scacchiera in un formato leggibile
-                std::vector<std::vector<std::string>> board_vector;
+                std::vector<std::vector<std::char>> board_vector;
                 for (const auto& row : board) {
                     std::vector<std::string> row_vector;
                     for (const auto& cell : row) {

@@ -2,7 +2,7 @@ import socket
 import struct
 import json
 import random
-from heuristic.stats import stats_of_the_board
+#from heuristic.stats import stats_of_the_board
 
 def recvall(sock, n):
     data = b''
@@ -209,7 +209,7 @@ def main():
                 continue  # Wait for our turn
 
             # Stampare lo stato di gioco
-            stats_of_the_board(board, turn)
+            #stats_of_the_board(board, turn)
 
             # Generate all possible moves based on the updated board
             all_possible_moves = generate_all_possible_moves(board, color)

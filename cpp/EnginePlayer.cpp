@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "GameUtils.h"  // Funzioni minimax_alpha_beta, format_board
 #include "Stats.h"      // stats_of_the_board
+#include "GameDriver.h"
 
 class EnginePlayer : public Player {
 public:
@@ -25,15 +26,15 @@ public:
                 auto game_state = driver.receiveGameState();
                 auto board = game_state["board"];
 
-                // Convert the board into string
-                std::vector<std::vector<std::string>> board_vector;
+                // Convert the board into chars
+                std::vector<std::vector<char>> board_vector;
                 for (const auto& row : board) {
-                    std::vector<std::string> row_vector;
+                    std::vector<char> row_vector;
                     for (const auto& cell : row) {
-                        row_vector.push_back(cell.asString());
+                        row_vector.push_back(cell.asString()[0]);
                     }
                     board_vector.push_back(row_vector);
-}
+                }
                 std::string turn = game_state["turn"].asString();
                 std::transform(turn.begin(), turn.end(), turn.begin(), ::tolower);
 
@@ -53,31 +54,32 @@ public:
                 }
 
                 // Stampa le statistiche della scacchiera
-                Logger::debug("Stats of the board: " + stats_of_the_board(board_vector, color));
+                Logger::debug("Stats of the board: " + stats_of_the_board(board_vector, color[0]));
 
                 // Convert the board into integer
-                std::vector<std::vector<int>> board_int;
+               /*  std::vector<std::vector<int>> board_int;
                 for (const auto& row : board) {
                     std::vector<int> row_int;
                     for (const auto& cell : row) {
                         row_int.push_back(cell.asInt());
                     }
                     board_int.push_back(row_int);
-}
+                } */
+
                 // Trova la miglior mossa usando Minimax
                 int best_score;
-                std::string best_move;
+                Move best_move;
 
-                std::pair<int, Move> result = minimax_alpha_beta(board_int, 3, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), turn, color);
+                //TODO: change the parameter types in accordance to how chicco changed minimax_alpha_beta in gameutils.cpp
+                std::pair<int, Move> result = minimax_alpha_beta(board_vector, 3, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]));
                 best_score = result.first;
                 best_move = result.second;
                 
-                Logger::info("Best move for " + color + ": " + best_move + " with score: " + std::to_string(best_score));
+                Logger::info("Best move for " + color + ": " + driver.coordinateToAlgebraic(best_move.from.first, best_move.from.second) + " to " + driver.coordinateToAlgebraic(best_move.to.first, best_move.to.second) + " with score: " + std::to_string(best_score));
 
                 // Invia la mossa al server
-                Logger::info("Sending move: " + best_move);
-                std::pair<std::pair<int, int>, std::pair<int, int>> parsed_move = parseMove(best_move);
-                driver.sendMove(parsed_move, color);
+                Logger::info("Sending move: " + driver.coordinateToAlgebraic(best_move.from.first, best_move.from.second) + " to " + driver.coordinateToAlgebraic(best_move.to.first, best_move.to.second));
+                driver.sendMove(best_move, color);
 
             } catch (const std::exception& e) {
                 Logger::error("An error occurred during the game loop: " + std::string(e.what()));
