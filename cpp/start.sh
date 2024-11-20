@@ -1,1 +1,1 @@
-g++ main.cpp Player.cpp EnginePlayer.cpp HumanPlayer.cpp GameDriver.cpp GameUtils.cpp MinMax.cpp Stats.cpp Logger.cpp -o tablut
+g++ main.cpp Player.cpp EnginePlayer.cpp HumanPlayer.cpp GameDriver.cpp GameUtils.cpp MinMax.cpp Stats.cpp Logger.cpp -o tablut -ljsoncpp -lstdc++fs

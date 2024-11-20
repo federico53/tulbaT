@@ -11,9 +11,6 @@
 
 using namespace std;
 
-// COSTANTI E UTILITY
-extern const vector<pair<int, int>> winning_positions;
-
 struct Move {
     std::pair<int, int> from;
     std::pair<int, int> to;
@@ -43,9 +40,9 @@ vector<Move> generate_all_possible_moves(const vector<vector<char>> &board, cons
 std::string is_game_over(const std::vector<std::vector<char>>& board);
 
 // APPLICAZIONE MOSSE
-std::vector<std::vector<char>> apply_move(const std::vector<std::vector<char>>& board, const Move& move);
 bool is_enemy(const char& enemy, const char& of);
 bool is_allie(const char& allie, const char& of);
+std::vector<std::vector<char>> apply_move(const std::vector<std::vector<char>>& board, const Move& move);
 
 // BOARD REPRESENTATION
 std::string format_board(const std::vector<std::vector<char>>& board);

@@ -37,13 +37,16 @@ int main() {
 
         int mode = 0;
         std::string input;
+
         while (true) {
             std::cout << "Enter your choice (1 or 2): ";
             std::getline(std::cin, input);
 
             try {
                 mode = std::stoi(input);
-                if (mode == 1 || mode == 2) break;
+                if (mode == 1 || mode == 2){
+                    break;
+                }
                 Logger::warning("Insert a number between 1 and 2");
             } catch (const std::exception &) {
                 Logger::warning("Invalid input. Please enter a valid number.");
@@ -54,7 +57,8 @@ int main() {
 
         if (mode == 1) {
             player = std::make_unique<EnginePlayer>(player_name, color, server_address.first, server_address.second);
-        } else if (mode == 2) {
+        } 
+        else if (mode == 2) {
             player = std::make_unique<HumanPlayer>(player_name, color, server_address.first, server_address.second);
         }
 

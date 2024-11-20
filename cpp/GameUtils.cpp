@@ -1,12 +1,5 @@
 #include "GameUtils.h"
 
-// CONSTANTS UTILS
-
-const vector<pair<int, int>> winning_positions = {
-    {0, 1}, {0, 2}, {0, 6}, {0, 7}, {1, 0}, {1, 8}, {2, 0}, {2, 8},
-    {6, 0}, {6, 8}, {7, 0}, {7, 8}, {8, 1}, {8, 2}, {8, 6}, {8, 7}
-};
-
 // PARSE MOVE
 
 Move parseMove(const std::string& move) {
@@ -222,9 +215,29 @@ std::string is_game_over(const std::vector<std::vector<char>>& board) {
 
 // APPLY MOVE
 
-std::vector<std::vector<char>> apply_move(
-    const std::vector<std::vector<char>>& board, 
-    Move& move) {
+bool is_enemy(const char& enemy, const char& of){
+    if(of == 'B'){
+        return enemy == 'W';
+    } else if(of == 'W'){
+        return enemy == 'B';
+    } else if(of == 'K'){
+        return enemy == 'B';
+    }
+    return false;
+}
+
+bool is_allie(const char& allie, const char& of){
+    if(of == 'B'){
+        return allie == 'B' || allie == 'T';
+    } else if(of == 'W'){
+        return allie == 'W' || allie == 'K' || allie == 'T';
+    } else if(of == 'K'){
+        return allie == 'W' || allie == 'T';
+    }
+    return false;
+}
+
+std::vector<std::vector<char>> apply_move(const std::vector<std::vector<char>>& board, Move& move) {
 
     try {
         // Decomponiamo la mossa
@@ -263,26 +276,6 @@ std::vector<std::vector<char>> apply_move(
     } catch (const std::exception& e) {
         std::cerr << "Error in apply_move: " << e.what() << std::endl;
         throw; // Rilancia l'eccezione
-    }
-}
-
-bool is_enemy(const char& enemy, const char& of){
-    if(of == 'B'){
-        return enemy == 'W';
-    } else if(of == 'W'){
-        return enemy == 'B';
-    } else if(of == 'K'){
-        return enemy == 'B';
-    }
-}
-
-bool is_allie(const char& allie, const char& of){
-    if(of == 'B'){
-        return allie == 'B' || allie == 'T';
-    } else if(of == 'W'){
-        return allie == 'W' || allie == 'K' || allie == 'T';
-    } else if(of == 'K'){
-        return allie == 'W' || allie == 'T';
     }
 }
 
