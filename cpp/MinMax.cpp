@@ -206,6 +206,7 @@ pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth,
             int max_eval = std::numeric_limits<int>::min();
             for (const Move& move : generate_all_possible_moves(board, player)) {
                 // Applica la mossa per il giocatore max
+                //Logger::info("Applying move MAX: " + to_string(move.from.first) + to_string(move.from.second) + " to " + to_string(move.to.first) + to_string(move.to.second));
                 vector<vector<char>> new_board = apply_move(board, move);
                 auto [eval, _] = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player);
                 
@@ -226,6 +227,8 @@ pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth,
             int min_eval = std::numeric_limits<int>::max();
             for (const Move& move : generate_all_possible_moves(board, player)) {
                 // Applica la mossa per il giocatore min
+                //Logger::info("Applying move MIN: " + to_string(move.from.first) + to_string(move.from.second) + " to " + to_string(move.to.first) + to_string(move.to.second));
+
                 vector<vector<char>> new_board = apply_move(board, move);
                 auto [eval, _] = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player);
                 

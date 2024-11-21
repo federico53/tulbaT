@@ -53,13 +53,33 @@ int main() {
             }
         }
 
+        Logger::info("Select the depth of the tree search");
+
+        int depth = 0;
+        std::string inputDepth;
+
+        while (true) {
+            std::cout << "Enter your choice: ";
+            std::getline(std::cin, inputDepth);
+
+            try {
+                depth = std::stoi(inputDepth);
+                if (mode % 2 != 0 && depth > 0){
+                    break;
+                }
+                Logger::warning("Insert an odd number greater than 0");
+            } catch (const std::exception &) {
+                Logger::warning("Invalid input. Please enter a valid number.");
+            }
+        }
+
         std::unique_ptr<Player> player;
 
         if (mode == 1) {
-            player = std::make_unique<EnginePlayer>(player_name, color, server_address.first, server_address.second);
+            player = std::make_unique<EnginePlayer>(player_name, color, server_address.first, server_address.second, depth);
         } 
         else if (mode == 2) {
-            player = std::make_unique<HumanPlayer>(player_name, color, server_address.first, server_address.second);
+            player = std::make_unique<HumanPlayer>(player_name, color, server_address.first, server_address.second, depth);
         }
 
         Logger::info("Game started. Waiting for moves...");

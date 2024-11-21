@@ -9,9 +9,10 @@ protected:
     std::string name;
     std::string color;
     GameDriver driver;
+    int depth;
 
 public:
-    Player(const std::string& name, const std::string& color, const std::string& server_address, int port);
+    Player(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth);
     virtual void play() = 0; // Metodo virtuale puro
     virtual ~Player() = default;
 };

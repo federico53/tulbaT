@@ -6,6 +6,7 @@
 #include <limits>
 #include "GameUtils.h"
 #include "Stats.h" 
+#include "Logger.h"
 
 using namespace std;
 

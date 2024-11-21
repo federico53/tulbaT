@@ -25,8 +25,8 @@ bool is_castle(int row, int col) {
 
 bool is_citadel(int row, int col) {
     const vector<pair<int, int>> citadels = {
-        {0, 3}, {0, 4}, {0, 5}, {1, 4}, {3, 0}, {3, 1}, {3, 2},
-        {4, 0}, {4, 2}, {4, 6}, {4, 8}, {5, 0}, {8, 3}, {8, 5}
+        {0, 3}, {0, 4}, {0, 5}, {1, 4}, {3, 0}, {4,0}, {5,0}, {4,1},
+        {3,8}, {4,8}, {5,8}, {4,7}, {8,3}, {8,4}, {8,5}, {7,4}
     };
     for(const auto& c : citadels){
         if(c.first == row && c.second == col){
@@ -132,16 +132,38 @@ bool is_valid_move(Move& move, const vector<vector<char>> &board, const char &co
     // Check if destination is empty
     if (board[to_row][to_col] != 'E') return false;
 
+    // Check if it is a black piece moving within a citadel: legal, return true
+    if (color == 'B' && is_citadel(from_row, from_col) && is_citadel(to_row, to_col)) {
+        if (from_row == to_row) {
+            int step = (to_col > from_col) ? 1 : -1;
+            for (int col = from_col + step; col != to_col; col += step) {
+                if (!(board[from_row][col] == 'E' && is_citadel(from_row, col))) return false;
+            }
+        } else if (from_col == to_col) {
+            int step = (to_row > from_row) ? 1 : -1;
+            for (int row = from_row + step; row != to_row; row += step) {
+                if (!(board[row][from_col] == 'E' && is_citadel(row, from_col))) return false;
+            }
+        } else {
+            return false;  // Diagonal move
+        }
+        return true;
+    }
+
+    if (!is_citadel(from_row, from_col) && is_citadel(to_row, to_col)) {
+        return false;
+    } // if i am not in a citadel and i am moving to a citadel
+
     // Check if movement is valid (straight line, no obstacles)
     if (from_row == to_row) {
         int step = (to_col > from_col) ? 1 : -1;
         for (int col = from_col + step; col != to_col; col += step) {
-            if (board[from_row][col] != 'E') return false;
+            if (board[from_row][col] != 'E' || is_citadel(from_row, col)) return false;
         }
     } else if (from_col == to_col) {
         int step = (to_row > from_row) ? 1 : -1;
         for (int row = from_row + step; row != to_row; row += step) {
-            if (board[row][from_col] != 'E') return false;
+            if (board[row][from_col] != 'E' || is_citadel(row, from_col)) return false;
         }
     } else {
         return false; // Diagonal moves not allowed

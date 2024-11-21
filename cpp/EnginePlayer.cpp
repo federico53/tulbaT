@@ -1,7 +1,7 @@
 #include "EnginePlayer.h"
 
-EnginePlayer::EnginePlayer(const std::string& name, const std::string& color, const std::string& server_address, int port)
-    : Player(name, color, server_address, port) {
+EnginePlayer::EnginePlayer(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth)
+    : Player(name, color, server_address, port, depth) {
     Logger::info("EnginePlayer " + this->name + " initialized as " + this->color);
 }
 
@@ -64,7 +64,7 @@ void EnginePlayer::play(){
             Move best_move;
 
             //TODO: change the parameter types in accordance to how chicco changed minimax_alpha_beta in gameutils.cpp
-            std::pair<int, Move> result = minimax_alpha_beta(board_vector, 3, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]));
+            std::pair<int, Move> result = minimax_alpha_beta(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]));
             best_score = result.first;
             best_move = result.second;
             

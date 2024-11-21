@@ -2,8 +2,8 @@
 
 using namespace std;
 
-HumanPlayer::HumanPlayer(const std::string& name, const std::string& color, const std::string& server_address, int port)
-    : Player(name, color, server_address, port) {
+HumanPlayer::HumanPlayer(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth)
+    : Player(name, color, server_address, port, depth) {
     Logger::info("HumanPlayer " + this->name + " initialized as " + this->color);
 }
 
