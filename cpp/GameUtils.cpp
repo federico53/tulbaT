@@ -130,18 +130,18 @@ bool is_valid_move(Move& move, const vector<vector<char>> &board, const char &co
     int to_row = move.to.first, to_col = move.to.second;
 
     // Check if destination is empty
-    if (board[to_row][to_col] != 'O') return false;
+    if (board[to_row][to_col] != 'E') return false;
 
     // Check if movement is valid (straight line, no obstacles)
     if (from_row == to_row) {
         int step = (to_col > from_col) ? 1 : -1;
         for (int col = from_col + step; col != to_col; col += step) {
-            if (board[from_row][col] != 'O') return false;
+            if (board[from_row][col] != 'E') return false;
         }
     } else if (from_col == to_col) {
         int step = (to_row > from_row) ? 1 : -1;
         for (int row = from_row + step; row != to_row; row += step) {
-            if (board[row][from_col] != 'O') return false;
+            if (board[row][from_col] != 'E') return false;
         }
     } else {
         return false; // Diagonal moves not allowed
@@ -163,7 +163,7 @@ vector<Move> generate_all_possible_moves(const vector<vector<char>> &board, cons
                 for (auto &[dr, dc] : directions) {
                     for (int i = 1; i < board.size(); ++i) {
                         int new_row = row + dr * i, new_col = col + dc * i;
-                        if (!is_within_bounds(new_row, new_col) || board[new_row][new_col] != 'O') break;
+                        if (!is_within_bounds(new_row, new_col) || board[new_row][new_col] != 'E') break;
 
                         pair<int, int> from = {row, col}, to = {new_row, new_col};
                         Move m;
@@ -251,7 +251,7 @@ std::vector<std::vector<char>> apply_move(const std::vector<std::vector<char>>& 
         
         // Muoviamo il pezzo sulla nuova scacchiera
         new_board[to_row][to_col] = new_board[from_row][from_col];
-        new_board[from_row][from_col] = 'O';
+        new_board[from_row][from_col] = 'E';
 
         // Direzioni in cui un pezzo può catturare
         std::vector<std::pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
@@ -267,7 +267,7 @@ std::vector<std::vector<char>> apply_move(const std::vector<std::vector<char>>& 
             if (is_within_bounds(capture_row, capture_col) && is_enemy(new_board[check_row][check_col], new_board[to_row][to_col]) && 
                 (is_allie(new_board[capture_row][capture_col], new_board[to_row][to_col]) || is_citadel(capture_row, capture_col) && !is_citadel(check_row, check_col))){
                     if(new_board[check_row][check_col] != 'K'){
-                        new_board[check_row][check_col] = 'O';
+                        new_board[check_row][check_col] = 'E';
                     }
             }
         }

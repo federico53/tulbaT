@@ -192,7 +192,10 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& turn, co
 pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& turn, const char& player) {
     try {
         // Caso base: limite di profondità raggiunto o fine del gioco
+        //stampiammo tutti i parametri ricevuti per controllare se sono corretti
+
         if (depth == 0 || is_game_over(board) != "") {
+            //printiamo qualcosa per capire se siamo entrati in questo if
             return {heuristic_evaluation(board, turn, player), Move()};  // Restituisce punteggio e nessuna mossa usando l'euristica
         }
 
