@@ -64,7 +64,7 @@ int main() {
 
             try {
                 depth = std::stoi(inputDepth);
-                if (mode % 2 != 0 && depth > 0){
+                if (depth > 0){
                     break;
                 }
                 Logger::warning("Insert an odd number greater than 0");
