@@ -2,9 +2,9 @@
 
 using namespace std;
 
-// WHITE HEURISTIC
 
-int heuristic_white(const vector<vector<char>>& board) {
+// WHITE HEURISTIC
+/* int heuristic_white(const vector<vector<char>>& board) {
     try {
         // 1. Posizione del re - TODO
         // 2. Posizione del re ai lati - TODO
@@ -58,7 +58,35 @@ int heuristic_white(const vector<vector<char>>& board) {
         cerr << "Error in heuristic_white: " << e.what() << endl;
         return 0;  // Gestione dell'errore
     }
+} */
+
+int heuristic_white(const vector<vector<char>>& board) {
+
+    int sum = 0;
+
+    if (is_game_over(board) == "white") {
+        sum += 1000000;
+    }
+
+    if (is_game_over(board) == "black") {
+        sum -= 2000000;
+    }
+    
+    int black_eaten = 16 - count_pieces(board, 'B');
+    sum += black_eaten * 500;
+
+    int points_king_checkmate = 0;
+        if (black_checkmate(board)) {
+            points_king_checkmate = 1000;
+        }
+    sum += points_king_checkmate;
+
+
+    return sum;
+    
 }
+
+
 
 // BLACK HEURISTIC
 

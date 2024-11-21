@@ -1,0 +1,1 @@
+g++ main.cpp Player.cpp EnginePlayer.cpp HumanPlayer.cpp GameDriver.cpp GameUtils.cpp MinMax.cpp Stats.cpp Logger.cpp -o tablutLuca -ljsoncpp -lstdc++fs
