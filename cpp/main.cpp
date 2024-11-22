@@ -73,6 +73,27 @@ int main() {
             }
         }
 
+        Logger::info("Select the cut size (0 for no cut)");
+
+        int cut_size = 0;
+        std::string inputCutSize;
+
+        while (true) {
+            std::cout << "FAKE CHOICE -> Passed 10 and not the parameter" << endl;
+            std::cout << "Enter your choice: ";
+            std::getline(std::cin, inputCutSize);
+
+            try {
+                cut_size = std::stoi(inputCutSize);
+                if (cut_size >= 0){
+                    break;
+                }
+                Logger::warning("Insert a number greater or equal to 0");
+            } catch (const std::exception &) {
+                Logger::warning("Invalid input. Please enter a valid number.");
+            }
+        }
+
         std::unique_ptr<Player> player;
 
         if (mode == 1) {

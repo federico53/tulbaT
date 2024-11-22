@@ -175,33 +175,40 @@ bool is_valid_move(Move& move, const vector<vector<char>> &board, const char &co
 // MOVE GENERATION
 
 vector<Move> generate_all_possible_moves(const vector<vector<char>> &board, const char &color) {
-    vector<Move> moves;
-    vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-    for (int row = 0; row < board.size(); ++row) {
-        for (int col = 0; col < board[row].size(); ++col) {
-            if ((color == 'W' && (board[row][col] == 'W' || board[row][col] == 'K')) ||
-                (color == 'B' && board[row][col] == 'B')) {
-                for (auto &[dr, dc] : directions) {
-                    for (int i = 1; i < board.size(); ++i) {
-                        int new_row = row + dr * i, new_col = col + dc * i;
-                        if (!is_within_bounds(new_row, new_col) || board[new_row][new_col] != 'E') break;
+    try{
+        vector<Move> moves;
+        vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-                        pair<int, int> from = {row, col}, to = {new_row, new_col};
-                        Move m;
-                        m.from = from;
-                        m.to = to;
+        for (int row = 0; row < board.size(); ++row) {
+            for (int col = 0; col < board[row].size(); ++col) {
+                if ((color == 'W' && (board[row][col] == 'W' || board[row][col] == 'K')) ||
+                    (color == 'B' && board[row][col] == 'B')) {
+                    for (auto &[dr, dc] : directions) {
+                        for (int i = 1; i < board.size(); ++i) {
+                            int new_row = row + dr * i, new_col = col + dc * i;
+                            if (!is_within_bounds(new_row, new_col) || board[new_row][new_col] != 'E') break;
 
-                        if (is_valid_move(m, board, color)) {
-                            moves.push_back(m);
+                            pair<int, int> from = {row, col}, to = {new_row, new_col};
+                            Move m;
+                            m.from = from;
+                            m.to = to;
+
+                            if (is_valid_move(m, board, color)) {
+                                moves.push_back(m);
+                            }
                         }
                     }
                 }
             }
         }
-    }
+        return moves;
 
-    return moves;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in generate_all_possible_moves: " << e.what() << std::endl;
+        throw;
+
+    }
 }
 
 // GAME OVER

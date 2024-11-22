@@ -47,7 +47,7 @@ void EnginePlayer::play(){
             }
 
             // Stampa le statistiche della scacchiera
-            Logger::debug("Stats of the board: " + stats_of_the_board(board_vector, color[0]));
+            //Logger::debug("Stats of the board: " + stats_of_the_board(board_vector, color[0]));
 
             // Convert the board into integer
             /*  std::vector<std::vector<int>> board_int;
@@ -64,10 +64,14 @@ void EnginePlayer::play(){
             Move best_move;
 
             //TODO: change the parameter types in accordance to how chicco changed minimax_alpha_beta in gameutils.cpp
-            std::pair<int, Move> result = minimax_alpha_beta(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]));
+
+            // CALLING THE MINIMAX FUNCTION
+            std::pair<int, Move> result = minimax_alpha_beta_fast(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]), 10);
+            //std::pair<int, Move> result = minimax_alpha_beta(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]));
+
             best_score = result.first;
             best_move = result.second;
-            
+
             Logger::info("Best move for " + color + ": " + driver.coordinateToAlgebraic(best_move.from.first, best_move.from.second) + " to " + driver.coordinateToAlgebraic(best_move.to.first, best_move.to.second) + " with score: " + std::to_string(best_score));
 
             // Invia la mossa al server

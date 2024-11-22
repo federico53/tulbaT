@@ -795,23 +795,30 @@ std::string stats_of_the_board(const vector<vector<char>>& board, const char& tu
 }
 
 std::string format_board(const vector<vector<char>>& board) {
-    std::unordered_map<std::string, char> symbols = {
-        {"WHITE", 'W'},
-        {"BLACK", 'B'},
-        {"KING", 'K'},
-        {"THRONE", 'T'},
-        {"EMPTY", ' '}
+    // Mappa per convertire i simboli della board nei caratteri desiderati
+    std::unordered_map<char, char> symbols = {
+        {'W', 'W'},  // WHITE
+        {'B', 'B'},  // BLACK
+        {'K', 'K'},  // KING
+        {'T', 'T'},  // THRONE
+        {'E', ' '}   // EMPTY
     };
 
+    // Etichette delle colonne
     std::string column_labels = "A B C D E F G H I";
     std::ostringstream board_str;
+
+    // Etichette in alto
     board_str << "    " << column_labels << "\n";
     board_str << "  +" << std::string(9 * 4 - 1, '-') << "+\n";
 
+    // Creazione della board
     for (int i = 0; i < 9; ++i) {
-        board_str << i + 1 << " | ";
+        board_str << i + 1 << " | ";  // Etichetta della riga
         for (int j = 0; j < 9; ++j) {
-            board_str << symbols[std::string(1, board[i][j])] << " | ";
+            // Controlla se il simbolo esiste nella mappa, altrimenti usa un carattere predefinito
+            char cell_symbol = (symbols.count(board[i][j]) > 0) ? symbols[board[i][j]] : '?';
+            board_str << cell_symbol << " | ";
         }
         board_str << "\n";
         board_str << "  +" << std::string(9 * 4 - 1, '-') << "+\n";

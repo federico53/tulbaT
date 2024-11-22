@@ -4,7 +4,7 @@ using namespace std;
 
 
 // WHITE HEURISTIC
-/* int heuristic_white(const vector<vector<char>>& board) {
+int heuristic_white(const vector<vector<char>>& board) {
     try {
         // 1. Posizione del re - TODO
         // 2. Posizione del re ai lati - TODO
@@ -15,22 +15,32 @@ using namespace std;
             points_king_checkmate = 100;
         }
 
+        //cout << "points_king_checkmate: done" << endl;
+
         // 4. Differenza tra i pezzi mangiati dal nero e quelli persi dal bianco
         int white_lost = 8 - count_pieces(board, 'W');
         int black_eaten = 16 - count_pieces(board, 'B');
-        int diff_between_white_black = 1600 * (black_eaten - white_lost) * 200;
+        int diff_between_white_black = 1600 + (black_eaten - white_lost) * 200;
+
+        //cout << "diff_between_white_black: done" << endl;
 
         // 5. Nero mangiato
         int score_black_eaten = 5000 * black_eaten;
 
+        //cout << "score_black_eaten: done" << endl;
+
         // 6. Il re non è bloccato nel quadrante - TODO
         int score_king_not_blocked_quadrant = 0;
 
-        // 7. Il nero non può fare scacco matto in una mossa
-        int score_king_not_checkmated_infuture = 0;
-        if (!black_can_checkmate_in_future(board)) {
-            score_king_not_checkmated_infuture = 20000;
-        }
+        //cout << "score_king_not_blocked_quadrant: done" << endl;
+
+        // // 7. Il nero non può fare scacco matto in una mossa
+        // int score_king_not_checkmated_infuture = 0;
+        // if (!black_can_checkmate_in_future(board)) {
+        //     score_king_not_checkmated_infuture = 20000;
+        // }
+
+        //cout << "score_king_not_checkmated_infuture: done" << endl;
 
         // 8. Il re non è in scacco matto dal nero
         int score_king_not_checkmated = 0;
@@ -38,53 +48,65 @@ using namespace std;
             score_king_not_checkmated = 40000;
         }
 
+        //cout << "score_king_not_checkmated: done" << endl;
+
         // 9. Se il nero non ha vinto
         int white_didnt_win_points = 0;
         if (is_game_over(board) != "black") {
             white_didnt_win_points = 80000;
         }
 
-        // 10. Se il bianco ha vinto
-        int black_won_points = 0;
-        if (is_game_over(board) == "white") {
-            black_won_points = 160000;
-        }
+        //cout << "white_didnt_win_points: done" << endl;
 
+        // 10. Se il bianco ha vinto
+        int white_won_points = 0;
+        if (is_game_over(board) == "white") {
+            white_won_points = 160000/0.16; // 160000/0.16 = 1000000
+            return white_won_points;
+        }
+        //cout << "white_won_points: done" << endl;
+
+        
         // Calcolo finale del punteggio
-        return points_king_checkmate + diff_between_white_black + score_black_eaten + 
-               score_king_not_blocked_quadrant + score_king_not_checkmated_infuture + 
-               score_king_not_checkmated + white_didnt_win_points + black_won_points;
+        return  (points_king_checkmate + 
+                diff_between_white_black + 
+                score_black_eaten + 
+                score_king_not_blocked_quadrant + 
+                //score_king_not_checkmated_infuture + 
+                score_king_not_checkmated + 
+                white_didnt_win_points)/0.16;
+
     } catch (const exception& e) {
         cerr << "Error in heuristic_white: " << e.what() << endl;
         return 0;  // Gestione dell'errore
     }
-} */
+} 
 
-int heuristic_white(const vector<vector<char>>& board) {
+// int heuristic_white(const vector<vector<char>>& board) {
 
-    int sum = 0;
+//     int sum = 0;
 
-    if (is_game_over(board) == "white") {
-        sum += 1000000;
-    }
+//     if (is_game_over(board) == "white") {
+//         sum += 1000000;
+//     }
 
-    if (is_game_over(board) == "black") {
-        sum -= 2000000;
-    }
+//     if (is_game_over(board) == "black") {
+//         sum -= 2000000;
+//     }
     
-    int black_eaten = 16 - count_pieces(board, 'B');
-    sum += black_eaten * 500;
+//     int black_eaten = 16 - count_pieces(board, 'B');
+//     sum += black_eaten * 500;
 
-    int points_king_checkmate = 0;
-        if (black_checkmate(board)) {
-            points_king_checkmate = 1000;
-        }
-    sum += points_king_checkmate;
+//     int points_king_checkmate = 0;
+//         if (black_checkmate(board)) {
+//             points_king_checkmate = 1000;
+//         }
+//     sum += points_king_checkmate;
 
 
-    return sum;
+//     return sum;
     
-}
+// }
 
 
 
@@ -131,93 +153,118 @@ int calculate_black_starting_positions_points(const vector<vector<char>>& board)
     }
 }
 
-int heuristic_black(const std::vector<std::vector<char>>& board){
-    try{
+// int heuristic_black(const std::vector<std::vector<char>>& board){
+//     try{
 
-        int score = 0;
+//         int score = 0;
 
-        if (is_game_over(board) == "black") {
-            return 1000000;
+//         if (is_game_over(board) == "black") {
+//             return 1000000;
+//         }
+
+//         if (is_game_over(board) == "white") {
+//             return -10000000;
+//         }
+
+//         // Points for number of pieces
+//         score += 8 - count_pieces(board, 'W') * 140;
+//         score -= 16 - count_pieces(board, 'B') * 95;
+
+//         // Points for the starting positions of the black pieces
+//         score -= count_black_starting_position(board) * 15;
+
+//         // Points for white risk checkmate
+//         if (white_checkmate(board)) {
+//             score += 1600;
+//         }
+
+//         // Points for black risk checkmate
+//         if (black_checkmate(board)) {
+//             score -= 3000;
+//         }
+
+//         return score;
+//     } catch (const std::exception& e) {
+//         std::cerr << "Error in heuristic_black: " << e.what() << std::endl;
+//         throw; // Rilancia l'eccezione
+//     }
+// }
+
+int heuristic_black(const std::vector<std::vector<char>>& board) {
+    try {
+        //Add a print between each function to debug
+
+        // 1. Punti per le posizioni di partenza dei pezzi neri
+        int black_starting_positions_points = calculate_black_starting_positions_points(board);
+
+        //cout << "black_starting_positions_points: done" << endl;
+        
+        // 2. Differenza tra i pezzi bianchi mangiati e i pezzi neri persi
+        int white_eaten = 8 - count_pieces(board, 'W');
+        int black_lost = 16 - count_pieces(board, 'B');
+        int diff_between_white_black = 480 + (white_eaten - black_lost) * 30;
+
+        //cout << "diff_between_white_black: done" << endl;
+        
+        // 3. Punti per ogni pezzo bianco mangiato
+        int points_white_eaten = white_eaten * 750;
+
+        //cout << "points_white_eaten: done" << endl;
+        
+        // 4. Se il re non può dare scacco matto in una mossa
+        int king_not_checkmate_inonemove = 0;
+        if (!king_can_checkmate_in_future(board)) {
+            king_not_checkmate_inonemove = 6750;
         }
 
-        if (is_game_over(board) == "white") {
-            return -10000000;
-        }
-
-        // Points for number of pieces
-        score += 8 - count_pieces(board, 'W') * 140;
-        score -= 16 - count_pieces(board, 'B') * 95;
-
-        // Points for the starting positions of the black pieces
-        score -= count_black_starting_position(board) * 15;
-
-        // Points for white risk checkmate
+        //cout << "king_not_checkmate_inonemove: done" << endl;
+        
+        // 5. Se il re è in scacco matto
+        int king_not_checkmate_points = 0;
         if (white_checkmate(board)) {
-            score += 1600;
+            king_not_checkmate_points = 13500;
         }
 
-        // Points for black risk checkmate
-        if (black_checkmate(board)) {
-            score -= 3000;
+        //cout << "king_not_checkmate_points: done" << endl;
+        
+        // 6. Se il nero non è in scacco matto
+        int black_checkmate_points = 0;
+        if (!black_checkmate(board)) {
+            black_checkmate_points = 27000;
         }
 
-        return score;
+        //cout << "black_checkmate_points: done" << endl;
+        
+        // 7. Se il bianco non ha vinto
+        int white_didnt_win_points = 0;
+        if (is_game_over(board) != "white") {
+            white_didnt_win_points = 54000;
+        }
+
+        //cout << "white_didnt_win_points: done" << endl;
+        
+        // 8. Se il nero ha vinto
+        int black_won_points = 0;
+        if (is_game_over(board) == "black") {
+
+            black_won_points = 108000/0.108; // 108000/0.108 = 1000000
+            return black_won_points;
+        }
+        //cout << "black_won_points: done" << endl;
+
+        return  (black_starting_positions_points + 
+                diff_between_white_black + 
+                points_white_eaten + 
+                king_not_checkmate_inonemove + 
+                king_not_checkmate_points + 
+                black_checkmate_points + 
+                white_didnt_win_points)/0.108;
 
     } catch (const std::exception& e) {
         std::cerr << "Error in heuristic_black: " << e.what() << std::endl;
         throw; // Rilancia l'eccezione
     }
 }
-
-// int heuristic_black(const std::vector<std::vector<char>>& board) {
-//     try {
-//         // 1. Punti per le posizioni di partenza dei pezzi neri
-//         int black_starting_positions_points = calculate_black_starting_positions_points(board);
-
-//         // 2. Differenza tra i pezzi bianchi mangiati e i pezzi neri persi
-//         int white_eaten = 8 - count_pieces(board, 'W');
-//         int black_lost = 16 - count_pieces(board, 'B');
-//         int diff_between_white_black = 480 + (white_eaten - black_lost) * 30;
-
-//         // 3. Punti per ogni pezzo bianco mangiato
-//         int points_white_eaten = white_eaten * 750;
-
-//         // 4. Se il re non può dare scacco matto in una mossa
-//         int king_not_checkmate_inonemove = 0;
-//         if (!king_can_checkmate_in_future(board)) {
-//             king_not_checkmate_inonemove = 6750;
-//         }
-
-//         // 5. Se il re è in scacco matto
-//         int king_not_checkmate_points = 0;
-//         if (white_checkmate(board)) {
-//             king_not_checkmate_points = 13500;
-//         }
-
-//         // 6. Se il nero non è in scacco matto
-//         int black_checkmate_points = 0;
-//         if (!black_checkmate(board)) {
-//             black_checkmate_points = 27000;
-//         }
-
-//         // 7. Se il bianco non ha vinto
-//         int white_didnt_win_points = 0;
-//         if (is_game_over(board) != "white") {
-//             white_didnt_win_points = 54000;
-//         }
-
-//         // 8. Se il nero ha vinto
-//         int black_won_points = 0;
-//         if (is_game_over(board) == "black") {
-//             black_won_points = 108000;
-//         }
-
-//         return black_starting_positions_points + diff_between_white_black + points_white_eaten + king_not_checkmate_inonemove + king_not_checkmate_points + black_checkmate_points + white_didnt_win_points + black_won_points;
-//     } catch (const std::exception& e) {
-//         std::cerr << "Error in heuristic_black: " << e.what() << std::endl;
-//         throw; // Rilancia l'eccezione
-//     }
-// }
 
 // HEURISTIC
 
@@ -270,7 +317,8 @@ pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth,
 
         if (is_max) {
             int max_eval = std::numeric_limits<int>::min();
-            for (const Move& move : generate_all_possible_moves(board, player)) {
+            std::vector<Move> generated_moves= generate_all_possible_moves(board, player);
+            for (const Move& move : generated_moves) {
                 // Applica la mossa per il giocatore max
                 //Logger::info("Applying move MAX: " + to_string(move.from.first) + to_string(move.from.second) + " to " + to_string(move.to.first) + to_string(move.to.second));
                 vector<vector<char>> new_board = apply_move(board, move);
@@ -291,7 +339,8 @@ pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth,
             return {max_eval, best_move};
         } else {
             int min_eval = std::numeric_limits<int>::max();
-            for (const Move& move : generate_all_possible_moves(board, player)) {
+            std::vector<Move> generated_moves= generate_all_possible_moves(board, player);
+            for (const Move& move : generated_moves) {
                 // Applica la mossa per il giocatore min
                 //Logger::info("Applying move MIN: " + to_string(move.from.first) + to_string(move.from.second) + " to " + to_string(move.to.first) + to_string(move.to.second));
 
@@ -307,6 +356,83 @@ pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth,
                 
                 // Potatura Alpha
                 if (beta <= alpha) {
+                    break;
+                }
+            }
+            return {min_eval, best_move};
+        }
+    } catch (const exception& e) {
+        cerr << "Errore in minimax_alpha_beta: " << e.what() << endl;
+        throw;
+    }
+}
+
+pair<int, Move> minimax_alpha_beta_fast(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& turn, const char& player, int cut_size) {
+    try {
+        // Caso base: limite di profondità raggiunto o fine del gioco
+        if (depth == 0 || is_game_over(board) != "") {
+            return {heuristic_evaluation(board, turn, player), Move()};  // Restituisce punteggio e nessuna mossa usando l'euristica
+        }
+
+        Move best_move;
+        bool is_max = (turn == player);  // Se il turno è del giocatore, è una fase di massimizzazione
+
+        // Generazione delle mosse
+        std::vector<Move> generated_moves = generate_all_possible_moves(board, turn);
+
+        // Seleziona le migliori mosse basate sull'euristica
+        std::vector<std::pair<int, Move>> evaluated_moves; // Lista di valutazioni e mosse
+        for (const Move& move : generated_moves) {
+            vector<vector<char>> new_board = apply_move(board, move); // Applica la mossa per calcolare l'euristica
+            int score = heuristic_evaluation(new_board, turn, player); // Valuta il punteggio
+            evaluated_moves.push_back({score, move}); // Salva punteggio e mossa
+        }
+
+        // Ordina le mosse basandosi solo sul punteggio
+        if (is_max) {
+            std::sort(evaluated_moves.begin(), evaluated_moves.end(), 
+                      [](const auto& a, const auto& b) { return a.first > b.first; });
+        } else {
+            std::sort(evaluated_moves.begin(), evaluated_moves.end(), 
+                      [](const auto& a, const auto& b) { return a.first < b.first; });
+        }
+
+        // Mantieni solo le prime "cut_size" mosse
+        if (evaluated_moves.size() > cut_size) {
+            evaluated_moves.resize(cut_size);
+        }
+
+        // Ora esegui il Minimax con Alpha-Beta sulle migliori mosse
+        if (is_max) {
+            int max_eval = std::numeric_limits<int>::min();
+            for (const auto& [score, move] : evaluated_moves) {
+                vector<vector<char>> new_board = apply_move(board, move);
+                auto [eval, dummy] = minimax_alpha_beta_fast(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player, cut_size);
+                
+                if (eval > max_eval) {
+                    max_eval = eval;
+                    best_move = move;
+                }
+                
+                alpha = std::max(alpha, eval);
+                if (beta <= alpha) { // Potatura Beta
+                    break;
+                }
+            }
+            return {max_eval, best_move};
+        } else {
+            int min_eval = std::numeric_limits<int>::max();
+            for (const auto& [score, move] : evaluated_moves) {
+                vector<vector<char>> new_board = apply_move(board, move);
+                auto [eval, dummy] = minimax_alpha_beta_fast(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player, cut_size);
+                
+                if (eval < min_eval) {
+                    min_eval = eval;
+                    best_move = move;
+                }
+                
+                beta = std::min(beta, eval);
+                if (beta <= alpha) { // Potatura Alpha
                     break;
                 }
             }
