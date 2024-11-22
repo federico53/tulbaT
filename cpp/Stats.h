@@ -7,6 +7,8 @@
 #include <iostream>
 #include <algorithm>
 
+#include "GameUtils.h"
+
 using namespace std;
 
 // COSTANTI E UTILITY

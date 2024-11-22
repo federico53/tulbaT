@@ -149,11 +149,11 @@ std::tuple<int, int, int, int, int> king_free_sides(const vector<vector<char>>& 
                 ++free_sides;
             } else {
                 ++blocked_sides;
-                if (std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(row, col)) != black_camps_positions.end() || board[row][col] == 'B') {
+                if (is_citadel(row,col) || board[row][col] == 'B') {
                     ++black_blockers;
                 } else if (board[row][col] == 'W') {
                     ++white_blockers;
-                } else if (std::make_pair(row, col) == castle_position) {
+                } else if (is_castle(row, col)) {
                     ++castle_blockers;
                 }
             }
@@ -182,12 +182,13 @@ bool black_checkmate(const vector<vector<char>>& board) {
         for (const auto& direction : move_directions) {
             auto new_position = std::make_pair(king_position.first + direction.first, king_position.second + direction.second);
             while (new_position.first >= 0 && new_position.first <= 8 && new_position.second >= 0 && new_position.second <= 8) {
-                if (std::find(winning_positions.begin(), winning_positions.end(), new_position) != winning_positions.end()) {
-                    return true;
-                }
-                if (board[new_position.first][new_position.second] != 'E' || std::find(black_camps_positions.begin(), black_camps_positions.end(), new_position) != black_camps_positions.end() || new_position == castle_position) {
+                if (board[new_position.first][new_position.second] != 'E' || is_citadel(new_position.first, new_position.second) || new_position == castle_position) {
                     break;
                 }
+                if (is_winning_position(new_position.first, new_position.second)) {
+                    return true;
+                }
+                
                 new_position = std::make_pair(new_position.first + direction.first, new_position.second + direction.second);
             }
         }
@@ -199,6 +200,8 @@ bool black_checkmate(const vector<vector<char>>& board) {
     }
 }
 
+
+
 bool is_empty_and_reachable(const vector<vector<char>>& board, const std::pair<int, int>& position, const char color) {
     try {
         if (board[position.first][position.second] != 'E') {
@@ -208,11 +211,11 @@ bool is_empty_and_reachable(const vector<vector<char>>& board, const std::pair<i
         std::vector<std::pair<int, int>> move_directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
         // Check for the special rule
-        if (std::find(black_camps_positions.begin(), black_camps_positions.end(), position) != black_camps_positions.end()) {
+        if (is_citadel(position.first, position.second)) {
             for (const auto& direction : move_directions) {
                 auto new_position = std::make_pair(position.first + direction.first, position.second + direction.second);
                 while (new_position.first >= 0 && new_position.first <= 8 && new_position.second >= 0 && new_position.second <= 8) {
-                    if (std::find(black_camps_positions.begin(), black_camps_positions.end(), new_position) != black_camps_positions.end()) {
+                    if (is_citadel(new_position.first, new_position.second)) {
                         if (board[new_position.first][new_position.second] == color) {
                             return true;
                         }
@@ -236,7 +239,7 @@ bool is_empty_and_reachable(const vector<vector<char>>& board, const std::pair<i
                 if (board[new_position.first][new_position.second] != 'E') { // if the position is not empty
                     break;
                 }
-                if (std::find(black_camps_positions.begin(), black_camps_positions.end(), new_position) != black_camps_positions.end() || new_position == castle_position) { // if the position is a black camp or the castle
+                if (is_citadel(new_position.first, new_position.second) || new_position == castle_position) { // if the position is a black camp or the castle
                     break;
                 }
                 new_position = std::make_pair(new_position.first + direction.first, new_position.second + direction.second);
@@ -259,11 +262,11 @@ std::pair<bool, std::pair<int, int>> is_empty_and_reachable_version2(const vecto
         std::vector<std::pair<int, int>> move_directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
         // Check for the special rule
-        if (std::find(black_camps_positions.begin(), black_camps_positions.end(), position) != black_camps_positions.end()) {
+        if (is_citadel(position.first, position.second)) {
             for (const auto& direction : move_directions) {
                 auto new_position = std::make_pair(position.first + direction.first, position.second + direction.second);
                 while (new_position.first >= 0 && new_position.first <= 8 && new_position.second >= 0 && new_position.second <= 8) {
-                    if (std::find(black_camps_positions.begin(), black_camps_positions.end(), new_position) != black_camps_positions.end()) {
+                    if (is_citadel(new_position.first, new_position.second)) {
                         if (board[new_position.first][new_position.second] == color && new_position != exceptional_start) {
                             return {true, new_position};
                         }
@@ -287,7 +290,7 @@ std::pair<bool, std::pair<int, int>> is_empty_and_reachable_version2(const vecto
                 if (board[new_position.first][new_position.second] != 'E') {  // if the position is not empty
                     break;
                 }
-                if (std::find(black_camps_positions.begin(), black_camps_positions.end(), new_position) != black_camps_positions.end() || new_position == castle_position) {  // if the position is a black camp or the castle
+                if (is_citadel(new_position.first, new_position.second) || new_position == castle_position) {  // if the position is a black camp or the castle
                     break;
                 }
                 new_position = std::make_pair(new_position.first + direction.first, new_position.second + direction.second);
@@ -331,25 +334,25 @@ bool king_can_be_captured_between_two_blacks(const vector<vector<char>>& board) 
         if (king_in_the_castle(king_position) || king_adjacent_to_castle(king_position)) {
             return false;
         }
-        if ((board[king_position.first - 1][king_position.second] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(king_position.first - 1, king_position.second)) != black_camps_positions.end()) &&
+        if ((board[king_position.first - 1][king_position.second] == 'B' || is_citadel(king_position.first - 1, king_position.second)) &&
             is_empty_and_reachable(board, std::make_pair(king_position.first + 1, king_position.second), 'B')) {
             return true;
         }
-        if ((board[king_position.first + 1][king_position.second] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(king_position.first + 1, king_position.second)) != black_camps_positions.end()) &&
+        if ((board[king_position.first + 1][king_position.second] == 'B' || is_citadel(king_position.first + 1, king_position.second)) &&
             is_empty_and_reachable(board, std::make_pair(king_position.first - 1, king_position.second), 'B')) {
             return true;
         }
-        if ((board[king_position.first][king_position.second - 1] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(king_position.first, king_position.second - 1)) != black_camps_positions.end()) &&
+        if ((board[king_position.first][king_position.second - 1] == 'B' || is_citadel(king_position.first, king_position.second - 1)) &&
             is_empty_and_reachable(board, std::make_pair(king_position.first, king_position.second + 1), 'B')) {
             return true;
         }
-        if ((board[king_position.first][king_position.second + 1] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(king_position.first, king_position.second + 1)) != black_camps_positions.end()) &&
+        if ((board[king_position.first][king_position.second + 1] == 'B' || is_citadel(king_position.first, king_position.second + 1)) &&
             is_empty_and_reachable(board, std::make_pair(king_position.first, king_position.second - 1), 'B')) {
             return true;
         }
         return false;
     } catch (const std::exception& e) {
-        cout << "An error occurred in king_can_be_captured_between_two_blacks: " << e.what() <<endl;
+        cout << "An error occurred in king_can_be_captured_between_two_blacks: " << e.what() << endl;
         // logger.error("An error occurred in king_can_be_captured_between_two_blacks: " + std::string(e.what()));
         throw;
     }
@@ -365,68 +368,68 @@ bool king_adjacent_to_castle_can_be_captured(const vector<vector<char>>& board) 
             return false;
         }
         if (king_position == std::make_pair(3, 4)) {
-            if ((board[3][3] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(3, 3)) != black_camps_positions.end()) &&
+            if ((board[3][3] == 'B' || is_citadel(3, 3)) &&
                 is_empty_and_reachable(board, std::make_pair(3, 5), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(4, 4), 'B')) {
                 return true;
             }
-            if ((board[4][4] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(4, 4)) != black_camps_positions.end()) &&
+            if ((board[4][4] == 'B' || is_citadel(4, 4)) &&
                 is_empty_and_reachable(board, std::make_pair(3, 3), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(3, 5), 'B')) {
                 return true;
             }
-            if ((board[3][5] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(3, 5)) != black_camps_positions.end()) &&
+            if ((board[3][5] == 'B' || is_citadel(3, 5)) &&
                 is_empty_and_reachable(board, std::make_pair(3, 3), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(4, 4), 'B')) {
                 return true;
             }
         }
         if (king_position == std::make_pair(5, 4)) {
-            if ((board[5][3] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(5, 3)) != black_camps_positions.end()) &&
+            if ((board[5][3] == 'B' || is_citadel(5, 3)) &&
                 is_empty_and_reachable(board, std::make_pair(5, 5), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(4, 4), 'B')) {
                 return true;
             }
-            if ((board[4][4] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(4, 4)) != black_camps_positions.end()) &&
+            if ((board[4][4] == 'B' || is_citadel(4, 4)) &&
                 is_empty_and_reachable(board, std::make_pair(5, 3), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(5, 5), 'B')) {
                 return true;
             }
-            if ((board[5][5] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(5, 5)) != black_camps_positions.end()) &&
+            if ((board[5][5] == 'B' || is_citadel(5, 5)) &&
                 is_empty_and_reachable(board, std::make_pair(5, 3), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(4, 4), 'B')) {
                 return true;
             }
         }
         if (king_position == std::make_pair(4, 3)) {
-            if ((board[3][3] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(3, 3)) != black_camps_positions.end()) &&
+            if ((board[3][3] == 'B' || is_citadel(3, 3)) &&
                 is_empty_and_reachable(board, std::make_pair(5, 3), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(4, 4), 'B')) {
                 return true;
             }
-            if ((board[4][4] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(4, 4)) != black_camps_positions.end()) &&
+            if ((board[4][4] == 'B' || is_citadel(4, 4)) &&
                 is_empty_and_reachable(board, std::make_pair(3, 3), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(5, 3), 'B')) {
                 return true;
             }
-            if ((board[5][3] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(5, 3)) != black_camps_positions.end()) &&
+            if ((board[5][3] == 'B' || is_citadel(5, 3)) &&
                 is_empty_and_reachable(board, std::make_pair(3, 3), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(4, 4), 'B')) {
                 return true;
             }
         }
         if (king_position == std::make_pair(4, 5)) {
-            if ((board[3][5] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(3, 5)) != black_camps_positions.end()) &&
+            if ((board[3][5] == 'B' || is_citadel(3, 5)) &&
                 is_empty_and_reachable(board, std::make_pair(5, 5), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(4, 4), 'B')) {
                 return true;
             }
-            if ((board[4][4] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(4, 4)) != black_camps_positions.end()) &&
+            if ((board[4][4] == 'B' || is_citadel(4, 4)) &&
                 is_empty_and_reachable(board, std::make_pair(3, 5), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(5, 5), 'B')) {
                 return true;
             }
-            if ((board[5][5] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(5, 5)) != black_camps_positions.end()) &&
+            if ((board[5][5] == 'B' || is_citadel(5, 5)) &&
                 is_empty_and_reachable(board, std::make_pair(3, 5), 'B') &&
                 is_empty_and_reachable(board, std::make_pair(4, 4), 'B')) {
                 return true;
@@ -562,7 +565,7 @@ bool king_adjacent_to_castle_can_be_captured_infuture(const vector<vector<char>>
 
         // Check if there is one black piece and two more that can fill the remaining gaps
         auto check_positions = [&](const std::pair<int, int>& pos1, const std::pair<int, int>& pos2, const std::pair<int, int>& check1, const std::pair<int, int>& check2) {
-            if (board[pos1.first][pos1.second] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), pos1) != black_camps_positions.end()) {
+            if (board[pos1.first][pos1.second] == 'B' || is_citadel(pos1.first, pos2.first)) {
                 auto [reachable1, start_pos1] = is_empty_and_reachable_version2(board, check1, 'B', {-1, -1});
                 auto [reachable2, _] = is_empty_and_reachable_version2(board, check2, 'B', start_pos1);
                 return reachable1 && reachable2;
@@ -612,17 +615,17 @@ bool king_can_checkmate_in_future(const vector<vector<char>>& board) {
                     for (const auto& second_direction : move_directions) {
                         auto second_move = std::make_pair(first_move.first + second_direction.first, first_move.second + second_direction.second);
                         while (second_move.first >= 0 && second_move.first <= 8 && second_move.second >= 0 && second_move.second <= 8) {
-                            if (std::find(winning_positions.begin(), winning_positions.end(), second_move) != winning_positions.end()) {
+                            if (is_winning_position(second_move.first, second_move.second)) {
                                 return true;
                             }
-                            if (board[second_move.first][second_move.second] != 'E' || std::find(black_camps_positions.begin(), black_camps_positions.end(), second_move) != black_camps_positions.end() || second_move == castle_position) {
+                            if (board[second_move.first][second_move.second] != 'E' || is_citadel(second_move.first, second_move.second) || second_move == castle_position) {
                                 break;
                             }
                             second_move = std::make_pair(second_move.first + second_direction.first, second_move.second + second_direction.second);
                         }
                     }
                 }
-                if (board[first_move.first][first_move.second] != 'E' || std::find(black_camps_positions.begin(), black_camps_positions.end(), first_move) != black_camps_positions.end() || first_move == castle_position) {
+                if (board[first_move.first][first_move.second] != 'E' || is_citadel(first_move.first, first_move.second) || first_move == castle_position) {
                     break;
                 }
                 first_move = std::make_pair(first_move.first + direction.first, first_move.second + direction.second);
@@ -735,12 +738,12 @@ std::pair<bool, bool> situation_king_sides(const vector<vector<char>>& board) {
         }
 
         if (black_blockers == 2) {
-            if ((board[king_position.first - 1][king_position.second] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(king_position.first - 1, king_position.second)) != black_camps_positions.end()) &&
-                (board[king_position.first + 1][king_position.second] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(king_position.first + 1, king_position.second)) != black_camps_positions.end())) {
+            if ((board[king_position.first - 1][king_position.second] == 'B' || is_citadel(king_position.first - 1, king_position.second)) &&
+                (board[king_position.first + 1][king_position.second] == 'B' || is_citadel(king_position.first + 1, king_position.second))) {
                 black_opposite = true;
             }
-            if ((board[king_position.first][king_position.second - 1] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(king_position.first, king_position.second - 1)) != black_camps_positions.end()) &&
-                (board[king_position.first][king_position.second + 1] == 'B' || std::find(black_camps_positions.begin(), black_camps_positions.end(), std::make_pair(king_position.first, king_position.second + 1)) != black_camps_positions.end())) {
+            if ((board[king_position.first][king_position.second - 1] == 'B' || is_citadel(king_position.first, king_position.second - 1)) &&
+                (board[king_position.first][king_position.second + 1] == 'B' || is_citadel(king_position.first, king_position.second + 1))) {
                 black_opposite = true;
             }
         }
@@ -777,6 +780,7 @@ std::string stats_of_the_board(const vector<vector<char>>& board, const char& tu
     result << "The KING has white blockers: " << white_blockers << "/" << blocked_sides << "\n";
     result << "The KING has castle blockers: " << castle_blockers << "/" << blocked_sides << "\n";
     result << "The KING is blocked in a quadrant: " << (king_block_in_quadrant(board) ? "Yes" : "No") << "\n";
+    result << "The KING can checkmate (win) in future: " << (king_can_checkmate_in_future(board) ? "Yes" : "No") << "\n";
     result << "\n-------------------------------------\n";
 
     if (turn == 'B') {
@@ -790,6 +794,7 @@ std::string stats_of_the_board(const vector<vector<char>>& board, const char& tu
         result << "The WHITE is in checkmate: " << (white_checkmate(board) ? "Yes" : "No") << "\n";
         result << "\n-------------------------------------\n";
     }
+
 
     return result.str();
 }

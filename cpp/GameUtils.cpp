@@ -36,6 +36,17 @@ bool is_citadel(int row, int col) {
     return false;
 }
 
+bool is_winning_position(int row, int col) {
+    const std::vector<std::pair<int, int>> winning_positions = {
+    {0, 1}, {0, 2}, {0, 6}, {0, 7}, {1, 0}, {2, 0}, {6, 0}, {7, 0}, {8, 1}, {8, 2}, {8, 6}, {8, 7}, {1, 8}, {2, 8}, {6, 8}, {7, 8} };
+    for(const auto& w : winning_positions){
+        if(w.first == row && w.second == col){
+            return true;
+        }
+    }
+    return false;
+}
+
 bool is_adjacent_to_castle(int row, int col) {
     // Verifica se la posizione è adiacente al castello
     int castle_row = 4, castle_col = 4;  // Il castello si trova nella posizione (4, 4)
@@ -217,7 +228,7 @@ std::string is_game_over(const std::vector<std::vector<char>>& board) {
     try {
         // 1. Check if the king is in an escape cell (white wins)
         auto king_position = get_king_position(board);
-        if (std::find(winning_positions.begin(), winning_positions.end(), king_position) != winning_positions.end()) {
+        if (is_winning_position(king_position.first, king_position.second)) {
             return "white";  // White player wins
         }
         
