@@ -109,17 +109,17 @@ bool is_king_captured(const std::vector<std::vector<char>>& board) {
 
         // Case 3: General capture condition for non-castle, non-adjacent cells
         else {
-            // King must be surrounded on all four sides by black pieces or blocking cells
-            for (const auto& dir : directions) {
-                int new_row = king_row + dir.first;
-                int new_col = king_col + dir.second;
-                if (is_within_bounds(new_row, new_col) &&
-                    (board[new_row][new_col] == 'B' || is_blocking_cell(new_row, new_col))) {
-                    continue;
-                }
-                return false;  // If any side is not surrounded by black or blocking cells, king is not captured
+            // King must be surrounded on two opposite sides by black pieces or blocking cells
+            if (is_within_bounds(king_row + 1, king_col) && (is_blocking_cell(king_row + 1, king_col) || board[king_row + 1][king_col] == 'B') &&
+                is_within_bounds(king_row - 1, king_col) && (is_blocking_cell(king_row - 1, king_col) || board[king_row - 1][king_col] == 'B')) {
+                return true;
             }
-            return true;  // All sides are surrounded by black pieces or blocking cells
+
+            if (is_within_bounds(king_row, king_col + 1) && (is_blocking_cell(king_row, king_col + 1) || board[king_row][king_col + 1] == 'B') &&
+                is_within_bounds(king_row, king_col - 1) && (is_blocking_cell(king_row, king_col - 1) || board[king_row][king_col - 1] == 'B')) {
+                return true;
+            }
+            return false;
         }
     } catch (const std::exception& e) {
         std::cerr << "Error in is_king_captured: " << e.what() << std::endl;
