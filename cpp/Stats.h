@@ -51,6 +51,8 @@ bool king_block_in_quadrant(const vector<vector<char>>& board);
 
 bool black_can_checkmate_in_future(const vector<vector<char>>& board);
 
+bool double_escape_for_the_king(const vector<vector<char>>& board);
+
 std::pair<bool, bool> situation_king_sides(const vector<vector<char>>& board);
 
 std::string stats_of_the_board(const vector<vector<char>>& board, const char& turn);

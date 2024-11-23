@@ -715,6 +715,43 @@ bool black_can_checkmate_in_future(const vector<vector<char>>& board) {
     }
 }
 
+bool double_escape_for_the_king(const vector<vector<char>>& board){
+    try{
+        // Getting the king position
+         auto king_position = get_king_position(board);
+
+        if (king_position.first == 0 || king_position.first == 8 || king_position.second == 0 || king_position.second == 8) {
+            return false;
+        }
+
+        // Checking if all the for escapes derived by his coordinate are reachable
+        int counter=0;
+        if(is_empty_and_reachable(board, {king_position.first, 0}, 'K')){
+            counter++;
+        }
+        if(is_empty_and_reachable(board, {king_position.first, 8}, 'K')){
+            counter++;
+        }
+        if(is_empty_and_reachable(board, {0, king_position.second}, 'K')){
+            counter++;
+        }
+        if(is_empty_and_reachable(board, {8, king_position.second}, 'K')){
+            counter++;
+        }
+
+        if(counter >=2){
+            return true;
+        }else{
+            return false;
+        }
+
+    }catch (const std::exception& e){
+        cout << "An error occurred in double_escape_for_the_king: " << e.what() << endl;
+        // logger.error("An error occurred in black_can_checkmate_in_future: " + std::string(e.what()));
+        throw;
+    }
+}
+
 
 std::pair<bool, bool> situation_king_sides(const vector<vector<char>>& board) {
     try {
