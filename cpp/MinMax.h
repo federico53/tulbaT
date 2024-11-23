@@ -21,5 +21,8 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& turn, co
 pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& turn, const char& player);
 pair<int, Move> minimax_alpha_beta_fast(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& turn, const char& player, int cut_size);
 
+// Jordan's heuristics
+int heuristic_white_jordan(const vector<vector<char>>& board);
+int heuristic_black_jordan(const vector<vector<char>>& board);
 
 #endif 
