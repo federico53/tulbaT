@@ -42,7 +42,7 @@ std::string is_game_over(const std::vector<std::vector<char>>& board);
 
 // APPLICAZIONE MOSSE
 bool is_enemy(const char& enemy, const char& of);
-bool is_allie(const char& allie, const char& of);
+bool is_allie(const char& allie, const char& of, const std::vector<std::vector<char>>& board);
 std::vector<std::vector<char>> apply_move(const std::vector<std::vector<char>>& board, const Move& move);
 
 // BOARD REPRESENTATION

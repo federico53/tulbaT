@@ -266,9 +266,9 @@ bool is_enemy(const char& enemy, const char& of){
     return false;
 }
 
-bool is_allie(const char& allie, const char& of){
+bool is_allie(const char& allie, const char& of, const std::vector<std::vector<char>>& board){
     if(of == 'B'){
-        return allie == 'B' || allie == 'T';
+        return allie == 'B' || allie == 'T' || (allie == 'K' && get_king_position(board) == std::make_pair(4, 4));
     } else if(of == 'W'){
         return allie == 'W' || allie == 'K' || allie == 'T';
     } else if(of == 'K'){
@@ -305,7 +305,7 @@ std::vector<std::vector<char>> apply_move(const std::vector<std::vector<char>>& 
 
             // Verifica se la posizione è valida e se c'è un pezzo nemico da catturare
             if (is_within_bounds(capture_row, capture_col) && is_enemy(new_board[check_row][check_col], new_board[to_row][to_col]) && 
-                (is_allie(new_board[capture_row][capture_col], new_board[to_row][to_col]) || is_citadel(capture_row, capture_col) && !is_citadel(check_row, check_col))){
+                (is_allie(new_board[capture_row][capture_col], new_board[to_row][to_col], board) || is_citadel(capture_row, capture_col) && !is_citadel(check_row, check_col))){
                     if(new_board[check_row][check_col] != 'K'){
                         new_board[check_row][check_col] = 'E';
                     }
