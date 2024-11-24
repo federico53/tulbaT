@@ -1,4 +1,4 @@
-#include "EnginePlayer.h"
+#include "headers/EnginePlayer.h"
 
 EnginePlayer::EnginePlayer(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth)
     : Player(name, color, server_address, port, depth) {
@@ -66,12 +66,13 @@ void EnginePlayer::play(){
             //TODO: change the parameter types in accordance to how chicco changed minimax_alpha_beta in gameutils.cpp
 
             // CALLING THE MINIMAX FUNCTION
-            // std::pair<int, Move> result = minimax_alpha_beta_fast(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]), 10);
-            std::pair<int, Move> result = minimax_alpha_beta(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(color[0]), true);
-            //std::pair<int, Move> result = minimax_alpha_beta(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]));
+            std::pair<int, Move> result = minimax_alpha_beta_fast(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]), 10);
+            // std::pair<int, Move> result = minimax_alpha_beta(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]));
 
             best_score = result.first;
             best_move = result.second;
+
+            cout << "Best move for " << color << ": " << driver.coordinateToAlgebraic(best_move.from.first, best_move.from.second) << " to " << driver.coordinateToAlgebraic(best_move.to.first, best_move.to.second) << " with score: " << best_score << endl;
 
             Logger::info("Best move for " + color + ": " + driver.coordinateToAlgebraic(best_move.from.first, best_move.from.second) + " to " + driver.coordinateToAlgebraic(best_move.to.first, best_move.to.second) + " with score: " + std::to_string(best_score));
 

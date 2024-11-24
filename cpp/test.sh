@@ -1,0 +1,1 @@
+g++ mainTest.cpp Stats.cpp GameUtils.cpp -o build/test

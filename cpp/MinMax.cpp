@@ -1,10 +1,12 @@
-#include "MinMax.h"
+#include "headers/MinMax.h"
 
 using namespace std;
 
-std::map<char, std::map<int, int>> get_stats(const vector<vector<char>>& board) {
+int COUNTER = 0;
+
+std::map<char, std::map<char, int>> get_stats(const vector<vector<char>>& board) {
     try {
-        map<char, map<int, int>> stats;
+        map<char, map<char, int>> stats;
         int black_pieces = 0, white_pieces = 0;
         int bsp = 0, wsp = 0;
         int free_sides = 0, blocked_sides = 0, black_blockers = 0, white_blockers = 0, castle_blockers = 0;
@@ -98,27 +100,27 @@ std::map<char, std::map<int, int>> get_stats(const vector<vector<char>>& board) 
 
                 // King position
                 if(board[row][col] == 'K'){
-                    stats['K']['Row'] = row;
-                    stats['K']['Col'] = col;
+                    stats['K']['R'] = row;
+                    stats['K']['C'] = col;
                 }
 
             }
         }
 
         // King free sides + near_king
-        if(stats['K']['Row'] != 0 && stats['K']['Row'] != 8 && stats['K']['Col'] != 0 && stats['K']['Col'] != 8){
+        if(stats['K']['R'] != 0 && stats['K']['R'] != 8 && stats['K']['C'] != 0 && stats['K']['C'] != 8){
             vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
             for(const auto& dir : directions){
                 // King free sides
-                if(board[stats['K']['Row'] + dir.first][stats['K']['Col'] + dir.second] == 'E'){
+                if(board[stats['K']['R'] + dir.first][stats['K']['C'] + dir.second] == 'E'){
                     free_sides++;
                 } else {
                     blocked_sides++;
-                    if(is_citadel(stats['K']['Row'] + dir.first, stats['K']['Col'] + dir.second) || board[stats['K']['Row'] + dir.first][stats['K']['Col'] + dir.second] == 'B'){
+                    if(is_citadel(stats['K']['R'] + dir.first, stats['K']['C'] + dir.second) || board[stats['K']['R'] + dir.first][stats['K']['C'] + dir.second] == 'B'){
                         black_blockers++;
-                    } else if(board[stats['K']['Row'] + dir.first][stats['K']['Col'] + dir.second] == 'W'){
+                    } else if(board[stats['K']['R'] + dir.first][stats['K']['C'] + dir.second] == 'W'){
                         white_blockers++;
-                    } else if(is_castle(stats['K']['Row'] + dir.first, stats['K']['Col'] + dir.second)){
+                    } else if(is_castle(stats['K']['R'] + dir.first, stats['K']['C'] + dir.second)){
                         castle_blockers++;
                     }
                 }        int free_sides = 0, blocked_sides = 0, black_blockers = 0, white_blockers = 0, castle_blockers = 0;
@@ -126,8 +128,8 @@ std::map<char, std::map<int, int>> get_stats(const vector<vector<char>>& board) 
 
                 // Near king perpendicularl
                 for(int i = 1; i < 3; ++i){
-                    if(stats['K']['Row'] + dir.first * i >= 0 && stats['K']['Row'] + dir.first * i < 9 && stats['K']['Col'] + dir.second * i >= 0 && stats['K']['Col'] + dir.second * i < 9)
-                        if(board[stats['K']['Row'] + dir.first * i][stats['K']['Col'] + dir.second * i] == 'B'){
+                    if(stats['K']['R'] + dir.first * i >= 0 && stats['K']['R'] + dir.first * i < 9 && stats['K']['C'] + dir.second * i >= 0 && stats['K']['C'] + dir.second * i < 9)
+                        if(board[stats['K']['R'] + dir.first * i][stats['K']['C'] + dir.second * i] == 'B'){
                             near_king += (5 - i);                            
                         }
                 }
@@ -137,18 +139,17 @@ std::map<char, std::map<int, int>> get_stats(const vector<vector<char>>& board) 
             // Near king diagonal
             vector<pair<int,int>> diagonal = {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
             for(const auto& dir : diagonal){
-                if(stats['K']['Row'] + dir.first >= 0 && stats['K']['Row'] + dir.first < 9 && stats['K']['Col'] + dir.second >= 0 && stats['K']['Col'] + dir.second < 9){
-                    if(board[stats['K']['Row'] + dir.first][stats['K']['Col'] + dir.second] == 'B'){
+                if(stats['K']['R'] + dir.first >= 0 && stats['K']['R'] + dir.first < 9 && stats['K']['C'] + dir.second >= 0 && stats['K']['C'] + dir.second < 9){
+                    if(board[stats['K']['R'] + dir.first][stats['K']['C'] + dir.second] == 'B'){
                         near_king += 2;
                     }
                 }
             }
         }
-
-
+        
         stats['B']['P'] = black_pieces;
         stats['B']['S'] = bsp;
-        stats['B']['Nk'] = near_king;
+        stats['B']['N'] = near_king;
         stats['B']['T'] = black_checkmate(board);
 
         stats['W']['P'] = white_pieces;
@@ -156,11 +157,11 @@ std::map<char, std::map<int, int>> get_stats(const vector<vector<char>>& board) 
         stats['W']['T'] = white_checkmate(board);
 
         stats['K']['W'] = king_winning_direction_score(board);
-        stats['K']['Free'] = free_sides;
-        stats['K']['Block'] = blocked_sides;
-        stats['K']['Bb'] = black_blockers;
-        stats['K']['Wb'] = white_blockers;
-        stats['K']['Cb'] = castle_blockers;
+        stats['K']['F'] = free_sides;
+        stats['K']['S'] = blocked_sides;
+        stats['K']['B'] = black_blockers;
+        stats['K']['W'] = white_blockers;
+        stats['K']['C'] = castle_blockers;
         return stats;
     } catch (const exception& e) {
         cerr << "Error in get_stats: " << e.what() << endl;
@@ -168,83 +169,96 @@ std::map<char, std::map<int, int>> get_stats(const vector<vector<char>>& board) 
     }
 }
 
+// DA IGNORARE
 tuple<int, int> get_points(const vector<vector<char>>& board){
-    
-    map<char, map<int, int>> stats = get_stats(board);
-    int black, white; 
+    try{
+        map<char, map<char, int>> stats = get_stats(board);
+        int black, white; 
 
-    // -------------------- BLACK --------------------
-    int w1 = 125, w2 = 50, w3 = 10, w4 = 100;
-    int material, position, threats, progress;
+        // -------------------- BLACK --------------------
+        int w1 = 125, w2 = 50, w3 = 10, w4 = 100;
+        int material, position, threats, progress;
 
-    // Material (max 8)
-    // Pezzi del nero - pezzi del bianco
-    material = (8 - stats['W']['P']);
+        // Material (max 8)
+        // Pezzi del nero - pezzi del bianco
+        material = (8 - stats['W']['P']);
 
-    // Position (max 28 ma meno)
-    // Neri fuori dalla casa iniziale + punteggio vicinanza a re + controllo dei corridoi + ...
-    position = stats['K']['Nk'];
+        // Position (max 28 ma meno)
+        // Neri fuori dalla casa iniziale + punteggio vicinanza a re + controllo dei corridoi + ...
+        position = stats['K']['N'];
 
-    // Threats
-    // Se il bianco puo fare checkmate + 
-    threats = (black_checkmate(board)? -100 : 0);
+        // Threats
+        // Se il bianco puo fare checkmate + 
+        threats = (black_checkmate(board)? -100 : 0);
 
-    // Progress to victory (max  10)
-    // Lati del re bloccati + vittoria + checkmate
-    if(is_game_over(board) == 'B'){
-        return {4000, 0};
+        // Progress to victory (max  10)
+        // Lati del re bloccati + vittoria + checkmate
+        if(is_game_over(board) == 'B'){
+            return {4000, 0};
+        }
+        progress = (white_checkmate(board)? 7 : 0);
+        progress += stats['K']['B'] + stats['K']['C'];
+
+        black =  w1 * material + w2 * position + w3 * threats + w4 * progress;
+
+        // -------------------- WHITE --------------------
+        w1 = 10, w2 = 10, w3 = 20, w4 = 20;
+        material, position, threats, progress;
+
+        // Material
+        // Pezzi del bianco - pezzi del nero
+        material = (8 - stats['W']['P']) - (16 - stats['B']['P']);
+
+        // Position
+        // Bianchi fuori dalla casa iniziale + uscite del re + ...
+        position = (8 - stats['W']['S']) + king_winning_direction_score(board);
+
+        // Threats
+        // Se il nero puo fare checkmate + 
+        threats = (white_checkmate(board)? -100 : 0);
+
+        // Progress to victory
+        // Lati del re bloccati + vittoria + checkmate
+        if(is_game_over(board) == 'W'){
+            return {0, 10000};
+        }
+        progress = (black_checkmate(board)? 200 : 0);
+        progress += stats['K']['F'] + stats['K']['W'];
+
+        white = w1 * material + w2 * position + w3 * threats + w4 * progress;
+        
+        return {black, white};
+    } catch (const exception& e) {
+        cerr << "Error in get_points: " << e.what() << endl;
+        throw;  // Rilancia l'eccezione
     }
-    progress = (white_checkmate(board)? 7 : 0);
-    progress += stats['K']['Bb'] + stats['K']['Cb'];
-
-    black =  w1 * material + w2 * position + w3 * threats + w4 * progress;
-
-
-    // -------------------- WHITE --------------------
-    w1 = 10, w2 = 10, w3 = 20, w4 = 20;
-    material, position, threats, progress;
-
-    // Material
-    // Pezzi del bianco - pezzi del nero
-    material = (8 - stats['W']['P']) - (16 - stats['B']['P']);
-
-    // Position
-    // Bianchi fuori dalla casa iniziale + uscite del re + ...
-    position = (8 - stats['W']['S']) + king_winning_direction_score(board);
-
-    // Threats
-    // Se il nero puo fare checkmate + 
-    threats = (white_checkmate(board)? -100 : 0);
-
-    // Progress to victory
-    // Lati del re bloccati + vittoria + checkmate
-    if(is_game_over(board) == 'W'){
-        return {0, 10000};
-    }
-    progress = (black_checkmate(board)? 200 : 0);
-    progress += stats['K']['Free'] + stats['K']['Wb'];
-
-    white = w1 * material + w2 * position + w3 * threats + w4 * progress;
-
-    return {black, white};
 }
 
 int heuristic_evaluation(const vector<vector<char>>& board, const char& player) {
     try {
+        // auto points = get_points(board);
+        // int black = get<0>(points);
+        // int white = get<1>(points);
+        // if(player == 'W'){
+        //     return white - black;
+        // } else {
+        //     return black - white;
+        // }
 
+        // DA INVERTIRE
         if(is_game_over(board) == 'W'){
-            return 10000;
+            return -10000;
         }
         if(is_game_over(board) == 'B'){
-            return -10000;
+            return 10000;
         }
 
         auto stats = get_stats(board);
 
         int points = 0;
 
-        int ww1 = 60, ww2 = 0, ww3 = 10, ww4 = 10;
-        int bw1 = -60, bw2 = -10, bw3 = -20, bw4 = -20;
+        int ww1 = 60, ww2 = 40, ww3 = 60, ww4 = 50;
+        int bw1 = -90, bw2 = 10, bw3 = -50, bw4 = -80;
 
         // Material
         int white_material = stats['W']['P'];
@@ -252,17 +266,15 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player) 
 
         // Position
         int white_position = 8 - stats['W']['S'] + stats['K']['W'];
-        int black_position = stats['B']['Nk'];
+        int black_position = stats['B']['N'];
 
         // Threats10
-        int white_threats = (black_checkmate(board)? 100 : 0);
-        int black_threats = (white_checkmate(board)? 300 : 0);
+        int white_threats = (stats['W']['T']? -100 : 0);
+        int black_threats = (stats['B']['T']? -100 : 0);
 
         // Progress to victory
-        int white_progress = stats['K']['Free'] + stats['K']['Wb'];
-        // white_progress += (black_checkmate(board)? 200 : 0);
-        int black_progress = stats['K']['Bb'] + stats['K']['Cb'];
-        // black_progress += (white_checkmate(board)? 100 : 0);
+        int white_progress = stats['K']['F'] + stats['K']['W'];
+        int black_progress = stats['K']['B'] + stats['K']['C'];
 
         
         points =    ww1 * white_material + 
@@ -273,6 +285,10 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player) 
                     bw2 * black_position +
                     bw3 * black_threats +
                     bw4 * black_progress;
+
+        // cout << "White Points: (Material) " << ww1 * white_material << " (Position) " << ww2 * white_position << " (Threats) " << ww3 * white_threats << " (Progress) " << ww4 * white_progress << endl;
+        // cout << "Black Points: (Material) " << bw1 * black_material << " (Position) " << bw2 * black_position << " (Threats) " << bw3 * black_threats << " (Progress) " << bw4 * black_progress << endl;
+        // cout << "Total Points: " << points << endl;
 
         if(player == 'W'){
             return points;
@@ -287,21 +303,23 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player) 
 
 // MINIMAX ALPHA BETA PRUNING con is_max
 
-pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& player, const bool& is_max) {
+pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth, int alpha, int beta, const char&turn, const char& player) {
     try {
         // Caso base: limite di profondità raggiunto o fine del gioco
         if (depth == 0 || is_game_over(board) != 'N') {
             return {heuristic_evaluation(board, player), Move()};  // Restituisce punteggio e nessuna mossa usando l'euristica
         }
 
+        bool is_max = (turn == player);  // Se il turno è del giocatore, è una fase di massimizzazione
         Move best_move;
 
         if (is_max) {
             int max_eval = std::numeric_limits<int>::min();
-            for (const Move& move : generate_all_possible_moves(board, player)) {
+            for (const Move& move : generate_all_possible_moves(board, turn)) {
                 // Applica la mossa per il giocatore max
+                // cout << "Move from: " << move.from.first << " " << move.from.second << " to: " << move.to.first << " " << move.to.second << endl;
                 vector<vector<char>> new_board = apply_move(board, move);
-                auto [eval, _] = minimax_alpha_beta(new_board, depth - 1, alpha, beta, player, !is_max);
+                auto [eval, _] = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player);
                 
                 if (eval > max_eval) {
                     max_eval = eval;
@@ -315,13 +333,14 @@ pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth,
                     break;
                 }
             }
+            // cout << "Best move (MAX): " << best_move.from.first << " " << best_move.from.second << " to: " << best_move.to.first << " " << best_move.to.second << endl;
             return {max_eval, best_move};
         } else {
             int min_eval = std::numeric_limits<int>::max();
-            for (const Move& move : generate_all_possible_moves(board, player)) {
+            for (const Move& move : generate_all_possible_moves(board, turn)) {
                 // Applica la mossa per il giocatore min
                 vector<vector<char>> new_board = apply_move(board, move);
-                auto [eval, _] = minimax_alpha_beta(new_board, depth - 1, alpha, beta, player, !is_max);
+                auto [eval, _] = minimax_alpha_beta(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player);
                 
                 if (eval < min_eval) {
                     min_eval = eval;
@@ -335,6 +354,7 @@ pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth,
                     break;
                 }
             }
+            // cout << "Best move (min): " << best_move.from.first << " " << best_move.from.second << " to: " << best_move.to.first << " " << best_move.to.second << endl;
             return {min_eval, best_move};
         }
     } catch (const exception& e) {

@@ -1,4 +1,4 @@
-#include "Stats.h"
+#include "headers/Stats.h"
 
 const vector<vector<int>> king_winning_direction_heatmap = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -220,13 +220,13 @@ bool is_empty_and_reachable(const vector<vector<char>>& board, const std::pair<i
                         if (board[new_position.first][new_position.second] == color) {
                             return true;
                         }
-                        new_position = std::make_pair(new_position.first + direction.first, new_position.second + direction.second);
                     } else {
                         break;
                     }
                     if (board[new_position.first][new_position.second] != 'E') {
                         break;
                     }
+                    new_position = std::make_pair(new_position.first + direction.first, new_position.second + direction.second);
                 }
             }
         }

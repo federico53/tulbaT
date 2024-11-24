@@ -1,8 +1,8 @@
 #include <iostream>
 #include <memory>
-#include "Logger.h"
-#include "EnginePlayer.h"
-#include "HumanPlayer.h"
+#include "headers/Logger.h"
+#include "headers/EnginePlayer.h"
+#include "headers/HumanPlayer.h"
 
 using namespace std;
 

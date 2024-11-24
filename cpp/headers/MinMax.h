@@ -11,12 +11,12 @@
 using namespace std;
 
 // EVALUAZIONE EURISTICA
-std::map<char, std::map<int, int>> get_stats(const vector<vector<char>>& board);
+std::map<char, std::map<char, int>> get_stats(const vector<vector<char>>& board);
 std::tuple<int, int> get_points(const vector<vector<char>>& board);
 int heuristic_evaluation(const vector<vector<char>>& board, const char& player);
 
 // MINIMAX ALPHA BETA PRUNING
-pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& player, const bool& is_max);
+pair<int, Move> minimax_alpha_beta(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& turn, const char& player);
 pair<int, Move> minimax_alpha_beta_fast(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& turn, const char& player, int cut_size);
 
 

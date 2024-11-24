@@ -1,4 +1,4 @@
-#include "HumanPlayer.h"
+#include "headers/HumanPlayer.h"
 
 using namespace std;
 

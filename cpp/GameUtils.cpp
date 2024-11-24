@@ -1,4 +1,4 @@
-#include "GameUtils.h"
+#include "headers/GameUtils.h"
 
 // PARSE MOVE
 
@@ -256,11 +256,11 @@ char is_game_over(const std::vector<std::vector<char>>& board) {
         //     return "white";  // White player wins
         // }
         
+        return 'N';  // No winner yet
     } catch (const std::exception& e) {
         std::cerr << "Error in is_game_over: " << e.what() << std::endl;
         throw;
     }
-    return 'N';  // No winner yet
 }
 
 
