@@ -73,6 +73,8 @@
         "source_location": "cpp",
         "future": "cpp",
         "cinttypes": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "filesystem": "cpp",
+        "shared_mutex": "cpp"
     }
 }

@@ -38,7 +38,7 @@ bool is_valid_move(Move &move, const vector<vector<char>> &board, const char &co
 vector<Move> generate_all_possible_moves(const vector<vector<char>> &board, const char &color);
 
 // GAME OVER
-std::string is_game_over(const std::vector<std::vector<char>>& board);
+char is_game_over(const std::vector<std::vector<char>>& board);
 
 // APPLICAZIONE MOSSE
 bool is_enemy(const char& enemy, const char& of);

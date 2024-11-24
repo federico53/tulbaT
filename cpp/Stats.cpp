@@ -172,6 +172,7 @@ std::tuple<int, int, int, int, int> king_free_sides(const vector<vector<char>>& 
     }
 }
 
+// this return true if white is doing a checkmate
 bool black_checkmate(const vector<vector<char>>& board) {
     try {
         auto king_position = get_king_position(board);

@@ -137,50 +137,55 @@ char get_opposite_turn(const char &turn) {
 // MOVE VALIDATION
 
 bool is_valid_move(Move& move, const vector<vector<char>> &board, const char &color) {
-    int from_row = move.from.first, from_col = move.from.second;
-    int to_row = move.to.first, to_col = move.to.second;
+    try{
+        int from_row = move.from.first, from_col = move.from.second;
+        int to_row = move.to.first, to_col = move.to.second;
 
-    // Check if destination is empty
-    if (board[to_row][to_col] != 'E') return false;
+        // Check if destination is empty
+        if (board[to_row][to_col] != 'E') return false;
 
-    // Check if it is a black piece moving within a citadel: legal, return true
-    if (color == 'B' && is_citadel(from_row, from_col) && is_citadel(to_row, to_col)) {
+        // Check if it is a black piece moving within a citadel: legal, return true
+        if (color == 'B' && is_citadel(from_row, from_col) && is_citadel(to_row, to_col)) {
+            if (from_row == to_row) {
+                int step = (to_col > from_col) ? 1 : -1;
+                for (int col = from_col + step; col != to_col; col += step) {
+                    if (!(board[from_row][col] == 'E' && is_citadel(from_row, col))) return false;
+                }
+            } else if (from_col == to_col) {
+                int step = (to_row > from_row) ? 1 : -1;
+                for (int row = from_row + step; row != to_row; row += step) {
+                    if (!(board[row][from_col] == 'E' && is_citadel(row, from_col))) return false;
+                }
+            } else {
+                return false;  // Diagonal move
+            }
+            return true;
+        }
+
+        if (!is_citadel(from_row, from_col) && is_citadel(to_row, to_col)) {
+            return false;
+        } // if i am not in a citadel and i am moving to a citadel
+
+        // Check if movement is valid (straight line, no obstacles)
         if (from_row == to_row) {
             int step = (to_col > from_col) ? 1 : -1;
             for (int col = from_col + step; col != to_col; col += step) {
-                if (!(board[from_row][col] == 'E' && is_citadel(from_row, col))) return false;
+                if (board[from_row][col] != 'E' || is_citadel(from_row, col)) return false;
             }
         } else if (from_col == to_col) {
             int step = (to_row > from_row) ? 1 : -1;
             for (int row = from_row + step; row != to_row; row += step) {
-                if (!(board[row][from_col] == 'E' && is_citadel(row, from_col))) return false;
+                if (board[row][from_col] != 'E' || is_citadel(row, from_col)) return false;
             }
         } else {
-            return false;  // Diagonal move
+            return false; // Diagonal moves not allowed
         }
+
         return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Error in is_valid_move: " << e.what() << std::endl;
+        throw;
     }
-
-    if (!is_citadel(from_row, from_col) && is_citadel(to_row, to_col)) {
-        return false;
-    } // if i am not in a citadel and i am moving to a citadel
-
-    // Check if movement is valid (straight line, no obstacles)
-    if (from_row == to_row) {
-        int step = (to_col > from_col) ? 1 : -1;
-        for (int col = from_col + step; col != to_col; col += step) {
-            if (board[from_row][col] != 'E' || is_citadel(from_row, col)) return false;
-        }
-    } else if (from_col == to_col) {
-        int step = (to_row > from_row) ? 1 : -1;
-        for (int row = from_row + step; row != to_row; row += step) {
-            if (board[row][from_col] != 'E' || is_citadel(row, from_col)) return false;
-        }
-    } else {
-        return false; // Diagonal moves not allowed
-    }
-
-    return true;
 }
 
 // MOVE GENERATION
@@ -224,32 +229,38 @@ vector<Move> generate_all_possible_moves(const vector<vector<char>> &board, cons
 
 // GAME OVER
 
-std::string is_game_over(const std::vector<std::vector<char>>& board) {
+char is_game_over(const std::vector<std::vector<char>>& board) {
     try {
         // 1. Check if the king is in an escape cell (white wins)
         auto king_position = get_king_position(board);
-        if (is_winning_position(king_position.first, king_position.second)) {
-            return "white";  // White player wins
+        vector<pair<int, int>> winning_positions = {
+            {0, 1}, {0, 2}, {0, 6}, {0, 7}, {1, 0}, {2, 0}, {6, 0}, {7, 0}, {8, 1}, {8, 2}, {8, 6}, {8, 7}, {1, 8}, {2, 8}, {6, 8}, {7, 8}
+        };
+        for(const auto& w : winning_positions){
+            if(w.first == king_position.first && w.second == king_position.second){
+                return 'W';
+            }
         }
         
         // 2. Check if the king is captured (black wins)
         if (is_king_captured(board)) {
-            return "black";  // Black player wins
+            return 'B';  // Black player wins
         }
 
-        // 3. Check if a player has no possible moves (the other player wins)
-        if (generate_all_possible_moves(board, 'W').empty()) {
-            return "black";  // Black player wins
-        }
-        if (generate_all_possible_moves(board, 'B').empty()) {
-            return "white";  // White player wins
-        }
+        // CORNER CASE VERIFY IF IS COMPUTATIONAL EXPENSIVE
+        // // 3. Check if a player has no possible moves (the other player wins)
+        // if (generate_all_possible_moves(board, 'W').empty()) {
+        //     return "black";  // Black player wins
+        // }
+        // if (generate_all_possible_moves(board, 'B').empty()) {
+        //     return "white";  // White player wins
+        // }
         
     } catch (const std::exception& e) {
         std::cerr << "Error in is_game_over: " << e.what() << std::endl;
         throw;
     }
-    return "";  // No winner yet
+    return 'N';  // No winner yet
 }
 
 
