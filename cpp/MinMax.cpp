@@ -130,7 +130,8 @@ std::map<char, std::map<char, int>> get_stats(const vector<vector<char>>& board)
                 for(int i = 1; i < 3; ++i){
                     if(stats['K']['R'] + dir.first * i >= 0 && stats['K']['R'] + dir.first * i < 9 && stats['K']['C'] + dir.second * i >= 0 && stats['K']['C'] + dir.second * i < 9)
                         if(board[stats['K']['R'] + dir.first * i][stats['K']['C'] + dir.second * i] == 'B'){
-                            near_king += (5 - i);                            
+                            // cambiato (5 - i)
+                            near_king += (4 - 2 * (i - 1));                            
                         }
                 }
 
@@ -141,7 +142,8 @@ std::map<char, std::map<char, int>> get_stats(const vector<vector<char>>& board)
             for(const auto& dir : diagonal){
                 if(stats['K']['R'] + dir.first >= 0 && stats['K']['R'] + dir.first < 9 && stats['K']['C'] + dir.second >= 0 && stats['K']['C'] + dir.second < 9){
                     if(board[stats['K']['R'] + dir.first][stats['K']['C'] + dir.second] == 'B'){
-                        near_king += 2;
+                        // 2
+                        near_king += 3;
                     }
                 }
             }
@@ -264,16 +266,16 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player) 
 
         auto stats = get_stats(board);
 
-
+        // mi sembra bw1 a -80 e bw2 a -10
         int ww1 = 60, ww2 = 40, ww3 = 60, ww4 = 50;
-        int bw1 = -80, bw2 = -10, bw3 = -50, bw4 = -50;
+        int bw1 = -70, bw2 = -15, bw3 = -40, bw4 = -50;
 
         // Material
         int white_material = stats['W']['P'];
         int black_material = stats['B']['P'];
 
-        // Position
-        int white_position = 8 - stats['W']['S'] + stats['K']['W'];
+        // Position (c'era anche 8 - stats['W']['S'] + ...)
+        int white_position = stats['K']['W'];
         int black_position = stats['B']['N'];
 
         // Threats10
@@ -294,6 +296,15 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player) 
                     bw3 * black_threats +
                     bw4 * black_progress;
 
+        Logger::debug(format_board(board));
+        Logger::debug("w1 * " + to_string(white_material) + " + " +
+                      "w2 * " + to_string(white_position) + " + " +
+                      "w3 * " + to_string(white_threats) + " + " +
+                      "w4 * " + to_string(white_progress) + " + " +
+                      "b1 * " + to_string(black_material) + " + " +
+                      "b2 * " + to_string(black_position) + " + " +
+                      "b3 * " + to_string(black_threats) + " + " +
+                      "b4 * " + to_string(black_progress) + " = " + to_string(points));
         // cout << "White Points: (Material) " << ww1 * white_material << " (Position) " << ww2 * white_position << " (Threats) " << ww3 * white_threats << " (Progress) " << ww4 * white_progress << endl;
         // cout << "Black Points: (Material) " << bw1 * black_material << " (Position) " << bw2 * black_position << " (Threats) " << bw3 * black_threats << " (Progress) " << bw4 * black_progress << endl;
         // cout << "Total Points: " << points << endl;

@@ -32,7 +32,7 @@ void EnginePlayer::play(){
             std::transform(turn.begin(), turn.end(), turn.begin(), ::tolower);
 
             Logger::info("Current turn: " + turn);
-            Logger::debug("Current board state: \n" + format_board(board_vector));
+            // Logger::debug("Current board state: \n" + format_board(board_vector));
 
             // Controlla se il gioco è finito
             if (turn == "whitewin" || turn == "blackwin" || turn == "draw") {

@@ -811,7 +811,7 @@ std::string format_board(const vector<vector<char>>& board) {
     };
 
     // Etichette delle colonne
-    std::string column_labels = "A B C D E F G H I";
+    std::string column_labels = "A   B   C   D   E   F   G   H   I";
     std::ostringstream board_str;
 
     // Etichette in alto

@@ -4,6 +4,7 @@ L'euristica è implementata come funzione lineare, è stato ottimizzato il codic
 ### Aspetti da migliorare
 - [ ] Eliminare parti di codice superflue o ottimizzabili
 - [x] Rivedere bene le conclusioni delle partite
+- [ ] Implementare una logica per non pareggiare se in vantaggio
 - [ ] Multi-threading per migliorare ulteriormente le performance
 - [ ] Implementare dinamiche "paracadute" per inviare in sicurezza una mossa
 - [ ] Rivedere cut size per minmax
