@@ -245,20 +245,28 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player) 
         //     return black - white;
         // }
 
-        // DA INVERTIRE
+        int points = 0;
+
         if(is_game_over(board) == 'W'){
-            return -10000;
+            points = 10000;
         }
         if(is_game_over(board) == 'B'){
-            return 10000;
+            points = -10000;
+        }
+
+        if(points != 0){
+            if(player == 'W'){
+                return points;
+            } else {
+                return -points;
+            }
         }
 
         auto stats = get_stats(board);
 
-        int points = 0;
 
         int ww1 = 60, ww2 = 40, ww3 = 60, ww4 = 50;
-        int bw1 = -90, bw2 = 10, bw3 = -50, bw4 = -80;
+        int bw1 = -80, bw2 = -10, bw3 = -50, bw4 = -50;
 
         // Material
         int white_material = stats['W']['P'];
