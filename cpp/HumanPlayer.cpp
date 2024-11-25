@@ -1,9 +1,9 @@
-#include "HumanPlayer.h"
+#include "headers/HumanPlayer.h"
 
 using namespace std;
 
-HumanPlayer::HumanPlayer(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth)
-    : Player(name, color, server_address, port, depth) {
+HumanPlayer::HumanPlayer(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth, int cut_size)
+    : Player(name, color, server_address, port, depth, cut_size) {
     Logger::info("HumanPlayer " + this->name + " initialized as " + this->color);
 }
 

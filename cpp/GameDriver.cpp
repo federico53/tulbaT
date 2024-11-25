@@ -1,4 +1,4 @@
-#include "GameDriver.h"
+#include "headers/GameDriver.h"
 
 GameDriver::GameDriver(const std::string& color, const std::string& server_address_str, int port)
     : color(color), socket(io_context) {

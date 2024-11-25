@@ -10,9 +10,10 @@ protected:
     std::string color;
     GameDriver driver;
     int depth;
+    int cut_size;
 
 public:
-    Player(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth);
+    Player(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth, int cut_size);
     virtual void play() = 0; // Metodo virtuale puro
     virtual ~Player() = default;
 };

@@ -1,86 +1,272 @@
-#include "MinMax.h"
+#include "headers/MinMax.h"
 
 using namespace std;
 
 
 // WHITE HEURISTIC
+// int heuristic_white(const vector<vector<char>>& board) {
+//     try {
+//         // 1. Posizione del re - TODO
+//         // 2. Posizione del re ai lati - TODO
+        
+//         // 3. Scacco matto al nero
+//         int points_king_checkmate = 0;
+//         if (black_checkmate(board)) {
+//             points_king_checkmate = 100;
+//         }
+
+//         //cout << "points_king_checkmate: done" << endl;
+
+//         // 4. Differenza tra i pezzi mangiati dal nero e quelli persi dal bianco
+//         int white_lost = 8 - count_pieces(board, 'W');
+//         int black_eaten = 16 - count_pieces(board, 'B');
+//         int diff_between_white_black = 1600 + (black_eaten - white_lost) * 200;
+
+//         //cout << "diff_between_white_black: done" << endl;
+
+//         // 5. Nero mangiato
+//         int score_black_eaten = 5000 * black_eaten;
+
+//         //cout << "score_black_eaten: done" << endl;
+
+//         // 6. Il re non è bloccato nel quadrante - TODO
+//         int score_king_not_blocked_quadrant = 0;
+
+//         //cout << "score_king_not_blocked_quadrant: done" << endl;
+
+//         // // 7. Il nero non può fare scacco matto in una mossa
+//         // int score_king_not_checkmated_infuture = 0;
+//         // if (!black_can_checkmate_in_future(board)) {
+//         //     score_king_not_checkmated_infuture = 20000;
+//         // }
+
+//         //cout << "score_king_not_checkmated_infuture: done" << endl;
+
+//         // 8. Il re non è in scacco matto dal nero
+//         int score_king_not_checkmated = 0;
+//         if (!white_checkmate(board)) {
+//             score_king_not_checkmated = 40000;
+//         }
+
+//         //cout << "score_king_not_checkmated: done" << endl;
+
+//         // 9. Se il nero non ha vinto
+//         int white_didnt_win_points = 0;
+//         if (is_game_over(board) != "black") {
+//             white_didnt_win_points = 80000;
+//         }
+
+//         //cout << "white_didnt_win_points: done" << endl;
+
+//         // 10. Se il bianco ha vinto
+//         int white_won_points = 0;
+//         if (is_game_over(board) == "white") {
+//             white_won_points = 160000/0.16; // 160000/0.16 = 1000000
+//             return white_won_points;
+//         }
+//         //cout << "white_won_points: done" << endl;
+
+        
+//         // Calcolo finale del punteggio
+//         return  (points_king_checkmate + 
+//                 diff_between_white_black + 
+//                 score_black_eaten + 
+//                 score_king_not_blocked_quadrant + 
+//                 //score_king_not_checkmated_infuture + 
+//                 score_king_not_checkmated + 
+//                 white_didnt_win_points)/0.16;
+
+//     } catch (const exception& e) {
+//         cerr << "Error in heuristic_white: " << e.what() << endl;
+//         return 0;  // Gestione dell'errore
+//     }
+// } 
+
 int heuristic_white(const vector<vector<char>>& board) {
     try {
-        // 1. Posizione del re - TODO
-        // 2. Posizione del re ai lati - TODO
-        
-        // 3. Scacco matto al nero
-        int points_king_checkmate = 0;
-        if (black_checkmate(board)) {
-            points_king_checkmate = 100;
+
+        // 0. Se il bianco ha perso
+        int white_lose_points = 0;
+        if (is_game_over(board) == "black") {
+            white_lose_points = 0; 
+            return white_lose_points;
         }
 
-        //cout << "points_king_checkmate: done" << endl;
+        //cout << "0." <<endl;
 
-        // 4. Differenza tra i pezzi mangiati dal nero e quelli persi dal bianco
+        // 1. Posizionamento del re
+        // range (1-5)
+        int score_king_winning_direction = king_winning_direction_score(board) + 1;  
+
         int white_lost = 8 - count_pieces(board, 'W');
         int black_eaten = 16 - count_pieces(board, 'B');
-        int diff_between_white_black = 1600 + (black_eaten - white_lost) * 200;
 
-        //cout << "diff_between_white_black: done" << endl;
+        //cout << "1." <<endl;
 
-        // 5. Nero mangiato
-        int score_black_eaten = 5000 * black_eaten;
+        // 2. Pezzi neri mangiati
+        // range (0-96)
+        int score_black_eaten = black_eaten * 6;
 
-        //cout << "score_black_eaten: done" << endl;
+        //cout << "2." <<endl;
 
-        // 6. Il re non è bloccato nel quadrante - TODO
-        int score_king_not_blocked_quadrant = 0;
+        // 3. Differenza tra i pezzi mangiati dal nero e quelli persi dal bianco
+        // range (0-1632)
+        int diff_between_white_black = 816 + (black_eaten - white_lost) * 102;
 
-        //cout << "score_king_not_blocked_quadrant: done" << endl;
+        //cout << "3." <<endl;
 
-        // // 7. Il nero non può fare scacco matto in una mossa
-        // int score_king_not_checkmated_infuture = 0;
-        // if (!black_can_checkmate_in_future(board)) {
-        //     score_king_not_checkmated_infuture = 20000;
-        // }
+        // 4. Il re non è bloccato nel quadrante
+        // range (0-1734)
+        int score_king_not_blocked_quadrant = king_block_in_quadrant(board) ? 0 : 1734;
 
-        //cout << "score_king_not_checkmated_infuture: done" << endl;
+        //cout << "4." <<endl;
 
-        // 8. Il re non è in scacco matto dal nero
-        int score_king_not_checkmated = 0;
-        if (!white_checkmate(board)) {
-            score_king_not_checkmated = 40000;
-        }
+        auto [free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers] = king_free_sides(board);
+        
+        // 5. Pezzi neri che circondano il re
+        // range (0-13872)
+        int score_black_blockers = (4-black_blockers) * 3468;
 
-        //cout << "score_king_not_checkmated: done" << endl;
+        //cout << "5." <<endl;
 
-        // 9. Se il nero non ha vinto
-        int white_didnt_win_points = 0;
-        if (is_game_over(board) != "black") {
-            white_didnt_win_points = 80000;
-        }
+        // 6. Il re puo scappare
+        // range(0-17340)
+        int score_king_can_escape = black_checkmate(board) ? 17340 : 0;
 
-        //cout << "white_didnt_win_points: done" << endl;
+        //cout << "6." <<endl;
 
-        // 10. Se il bianco ha vinto
-        int white_won_points = 0;
+        // 7. Il re puo scappare su due lati
+        // range(0-34680)  
+        // TO-DO
+        int score_king_can_escape_two_sides = double_escape_for_the_king(board) ? 34680 : 0;
+
+        //cout << "7." <<endl;
+
+        // 8. Il re non puo essere catturato
+        // range(0-69360)
+        int score_king_cant_be_captured = white_checkmate(board) ? 0 : 69360;
+
+        //cout << "8." <<endl;
+
+        // Maximum sum of all the scores = 138719
+
+        // 9. Se il bianco ha vinto
+        int white_win_points = 0;
         if (is_game_over(board) == "white") {
-            white_won_points = 160000/0.16; // 160000/0.16 = 1000000
-            return white_won_points;
+            white_win_points = 1000000; 
+            return white_win_points;
         }
-        //cout << "white_won_points: done" << endl;
 
+        //cout << "9." <<endl;
         
         // Calcolo finale del punteggio
-        return  (points_king_checkmate + 
-                diff_between_white_black + 
+        return  (score_king_winning_direction + 
                 score_black_eaten + 
+                diff_between_white_black + 
                 score_king_not_blocked_quadrant + 
-                //score_king_not_checkmated_infuture + 
-                score_king_not_checkmated + 
-                white_didnt_win_points)/0.16;
+                score_black_blockers + 
+                score_king_can_escape + 
+                //score_king_can_escape_two_sides +
+                score_king_cant_be_captured)/0.138720;
 
     } catch (const exception& e) {
         cerr << "Error in heuristic_white: " << e.what() << endl;
         return 0;  // Gestione dell'errore
     }
 } 
+
+// int heuristic_white(const vector<vector<char>>& board) {
+//     try {
+
+//         // 0. Se il bianco ha perso
+//         int white_lose_points = 0;
+//         if (is_game_over(board) == "black") {
+//             white_lose_points = 0; 
+//             return white_lose_points;
+//         }
+
+//         //cout << "0." <<endl;
+
+//         // 1. Posizionamento del re
+//         // range (1-5)
+//         int score_king_winning_direction = king_winning_direction_score(board) + 1;  
+
+//         int white_lost = 8 - count_pieces(board, 'W');
+//         int black_eaten = 16 - count_pieces(board, 'B');
+
+//         //cout << "1." <<endl;
+
+//         // 2. Pezzi neri mangiati
+//         // range (0-96)
+//         int score_black_eaten = black_eaten * 6;
+
+//         //cout << "2." <<endl;
+
+//         // 3. Differenza tra i pezzi mangiati dal nero e quelli persi dal bianco
+//         // range (0-1632)
+//         int diff_between_white_black = 816 + (black_eaten - white_lost) * 102;
+
+//         //cout << "3." <<endl;
+
+//         // 4. Il re non è bloccato nel quadrante
+//         // range (0-1734)
+//         int score_king_not_blocked_quadrant = king_block_in_quadrant(board) ? 0 : 1734;
+
+//         //cout << "4." <<endl;
+
+//         auto [free_sides, blocked_sides, black_blockers, white_blockers, castle_blockers] = king_free_sides(board);
+        
+//         // 5. Pezzi neri che circondano il re
+//         // range (0-13872)
+//         int score_black_blockers = (4-black_blockers) * 3468;
+
+//         //cout << "5." <<endl;
+
+//         // 6. Il re puo scappare
+//         // range(0-17340)
+//         int score_king_can_escape = black_checkmate(board) ? 17340 : 0;
+
+//         //cout << "6." <<endl;
+
+//         // 7. Il re puo scappare su due lati
+//         // range(0-34680)  
+//         // TO-DO
+//         int score_king_can_escape_two_sides = double_escape_for_the_king(board) ? 34680 : 0;
+
+//         //cout << "7." <<endl;
+
+//         // 8. Il re non puo essere catturato
+//         // range(0-69360)
+//         int score_king_cant_be_captured = white_checkmate(board) ? 0 : 69360;
+
+//         //cout << "8." <<endl;
+
+//         // Maximum sum of all the scores = 138719
+
+//         // 9. Se il bianco ha vinto
+//         int white_win_points = 0;
+//         if (is_game_over(board) == "white") {
+//             white_win_points = 10000000; //Add a 0 for the update
+//             return white_win_points;
+//         }
+
+//         //cout << "9." <<endl;
+        
+//         // Calcolo finale del punteggio
+//         return  (score_king_winning_direction + 
+//                 score_black_eaten + 
+//                 diff_between_white_black + 
+//                 score_king_not_blocked_quadrant + 
+//                 score_black_blockers + 
+//                 score_king_can_escape + 
+//                 //score_king_can_escape_two_sides +
+//                 score_king_cant_be_captured)/0.0138720; //Add a 0 for the update
+
+//     } catch (const exception& e) {
+//         cerr << "Error in heuristic_white: " << e.what() << endl;
+//         return 0;  // Gestione dell'errore
+//     }
+// } 
 
 // int heuristic_white(const vector<vector<char>>& board) {
 
@@ -190,9 +376,91 @@ int calculate_black_starting_positions_points(const vector<vector<char>>& board)
 //     }
 // }
 
+// int heuristic_black(const std::vector<std::vector<char>>& board) {
+//     try {
+//         //Add a print between each function to debug
+
+//         // 1. Punti per le posizioni di partenza dei pezzi neri
+//         int black_starting_positions_points = calculate_black_starting_positions_points(board);
+
+//         //cout << "black_starting_positions_points: done" << endl;
+        
+//         // 2. Differenza tra i pezzi bianchi mangiati e i pezzi neri persi
+//         int white_eaten = 8 - count_pieces(board, 'W');
+//         int black_lost = 16 - count_pieces(board, 'B');
+//         int diff_between_white_black = 480 + (white_eaten - black_lost) * 30;
+
+//         //cout << "diff_between_white_black: done" << endl;
+        
+//         // 3. Punti per ogni pezzo bianco mangiato
+//         int points_white_eaten = white_eaten * 750;
+
+//         //cout << "points_white_eaten: done" << endl;
+        
+//         // 4. Se il re non può dare scacco matto in una mossa
+//         int king_not_checkmate_inonemove = 0;
+//         if (!king_can_checkmate_in_future(board)) {
+//             king_not_checkmate_inonemove = 6750;
+//         }
+
+//         //cout << "king_not_checkmate_inonemove: done" << endl;
+        
+//         // 5. Se il re è in scacco matto
+//         int king_not_checkmate_points = 0;
+//         if (white_checkmate(board)) {
+//             king_not_checkmate_points = 13500;
+//         }
+
+//         //cout << "king_not_checkmate_points: done" << endl;
+        
+//         // 6. Se il nero non è in scacco matto
+//         int black_checkmate_points = 0;
+//         if (!black_checkmate(board)) {
+//             black_checkmate_points = 27000;
+//         }
+
+//         //cout << "black_checkmate_points: done" << endl;
+        
+//         // 7. Se il bianco non ha vinto
+//         int white_didnt_win_points = 0;
+//         if (is_game_over(board) != "white") {
+//             white_didnt_win_points = 54000;
+//         }
+
+//         //cout << "white_didnt_win_points: done" << endl;
+        
+//         // 8. Se il nero ha vinto
+//         int black_won_points = 0;
+//         if (is_game_over(board) == "black") {
+
+//             black_won_points = 108000/0.108; // 108000/0.108 = 1000000
+//             return black_won_points;
+//         }
+//         //cout << "black_won_points: done" << endl;
+
+//         return  (black_starting_positions_points + 
+//                 diff_between_white_black + 
+//                 points_white_eaten + 
+//                 king_not_checkmate_inonemove + 
+//                 king_not_checkmate_points + 
+//                 black_checkmate_points + 
+//                 white_didnt_win_points)/0.108;
+
+//     } catch (const std::exception& e) {
+//         std::cerr << "Error in heuristic_black: " << e.what() << std::endl;
+//         throw; // Rilancia l'eccezione
+//     }
+// }
+
 int heuristic_black(const std::vector<std::vector<char>>& board) {
     try {
-        //Add a print between each function to debug
+        
+        // 0. Se il bianco non ha vinto
+        
+        if (is_game_over(board) == "white") {
+            int black_lose_points = 0;
+            return black_lose_points;
+        }
 
         // 1. Punti per le posizioni di partenza dei pezzi neri
         int black_starting_positions_points = calculate_black_starting_positions_points(board);
@@ -233,13 +501,10 @@ int heuristic_black(const std::vector<std::vector<char>>& board) {
             black_checkmate_points = 27000;
         }
 
-        //cout << "black_checkmate_points: done" << endl;
+        // 7. Se il re ha due vie di uscita
+        int double_escape = double_escape_for_the_king(board) ? 0 : 54000;
+
         
-        // 7. Se il bianco non ha vinto
-        int white_didnt_win_points = 0;
-        if (is_game_over(board) != "white") {
-            white_didnt_win_points = 54000;
-        }
 
         //cout << "white_didnt_win_points: done" << endl;
         
@@ -258,13 +523,95 @@ int heuristic_black(const std::vector<std::vector<char>>& board) {
                 king_not_checkmate_inonemove + 
                 king_not_checkmate_points + 
                 black_checkmate_points + 
-                white_didnt_win_points)/0.108;
+                double_escape)/0.108;
 
     } catch (const std::exception& e) {
         std::cerr << "Error in heuristic_black: " << e.what() << std::endl;
         throw; // Rilancia l'eccezione
     }
 }
+
+// int heuristic_black(const std::vector<std::vector<char>>& board) {
+//     try {
+        
+//         // 0. Se il bianco non ha vinto
+        
+//         if (is_game_over(board) == "white") {
+//             int black_lose_points = 0;
+//             return black_lose_points;
+//         }
+
+//         // 1. Punti per le posizioni di partenza dei pezzi neri
+//         int black_starting_positions_points = calculate_black_starting_positions_points(board);
+
+//         //cout << "black_starting_positions_points: done" << endl;
+
+//         // 2. Mosse che può fare il bianco
+//         int score_number_of_white_moves = (100 - generate_all_possible_moves(board, 'W').size())*30;
+        
+//         // 3. Differenza tra i pezzi bianchi mangiati e i pezzi neri persi
+//         int white_eaten = 8 - count_pieces(board, 'W');
+//         int black_lost = 16 - count_pieces(board, 'B');
+//         int diff_between_white_black = 48480 + (white_eaten - black_lost) * 3030;
+
+//         //cout << "diff_between_white_black: done" << endl;
+        
+//         // 4. Punti per ogni pezzo bianco mangiato
+//         int points_white_eaten = white_eaten * 75750;
+
+//         //cout << "points_white_eaten: done" << endl;
+        
+//         // 5. Se il re non può dare scacco matto in una mossa
+//         int king_not_checkmate_inonemove = 0;
+//         if (!king_can_checkmate_in_future(board)) {
+//             king_not_checkmate_inonemove = 151500;
+//         }
+
+//         //cout << "king_not_checkmate_inonemove: done" << endl;
+        
+//         // 6. Se il re è in scacco matto
+//         int king_not_checkmate_points = 0;
+//         if (white_checkmate(board)) {
+//             king_not_checkmate_points = 303000;
+//         }
+
+//         //cout << "king_not_checkmate_points: done" << endl;
+        
+//         // 7. Se il nero non è in scacco matto
+//         int black_checkmate_points = 0;
+//         if (!black_checkmate(board)) {
+//             black_checkmate_points = 606000;
+//         }
+
+//         // 8. Se il re ha due vie di uscita
+//         int double_escape = double_escape_for_the_king(board) ? 0 : 1212000;
+
+        
+//         //cout << "white_didnt_win_points: done" << endl;
+        
+//         // 9. Se il nero ha vinto
+//         int black_won_points = 0;
+//         if (is_game_over(board) == "black") {
+
+//             black_won_points = 2424000/0.2424; // 2424000/0.2424 = 10_000_000
+//             return black_won_points;
+//         }
+//         //cout << "black_won_points: done" << endl;
+
+//         return  (black_starting_positions_points + 
+//                 score_number_of_white_moves +
+//                 diff_between_white_black + 
+//                 points_white_eaten + 
+//                 king_not_checkmate_inonemove + 
+//                 king_not_checkmate_points + 
+//                 black_checkmate_points + 
+//                 double_escape)/0.2424; // Update
+
+//     } catch (const std::exception& e) {
+//         std::cerr << "Error in heuristic_black: " << e.what() << std::endl;
+//         throw; // Rilancia l'eccezione
+//     }
+// }
 
 // HEURISTIC
 

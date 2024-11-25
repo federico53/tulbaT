@@ -8,7 +8,7 @@
 
 class EnginePlayer : public Player {
 public:
-    EnginePlayer(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth);
+    EnginePlayer(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth, int cut_size);
     void play() override; // Implementazione per il motore automatico
 };
 
