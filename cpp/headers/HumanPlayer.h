@@ -7,7 +7,7 @@
 
 class HumanPlayer : public Player {
 public:
-    HumanPlayer(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth);
+    HumanPlayer(const std::string& name, const std::string& color, const std::string& server_address, int port, int depth, int cut_size);
     void play() override; // Implementazione per il giocatore umano
 
 private:
