@@ -1,4 +1,5 @@
 #include "headers/MinMax.h"
+#include <thread>
 
 using namespace std;
 
@@ -457,4 +458,166 @@ pair<int, Move> minimax_alpha_beta_fast(const vector<vector<char>>& board, int d
         cerr << "Errore in minimax_alpha_beta: " << e.what() << endl;
         throw;
     }
+}
+
+#include <future>
+#include <atomic>
+#include <chrono>
+#include <iostream>
+
+std::atomic<bool> stop_threads(false);
+
+
+pair<int, Move> minimax_alpha_beta_fast_with_thread(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& turn, const char& player, int cut_size) {
+    try {
+        // Caso base: limite di profondità raggiunto, fine del gioco o richiesta di terminazione
+        if (depth == 0 || is_game_over(board) != 'N' || stop_threads) {
+            return {heuristic_evaluation(board, player), Move()};  // Restituisce punteggio e nessuna mossa usando l'euristica
+        }
+
+        Move best_move;
+        bool is_max = (turn == player);  // Se il turno è del giocatore, è una fase di massimizzazione
+
+        // Generazione delle mosse
+        std::vector<Move> generated_moves = generate_all_possible_moves(board, turn);
+
+        // Seleziona le migliori mosse basate sull'euristica
+        std::vector<std::pair<int, Move>> evaluated_moves; // Lista di valutazioni e mosse
+        for (const Move& move : generated_moves) {
+            if (stop_threads) break; // Controlla la richiesta di terminazione
+            vector<vector<char>> new_board = apply_move(board, move); // Applica la mossa per calcolare l'euristica
+            int score = heuristic_evaluation(new_board, player); // Valuta il punteggio
+            evaluated_moves.push_back({score, move}); // Salva punteggio e mossa
+        }
+
+        // Ordina le mosse basandosi solo sul punteggio
+        if (is_max) {
+            std::sort(evaluated_moves.begin(), evaluated_moves.end(), 
+                      [](const auto& a, const auto& b) { return a.first > b.first; });
+        } else {
+            std::sort(evaluated_moves.begin(), evaluated_moves.end(), 
+                      [](const auto& a, const auto& b) { return a.first < b.first; });
+        }
+
+        // Mantieni solo le prime "cut_size" mosse
+        if (evaluated_moves.size() > cut_size) {
+            evaluated_moves.resize(cut_size);
+        }
+
+        // Ora esegui il Minimax con Alpha-Beta sulle migliori mosse
+        if (is_max) {
+            int max_eval = std::numeric_limits<int>::min();
+            for (const auto& [score, move] : evaluated_moves) {
+                if (stop_threads) break; // Controlla la richiesta di terminazione
+                vector<vector<char>> new_board = apply_move(board, move);
+                auto [eval, dummy] = minimax_alpha_beta_fast_with_thread(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player, cut_size);
+                
+                if (eval > max_eval) {
+                    max_eval = eval;
+                    best_move = move;
+                }
+                
+                alpha = std::max(alpha, eval);
+                if (beta <= alpha) { // Potatura Beta
+                    break;
+                }
+            }
+            return {max_eval, best_move};
+        } else {
+            int min_eval = std::numeric_limits<int>::max();
+            for (const auto& [score, move] : evaluated_moves) {
+                if (stop_threads) break; // Controlla la richiesta di terminazione
+                vector<vector<char>> new_board = apply_move(board, move);
+                auto [eval, dummy] = minimax_alpha_beta_fast_with_thread(new_board, depth - 1, alpha, beta, get_opposite_turn(turn), player, cut_size);
+                
+                if (eval < min_eval) {
+                    min_eval = eval;
+                    best_move = move;
+                }
+                
+                beta = std::min(beta, eval);
+                if (beta <= alpha) { // Potatura Alpha
+                    break;
+                }
+            }
+            return {min_eval, best_move};
+        }
+    } catch (const exception& e) {
+        cerr << "Errore in minimax_alpha_beta: " << e.what() << endl;
+        throw;
+    }
+}
+
+
+
+pair<int, Move> run_minimax(const vector<vector<char>>& board, int depth, const char& turn, const char& player, int cut_size) {
+    if (stop_threads) {
+        return {std::numeric_limits<int>::min(), Move()};
+    }
+    return minimax_alpha_beta_fast_with_thread(board, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), turn, player, cut_size);
+}
+
+pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int depth, const char& turn, const char& player, int cut_size) {
+    stop_threads = false;
+
+    // Future per i risultati dei thread
+    auto start_time_depth = std::chrono::steady_clock::now();
+    std::future<pair<int, Move>> result_depth = std::async(std::launch::async, run_minimax, board, depth, turn, player, cut_size);
+    auto start_time_depth_plus_1 = std::chrono::steady_clock::now();
+    std::future<pair<int, Move>> result_depth_plus_1 = std::async(std::launch::async, run_minimax, board, depth + 1, turn, player, cut_size);
+    auto start_time_depth_plus_2 = std::chrono::steady_clock::now();
+    std::future<pair<int, Move>> result_depth_plus_2 = std::async(std::launch::async, run_minimax, board, depth + 2, turn, player, cut_size);
+
+    // Timer di 58 secondi
+    auto start_time = std::chrono::steady_clock::now();
+    auto end_time = start_time + std::chrono::seconds(58);
+
+    // Raccogliere i risultati
+    pair<int, Move> best_result = {std::numeric_limits<int>::min(), Move()};
+
+    auto check_and_update_result = [&](std::future<pair<int, Move>>& result_future, int depth_label, auto start_time) {
+        if (result_future.valid() && result_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+            try {
+                auto result = result_future.get();
+                auto end_time = std::chrono::steady_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+                std::cout << "Thread of depth " << depth_label << " returned with score: " << result.first << " in " << duration / 1000.0 << " seconds" << std::endl;
+                if (result.first > best_result.first) {
+                    best_result = result;
+                }
+                return true;
+            } catch (const std::exception& e) {
+                std::cerr << "Error in " << depth_label << ": " << e.what() << std::endl;
+            }
+        }
+        return false;
+    };
+
+    bool res1 = false, res2 = false, res3 = false;
+
+    while (std::chrono::steady_clock::now() < end_time && (!res1 || !res2 || !res3)) {
+        if (!res1)
+            res1 = check_and_update_result(result_depth, depth, start_time_depth);
+        if (!res2)
+            res2 = check_and_update_result(result_depth_plus_1, depth+1, start_time_depth_plus_1);
+        if (!res3)
+            res3 = check_and_update_result(result_depth_plus_2, depth+2, start_time_depth_plus_2);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Attendi un po' prima di ricontrollare
+    }
+
+    stop_threads = true;
+
+    // Forza la raccolta dei risultati rimanenti
+
+    if (!res1)
+        check_and_update_result(result_depth, depth, start_time_depth);
+    if (!res2)
+        check_and_update_result(result_depth_plus_1, depth+1, start_time_depth_plus_1);
+    if (!res3)
+        check_and_update_result(result_depth_plus_2, depth+2, start_time_depth_plus_2);
+
+    std:cout << "We should have finished, returning best result" << std::endl;
+
+    return best_result;
 }
