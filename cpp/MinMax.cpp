@@ -150,19 +150,6 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player, 
                     bw3 * black_threats +
                     bw4 * black_progress;
 
-        // Logger::debug(format_board(board));
-        // Logger::debug("w1 * " + to_string(white_material) + " + " +
-        //               "w2 * " + to_string(white_position) + " + " +
-        //               "w3 * " + to_string(white_threats) + " + " +
-        //               "w4 * " + to_string(white_progress) + " + " +
-        //               "b1 * " + to_string(black_material) + " + " +
-        //               "b2 * " + to_string(black_position) + " + " +
-        //               "b3 * " + to_string(black_threats) + " + " +
-        //               "b4 * " + to_string(black_progress) + " = " + to_string(points));
-        // cout << "White Points: (Material) " << ww1 * white_material << " (Position) " << ww2 * white_position << " (Threats) " << ww3 * white_threats << " (Progress) " << ww4 * white_progress << endl;
-        // cout << "Black Points: (Material) " << bw1 * black_material << " (Position) " << bw2 * black_position << " (Threats) " << bw3 * black_threats << " (Progress) " << bw4 * black_progress << endl;
-        // cout << "Total Points: " << points << endl;
-
         if(player == 'W'){
             return points;
         } else {

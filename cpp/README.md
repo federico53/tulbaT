@@ -6,7 +6,7 @@ L'euristica è implementata come funzione lineare, è stato ottimizzato il codic
 
 - [x] ~~Rivedere bene le conclusioni delle partite~~
 - [x] ~~Passaggio corretto degli argomenti come da specifiche~~
-- [ ] Eliminare parti di codice superflue o ottimizzabili (idealmente completare get_stats con le funzioni mancanti e unire il resto in gameutils)
+- [ ] Eliminare parti di codice superflue o ottimizzabili
 - [ ] Implementare dinamiche "paracadute" per inviare in sicurezza una mossa
 - [ ] Implementare una logica per non pareggiare se in vantaggio
 - [ ] Multi-threading per migliorare ulteriormente le performance
