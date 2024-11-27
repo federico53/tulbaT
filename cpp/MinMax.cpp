@@ -428,9 +428,7 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
                 auto end_time = std::chrono::steady_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
                 std::cout << "Thread of depth " << depth_label << " returned with score: " << result.first << " in " << duration / 1000.0 << " seconds" << std::endl;
-                if (result.first > best_result.first) {
-                    best_result = result;
-                }
+                best_result = result;
                 return true;
             } catch (const std::exception& e) {
                 std::cerr << "Error in " << depth_label << ": " << e.what() << std::endl;
@@ -465,5 +463,7 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
 
     std:cout << "We should have finished, returning best result" << std::endl;
 
+    //let's return the deepest value we got among the 3
     return best_result;
+
 }
