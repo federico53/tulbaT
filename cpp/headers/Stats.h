@@ -16,7 +16,7 @@ bool black_checkmate(const vector<vector<char>>& board, const pair<int, int>& ki
 
 bool is_empty_and_reachable(const vector<vector<char>>& board, const pair<int, int>& position, const char color);
 
-bool king_adjacent_to_castle(const pair<int, int>& king_position, const pair<int, int>& king_position);
+bool king_adjacent_to_castle(const pair<int, int>& king_position);
 
 bool king_can_be_captured_between_two_blacks(const vector<vector<char>>& board, const pair<int, int>& king_position);
 bool king_adjacent_to_castle_can_be_captured(const vector<vector<char>>& board, const pair<int, int>& king_position);

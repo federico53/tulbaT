@@ -1,10 +1,10 @@
 #include "headers/Logger.h"
 
 Logger::Logger() {
-    if (!std::experimental::filesystem::exists("../logs")) {
-        std::experimental::filesystem::create_directory("../logs");
+    if (!std::experimental::filesystem::exists("./logs")) {
+        std::experimental::filesystem::create_directory("./logs");
     }
-    logFile_ = "../logs/" + getTimestamp() + ".log";
+    logFile_ = "./logs/" + getTimestamp() + ".log";
 }
 
 void Logger::log(Level level, const std::string& message) {

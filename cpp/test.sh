@@ -1,1 +1,1 @@
-g++ mainTest.cpp Stats.cpp GameUtils.cpp -o build/test
+g++ mainTest.cpp Stats.cpp GameUtils.cpp MinMax.cpp -o bin/test
