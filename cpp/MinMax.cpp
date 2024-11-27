@@ -87,7 +87,7 @@ std::map<char, std::map<char, int>> get_stats(const vector<vector<char>>& board)
         stats['K']['S'] = blocked_sides;
         stats['K']['B'] = black_blockers;
         stats['K']['W'] = white_blockers;
-        stats['K']['C'] = castle_blockers;
+        stats['K']['T'] = castle_blockers;
         return stats;
     } catch (const exception& e) {
         cerr << "Error in get_stats: " << e.what() << endl;
@@ -134,9 +134,8 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player, 
         int black_threats = (stats['B']['T']? -100 : 0);    // (-4000/0)
 
         // Progress to victory (CATEGORIDA DA RIVEDERE MAGGIORMENTE)
-        // white progress forse conviene dare un punteggio per il numero ottimale di bianchi che circonda il re (0, 1, 2, 3, 4)
         int white_progress = stats['K']['F'];   // (0-200)
-        int black_progress = stats['K']['B'] + stats['K']['C']; // (0-100)
+        int black_progress = stats['K']['B'] + stats['K']['T']; // (0-100)
 
         // white max 880
         // black max 1760
@@ -316,8 +315,9 @@ std::atomic<bool> stop_threads(false);
 pair<int, Move> minimax_alpha_beta_fast_with_thread(const vector<vector<char>>& board, int depth, int alpha, int beta, const char& turn, const char& player, int cut_size) {
     try {
         // Caso base: limite di profondità raggiunto, fine del gioco o richiesta di terminazione
-        if (depth == 0 || is_game_over(board) != 'N' || stop_threads) {
-            return {heuristic_evaluation(board, player), Move()};  // Restituisce punteggio e nessuna mossa usando l'euristica
+        char game_over = is_game_over(board);
+        if (depth == 0 || game_over != 'N' || stop_threads) {
+            return {heuristic_evaluation(board, player, game_over), Move()};  // Restituisce punteggio e nessuna mossa usando l'euristica
         }
 
         Move best_move;
@@ -331,7 +331,8 @@ pair<int, Move> minimax_alpha_beta_fast_with_thread(const vector<vector<char>>& 
         for (const Move& move : generated_moves) {
             if (stop_threads) break; // Controlla la richiesta di terminazione
             vector<vector<char>> new_board = apply_move(board, move); // Applica la mossa per calcolare l'euristica
-            int score = heuristic_evaluation(new_board, player); // Valuta il punteggio
+            char game_over = is_game_over(new_board);
+            int score = heuristic_evaluation(new_board, player, game_over); // Valuta il punteggio
             evaluated_moves.push_back({score, move}); // Salva punteggio e mossa
         }
 
