@@ -21,12 +21,11 @@ Move parseMove(const std::string& move);
 
 // FUNZIONI DI VALIDAZIONE POSIZIONI
 bool is_within_bounds(int row, int col);
-bool is_castle(int row, int col);
 bool is_citadel(int row, int col);
 bool is_winning_position(int row, int col);
 bool is_adjacent_to_castle(int row, int col);
 bool is_blocking_cell(int row, int col);
-bool is_king_captured(const vector<vector<char>>& board);
+bool is_king_captured(const vector<vector<char>>& board, const pair<int, int>& king_position);
 
 // FUNZIONI PER IL TURNOVER
 char get_opposite_turn(const char &turn);

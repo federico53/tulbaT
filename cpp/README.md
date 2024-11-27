@@ -6,9 +6,9 @@ L'euristica è implementata come funzione lineare, è stato ottimizzato il codic
 
 - [x] ~~Rivedere bene le conclusioni delle partite~~
 - [x] ~~Passaggio corretto degli argomenti come da specifiche~~
-- [ ] Eliminare parti di codice superflue o ottimizzabili
-- [ ] Implementare dinamiche "paracadute" per inviare in sicurezza una mossa
+- [x] ~~Eliminare parti di codice superflue o ottimizzabili~~
+- [ ] Implementare dinamiche "paracadute" per inviare in sicurezza una mossa (Luca)
+- [ ] Multi-threading per migliorare ulteriormente le performance (Luca)
 - [ ] Implementare una logica per non pareggiare se in vantaggio
-- [ ] Multi-threading per migliorare ulteriormente le performance
 - [ ] Rivedere cut size per minmax
 - [ ] Errore mossa nera da A1 a A1 (logs/2024.11.25_00:25:17.log)

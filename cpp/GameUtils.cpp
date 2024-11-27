@@ -17,12 +17,6 @@ bool is_within_bounds(int row, int col) {
 
 // POSITION UTILS
 
-bool is_castle(int row, int col) {
-    // Verifica se la posizione è il castello (trono)
-    int castle_row = 4, castle_col = 4;  // Il castello si trova al centro della scacchiera
-    return (row == castle_row && col == castle_col);
-}
-
 bool is_citadel(int row, int col) {
     const vector<pair<int, int>> citadels = {
         {0, 3}, {0, 4}, {0, 5}, {1, 4}, {3, 0}, {4,0}, {5,0}, {4,1},
@@ -67,12 +61,11 @@ bool is_adjacent_to_castle(int row, int col) {
 
 bool is_blocking_cell(int row, int col) {
     // Verifica se la cella è una cella di blocco (come un castello o una cittadella)
-    return is_castle(row, col) || is_citadel(row, col);
+    return (row == 4 && col == 4) || is_citadel(row, col);
 }
 
-bool is_king_captured(const std::vector<std::vector<char>>& board) {
+bool is_king_captured(const std::vector<std::vector<char>>& board, const pair<int, int>& king_pos) {
     try {
-        auto king_pos = get_king_position(board);
 
         int king_row = king_pos.first;
         int king_col = king_pos.second;
@@ -80,7 +73,7 @@ bool is_king_captured(const std::vector<std::vector<char>>& board) {
         std::vector<std::pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};  // Down, Up, Right, Left
 
         // Case 1: Check if the king is in the castle
-        if (is_castle(king_row, king_col)) {
+        if (king_row == 4 && king_col == 4) {
             // King must be surrounded on all four sides by black pieces to be captured
             for (const auto& dir : directions) {
                 int new_row = king_row + dir.first;
@@ -232,7 +225,17 @@ vector<Move> generate_all_possible_moves(const vector<vector<char>> &board, cons
 char is_game_over(const std::vector<std::vector<char>>& board) {
     try {
         // 1. Check if the king is in an escape cell (white wins)
-        auto king_position = get_king_position(board);
+        pair<int, int> king_position;
+        bool found = false;
+        for(int i = 0; i < 9 && !found; i++){
+            for(int j = 0; j < 9 && !found; j++){
+                if(board[i][j] == 'K'){
+                    king_position = std::make_pair(i, j);
+                    found = true;
+                }
+            }
+        }
+        
         vector<pair<int, int>> winning_positions = {
             {0, 1}, {0, 2}, {0, 6}, {0, 7}, {1, 0}, {2, 0}, {6, 0}, {7, 0}, {8, 1}, {8, 2}, {8, 6}, {8, 7}, {1, 8}, {2, 8}, {6, 8}, {7, 8}
         };
@@ -243,7 +246,7 @@ char is_game_over(const std::vector<std::vector<char>>& board) {
         }
         
         // 2. Check if the king is captured (black wins)
-        if (is_king_captured(board)) {
+        if (is_king_captured(board, king_position)) {
             return 'B';  // Black player wins
         }
 
@@ -278,8 +281,19 @@ bool is_enemy(const char& enemy, const char& of){
 }
 
 bool is_allie(const char& allie, const char& of, const std::vector<std::vector<char>>& board){
+    pair<int, int> king_position;
+    bool found = false;
+    for(int i = 0; i < 9 && !found; i++){
+        for(int j = 0; j < 9 && !found; j++){
+            if(board[i][j] == 'K'){
+                king_position = std::make_pair(i, j);
+                found = true;
+            }
+        }
+    }
+
     if(of == 'B'){
-        return allie == 'B' || allie == 'T' || (allie == 'K' && get_king_position(board) == std::make_pair(4, 4));
+        return allie == 'B' || allie == 'T' || (allie == 'K' && king_position == std::make_pair(4, 4));
     } else if(of == 'W'){
         return allie == 'W' || allie == 'K' || allie == 'T';
     } else if(of == 'K'){
