@@ -1,1 +1,1 @@
-g++ mainTest.cpp Stats.cpp GameUtils.cpp MinMax.cpp -o bin/test
+g++ mainTest.cpp Stats.cpp GameUtils.cpp MinMax.cpp Logger.cpp -o bin/test -ljsoncpp -lstdc++fs

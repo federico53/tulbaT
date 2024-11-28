@@ -11,4 +11,5 @@ L'euristica è implementata come funzione lineare, è stato ottimizzato il codic
 - [x] ~~Multi-threading per migliorare ulteriormente le performance (Luca)~~
 - [ ] Implementare una logica per non pareggiare se in vantaggio
 - [ ] Rivedere cut size per minmax
+- [ ] Aumento dinamico della depth in base alla dimensione della generate_all_possible_move
 - [ ] Errore mossa nera da A1 a A1 (logs/2024.11.25_00:25:17.log)

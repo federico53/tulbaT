@@ -13,15 +13,15 @@ using namespace std;
 int main() {
     // Dichiarazione e inizializzazione della matrice 9x9 con valori a piacere
     vector<vector<char>> board = {
-        {'E', 'E', 'E', 'B', 'B', 'B', 'E', 'E', 'E'},
-        {'E', 'E', 'E', 'B', 'K', 'B', 'E', 'B', 'E'},
-        {'E', 'E', 'E', 'B', 'B', 'B', 'E', 'E', 'E'},
-        {'E', 'E', 'E', 'E', 'E', 'B', 'W', 'E', 'E'},
-        {'E', 'E', 'E', 'W', 'T', 'E', 'E', 'E', 'E'},
-        {'E', 'E', 'W', 'E', 'W', 'E', 'E', 'E', 'B'},
         {'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'},
         {'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'},
-        {'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'}
+        {'E', 'E', 'E', 'E', 'E', 'B', 'B', 'E', 'E'},
+        {'E', 'E', 'E', 'E', 'E', 'K', 'E', 'E', 'E'},
+        {'B', 'E', 'E', 'E', 'T', 'B', 'E', 'E', 'E'},
+        {'E', 'E', 'B', 'E', 'B', 'W', 'E', 'E', 'E'},
+        {'E', 'E', 'E', 'E', 'B', 'E', 'E', 'E', 'E'},
+        {'E', 'E', 'E', 'E', 'E', 'E', 'B', 'E', 'E'},
+        {'E', 'E', 'E', 'E', 'E', 'B', 'E', 'E', 'E'}
     };
 
     // Stampa della matrice
@@ -42,6 +42,8 @@ int main() {
         }
         cout << endl;
     }
+
+    cout << "Game over: " << is_game_over(board) << endl;
 
     // cout << double_escape_for_the_king(board) << endl;
 
