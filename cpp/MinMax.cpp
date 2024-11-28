@@ -450,7 +450,7 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
                 std::cout << "Thread of depth " << depth_label << " returned with score: " << result.first << " in " << duration / 1000.0 << " seconds" << std::endl;
                 
                 best_result = result;
-                
+            
                 return true;
             } catch (const std::exception& e) {
                 std::cerr << "Error in " << depth_label << ": " << e.what() << std::endl;
@@ -468,7 +468,7 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
         if (!res_minus_2) {
             res_minus_2 = check_and_update_result(result_depth_minus_2, depth - 2, start_time_depth_minus_2);
             if (res_minus_2) {
-                auto start_time_depth_plus_2 = std::chrono::steady_clock::now();
+                start_time_depth_plus_2 = std::chrono::steady_clock::now();
                 result_depth_plus_2 = std::async(std::launch::async, run_minimax, board, depth + 2, turn, player, cut_size);
             }
         }
@@ -487,16 +487,16 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
     stop_threads = true;
 
     // Forza la raccolta dei risultati rimanenti
-    if (!res_plus_2 && result_depth_plus_2.valid())
-        check_and_update_result(result_depth_plus_2, depth + 2, start_time_depth_plus_2);
-    if (!res_plus_1)
-        check_and_update_result(result_depth_plus_1, depth + 1, start_time_depth_plus_1);
-    if (!res)
-        check_and_update_result(result_depth, depth, start_time_depth);
-    if (!res_minus_1)
-        check_and_update_result(result_depth_minus_1, depth - 1, start_time_depth_minus_1);
     if (!res_minus_2)
         check_and_update_result(result_depth_minus_2, depth - 2, start_time_depth_minus_2);
+    if (!res_minus_1)
+        check_and_update_result(result_depth_minus_1, depth - 1, start_time_depth_minus_1);
+    if (!res)
+        check_and_update_result(result_depth, depth, start_time_depth);
+    if (!res_plus_1)
+        check_and_update_result(result_depth_plus_1, depth + 1, start_time_depth_plus_1);
+    if (!res_plus_2 && result_depth_plus_2.valid())
+        check_and_update_result(result_depth_plus_2, depth + 2, start_time_depth_plus_2);
 
     std::cout << "We should have finished, returning best result" << std::endl;
 
