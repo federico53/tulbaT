@@ -2,7 +2,19 @@
 
 L'euristica è implementata come funzione lineare, è stato ottimizzato il codice per eseguire in maniera più efficiente e fare meno cicli possibili. Per una approssimazione ottimale è importante settare in maniera corretta i pesi dei vari aspetti del gioco sia per il bianco sia per il nero e tenere in considerazione il fatto che essi si influenzano tra di loro nel calcolo della mossa migliore
 
-## Aspetti da migliorare
+## White heuristic
+- Number of white pieces
+- Winning direction position of the king
+- Free sides of the king
+- Victory
+
+## Black heuristic
+- Number of black pieces
+- Average distance from king (no 8 adj cells)
+- 8 adj cells points
+- Victory
+
+# Aspetti da migliorare
 
 - [x] ~~Rivedere bene le conclusioni delle partite~~
 - [x] ~~Passaggio corretto degli argomenti come da specifiche~~

@@ -55,7 +55,7 @@ void EnginePlayer::play(){
 
             // CALLING THE MINIMAX FUNCTION
             std::pair<int, Move> result = minimax_alpha_beta_fast(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]), cut_size);
-            // std::pair<int, Move> result = run_minimax_with_threads(board_vector, depth, std::toupper(turn[0]), std::toupper(color[0]), cut_size);
+            // std::pair<int, Move> result = run_minimax_with_threads(board_vector, depth, std::toupper(turn[0]), std::toupper(color[0]), cut_size, time);
             // std::pair<int, Move> result = minimax_alpha_beta(board_vector, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), std::toupper(turn[0]), std::toupper(color[0]));
 
             best_score = result.first;

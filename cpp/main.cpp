@@ -73,13 +73,13 @@ int main(int argc, char *argv[]) {
         // ******************** DEPTH SIZE SELECTION *********************
         int depth = 4;
         //we decide the depth in accordance to the time, which is between 5 seconds andn 60 seconds
-        if(time<=5)
-            depth=4;
-        else if(time<=15)
-            depth=5;
-        else if(time<=60)
-            depth=6;
-/*         if(argc>=5){ // if the depth is passed as parameter
+        // if(time<=5)
+        //     depth=4;
+        // else if(time<=15)
+        //     depth=5;
+        // else if(time<=60)
+        //     depth=6;
+        if(argc>=5){ // if the depth is passed as parameter
             depth = std::stoi(argv[4]);
         }else{ // if the depth is not passed as parameter, the user can choose it from the terminal
             Logger::info("Select the depth of the tree search");
@@ -97,15 +97,15 @@ int main(int argc, char *argv[]) {
                     Logger::warning("Invalid input. Please enter a valid number.");
                 }
             }
-        } */
+        }
 
         // ********************* CUT SIZE SELECTION **********************
         int cut_size = 10;
-/*         if(argc>=6){ // if the cut_size is passed as parameter
+        if(argc>=6){ // if the cut_size is passed as parameter
             cut_size = std::stoi(argv[5]);
         }else{ // if the cut_size is not passed as parameter, it is fixed = 10
             cut_size=10;
-        } */
+        }
 
         std::unique_ptr<Player> player=std::make_unique<EnginePlayer>(player_name, color, server_address.first, server_address.second, depth, cut_size, time);;
 

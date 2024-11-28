@@ -11,17 +11,18 @@ std::map<char, std::map<char, int>> get_stats(const vector<vector<char>>& board)
         vector<pair<int, int>> black_pieces;
         int white_pieces = 0;
         int free_sides = 0, blocked_sides = 0, black_blockers = 0, white_blockers = 0, castle_blockers = 0;
-        float near_king_black = 0, near_king_white = 0;
+        float near_king_black = 0;
+        int around_king_black = 0;
         static const vector<vector<int>> king_winning_direction_heatmap = {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 2, 3, 1, 0, 1, 3, 2, 0},
-            {0, 3, 4, 2, 2, 2, 4, 3, 0},
-            {0, 1, 2, 0, 0, 0, 2, 1, 0},
-            {0, 0, 2, 0, 0, 0, 2, 0, 0},
-            {0, 1, 2, 0, 0, 0, 2, 1, 0},
-            {0, 3, 4, 2, 2, 2, 4, 3, 0},
-            {0, 2, 3, 1, 0, 1, 3, 2, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0}
+            {1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 3, 4, 2, 1, 2, 4, 3, 1},
+            {1, 4, 5, 3, 2, 3, 5, 4, 1},
+            {1, 2, 3, 1, 1, 1, 3, 2, 1},
+            {1, 1, 2, 1, 0, 1, 2, 1, 1},
+            {1, 2, 3, 1, 1, 1, 3, 2, 1},
+            {1, 4, 5, 3, 2, 3, 5, 4, 1},
+            {1, 3, 4, 2, 1, 2, 4, 3, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1}
         };
 
         for(int row = 0; row < 9; ++row){
@@ -60,51 +61,32 @@ std::map<char, std::map<char, int>> get_stats(const vector<vector<char>>& board)
                         castle_blockers++;
                     }
                 }
-
-                // // Near king perpendicularl
-                // int i = 2;
-                // if(stats['K']['R'] + dir.first * i >= 0 && stats['K']['R'] + dir.first * i < 9 && stats['K']['C'] + dir.second * i >= 0 && stats['K']['C'] + dir.second * i < 9){
-                //     if(board[stats['K']['R'] + dir.first * i][stats['K']['C'] + dir.second * i] == 'W'){
-                //         // cambiato (5 - i)
-                //         near_king_white += i;                           
-                //     }
-                // }
-                // // for(int i = 1; i < 3; ++i){
-                // // }
-            }
-
-            // Near king white diagonal
-            vector<pair<int,int>> diagonal = {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
-            for(const auto& dir : diagonal){
-                if(stats['K']['R'] + dir.first >= 0 && stats['K']['R'] + dir.first < 9 && stats['K']['C'] + dir.second >= 0 && stats['K']['C'] + dir.second < 9){
-                    if(board[stats['K']['R'] + dir.first][stats['K']['C'] + dir.second] == 'W'){
-                        // 2
-                        near_king_white += 1;
-                    }
-                }
             }
         }
 
-        // Black mean distance from king
+        // Black mean distance from king + 8 adj sides points
         for(const auto& piece : black_pieces){
-            near_king_black += abs(piece.first - stats['K']['R']) + abs(piece.second - stats['K']['C']);
+            if(piece.first >= stats['K']['R'] - 1 && piece.first <= stats['K']['R'] + 1 && piece.second >= stats['K']['C'] - 1 && piece.second <= stats['K']['C'] + 1){
+                around_king_black++;
+            } else{
+                near_king_black += abs(piece.first - stats['K']['R']) + abs(piece.second - stats['K']['C']);
+            }
         }
-        near_king_black = (8 - ((near_king_black- black_blockers) / black_pieces.size())) * 100;
+        near_king_black = (8 - (near_king_black / black_pieces.size())) * 100;
+        around_king_black += black_blockers;
         
 
         pair<int, int> king_position = make_pair(stats['K']['R'], stats['K']['C']);
 
         stats['B']['P'] = black_pieces.size();
         stats['B']['N'] = near_king_black;
-        stats['B']['T'] = black_checkmate(board, king_position);
+        stats['B']['A'] = around_king_black;
 
         stats['W']['P'] = white_pieces;
-        stats['W']['N'] = near_king_white;
-        stats['W']['T'] = white_checkmate(board, king_position);
 
         // stats['K']['R'] riga del re
         // stats['K']['C'] colonna del re
-        stats['K']['W'] = king_winning_direction_heatmap[stats['K']['R']][stats['K']['C']] * 2;
+        stats['K']['W'] = king_winning_direction_heatmap[stats['K']['R']][stats['K']['C']];
         stats['K']['F'] = free_sides;
         stats['K']['S'] = blocked_sides;
         stats['K']['B'] = black_blockers;
@@ -123,10 +105,10 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player, 
         int points = 0;
 
         if(game_over == 'W'){
-            points = 10000;
+            points = 100000;
         }
         if(game_over == 'B'){
-            points = -10000;
+            points = -100000;
         }
 
         if(points != 0){
@@ -139,38 +121,47 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player, 
 
         auto stats = get_stats(board);
 
-        // mi sembra bw1 a -80 e bw2 a -10
-        int ww1 = 60, ww2 = 100, ww3 = 40, ww4 = 50;
-        int bw1 = -60, bw2 = -2, bw3 = -40, bw4 = 25;
+        // ww1*8 = p(ww1)*50000
+        // ww2*5 = p(ww2)*50000
+        // ww3*4 = p(ww3)*50000
+
+        // bw1*16 = p(bw1)*50000
+        // bw2*500 = p(bw2)*50000
+        // bw3*12 = p(bw3)*50000
+
+/*      WHITE 
+        - # pieces             35%
+        - winning direction    40%
+        - free sides           25% */
+
+/*      BLACK
+        - # pieces                                     60%
+        - average distance from king (no 8 adj sides)  10%
+        - 8 adj sides points (2 blockers, 1 diagonal)  30% */
+
+
+        // Weights
+        int ww1 = 2185, ww2 = 5000, ww3 = 3125;
+        int bw1 = -1875, bw2 = -10, bw3 = 1250;
 
         // Material
-        int white_material = stats['W']['P'];   // (0-480)
-        int black_material = stats['B']['P'];   // (0-960)
+        int white_material = stats['W']['P'];
+        int black_material = stats['B']['P'];
 
-        // Position (c'era anche 8 - stats['W']['S'] + ...)
-        int white_position = stats['K']['W'] + stats['W']['N'];   // (0-800)
-        int black_position = stats['B']['N'];   // (0-1400)
+        // Position
+        int white_position = stats['K']['W'];
+        int black_position = stats['B']['N'];
 
-        // Threats10
-        int white_threats = (stats['W']['T']? -100 : 0);    // (-4000/0)
-        int black_threats = (stats['B']['T']? -100 : 0);    // (-4000/0)
-
-        // Progress to victory (CATEGORIDA DA RIVEDERE MAGGIORMENTE)
-        int white_progress = stats['K']['F'];   // (0-200)
-        int black_progress = stats['K']['B'] + stats['K']['T']; // (0-100)
-
-        // white max 1480
-        // black max 2460
-
+        // Progress to victory
+        int white_progress = stats['K']['F'];   
+        int black_progress = stats['K']['A'];
         
         points =    ww1 * white_material + 
                     ww2 * white_position + 
-                    ww3 * white_threats + 
-                    ww4 * white_progress +
+                    ww3 * white_progress +
                     bw1 * black_material +
                     bw2 * black_position +
-                    bw3 * black_threats +
-                    bw4 * black_progress;
+                    bw3 * black_progress;
 
         if(player == 'W'){
             return points;
