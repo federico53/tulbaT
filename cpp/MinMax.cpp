@@ -403,20 +403,22 @@ pair<int, Move> run_minimax(const vector<vector<char>>& board, int depth, const 
     return minimax_alpha_beta_fast_with_thread(board, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), turn, player, cut_size);
 }
 
-pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int depth, const char& turn, const char& player, int cut_size) {
+pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int depth, const char& turn, const char& player, int cut_size, int time) {
     stop_threads = false;
 
     // Future per i risultati dei thread
+    auto start_time_depth_minus_2 = std::chrono::steady_clock::now();
+    std::future<pair<int, Move>> result_depth_minus_2 = std::async(std::launch::async, run_minimax, board, depth - 2, turn, player, cut_size);
+    auto start_time_depth_minus_1 = std::chrono::steady_clock::now();
+    std::future<pair<int, Move>> result_depth_minus_1 = std::async(std::launch::async, run_minimax, board, depth - 1, turn, player, cut_size);
     auto start_time_depth = std::chrono::steady_clock::now();
     std::future<pair<int, Move>> result_depth = std::async(std::launch::async, run_minimax, board, depth, turn, player, cut_size);
     auto start_time_depth_plus_1 = std::chrono::steady_clock::now();
     std::future<pair<int, Move>> result_depth_plus_1 = std::async(std::launch::async, run_minimax, board, depth + 1, turn, player, cut_size);
-    auto start_time_depth_plus_2 = std::chrono::steady_clock::now();
-    std::future<pair<int, Move>> result_depth_plus_2 = std::async(std::launch::async, run_minimax, board, depth + 2, turn, player, cut_size);
 
-    // Timer di 58 secondi
+    // Timer di (time-2) secondi per stare larghi
     auto start_time = std::chrono::steady_clock::now();
-    auto end_time = start_time + std::chrono::seconds(58);
+    auto end_time = start_time + std::chrono::seconds(time-2);
 
     // Raccogliere i risultati
     pair<int, Move> best_result = {std::numeric_limits<int>::min(), Move()};
@@ -428,7 +430,9 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
                 auto end_time = std::chrono::steady_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
                 std::cout << "Thread of depth " << depth_label << " returned with score: " << result.first << " in " << duration / 1000.0 << " seconds" << std::endl;
+                
                 best_result = result;
+                
                 return true;
             } catch (const std::exception& e) {
                 std::cerr << "Error in " << depth_label << ": " << e.what() << std::endl;
@@ -437,15 +441,27 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
         return false;
     };
 
-    bool res1 = false, res2 = false, res3 = false;
+    bool res_minus_2 = false, res_minus_1 = false, res = false, res_plus_1 = false;
+    std::future<pair<int, Move>> result_depth_plus_2;
+    bool res_plus_2 = false;
+    std::chrono::steady_clock::time_point start_time_depth_plus_2;
 
-    while (std::chrono::steady_clock::now() < end_time && (!res1 || !res2 || !res3)) {
-        if (!res1)
-            res1 = check_and_update_result(result_depth, depth, start_time_depth);
-        if (!res2)
-            res2 = check_and_update_result(result_depth_plus_1, depth+1, start_time_depth_plus_1);
-        if (!res3)
-            res3 = check_and_update_result(result_depth_plus_2, depth+2, start_time_depth_plus_2);
+    while (std::chrono::steady_clock::now() < end_time && (!res_minus_2 || !res_minus_1 || !res || !res_plus_1 || !res_plus_2)) {
+        if (!res_minus_2) {
+            res_minus_2 = check_and_update_result(result_depth_minus_2, depth - 2, start_time_depth_minus_2);
+            if (res_minus_2) {
+                auto start_time_depth_plus_2 = std::chrono::steady_clock::now();
+                result_depth_plus_2 = std::async(std::launch::async, run_minimax, board, depth + 2, turn, player, cut_size);
+            }
+        }
+        if (!res_minus_1)
+            res_minus_1 = check_and_update_result(result_depth_minus_1, depth - 1, start_time_depth_minus_1);
+        if (!res)
+            res = check_and_update_result(result_depth, depth, start_time_depth);
+        if (!res_plus_1)
+            res_plus_1 = check_and_update_result(result_depth_plus_1, depth + 1, start_time_depth_plus_1);
+        if (result_depth_plus_2.valid() && !res_plus_2)
+            res_plus_2 = check_and_update_result(result_depth_plus_2, depth + 2, start_time_depth_plus_2);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Attendi un po' prima di ricontrollare
     }
@@ -453,17 +469,19 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
     stop_threads = true;
 
     // Forza la raccolta dei risultati rimanenti
-
-    if (!res1)
+    if (!res_plus_2 && result_depth_plus_2.valid())
+        check_and_update_result(result_depth_plus_2, depth + 2, start_time_depth_plus_2);
+    if (!res_plus_1)
+        check_and_update_result(result_depth_plus_1, depth + 1, start_time_depth_plus_1);
+    if (!res)
         check_and_update_result(result_depth, depth, start_time_depth);
-    if (!res2)
-        check_and_update_result(result_depth_plus_1, depth+1, start_time_depth_plus_1);
-    if (!res3)
-        check_and_update_result(result_depth_plus_2, depth+2, start_time_depth_plus_2);
+    if (!res_minus_1)
+        check_and_update_result(result_depth_minus_1, depth - 1, start_time_depth_minus_1);
+    if (!res_minus_2)
+        check_and_update_result(result_depth_minus_2, depth - 2, start_time_depth_minus_2);
 
-    std:cout << "We should have finished, returning best result" << std::endl;
+    std::cout << "We should have finished, returning best result" << std::endl;
 
-    //let's return the deepest value we got among the 3
+    // Restituisce il valore del thread con la profondità maggiore tra quelli che hanno finito
     return best_result;
-
 }
