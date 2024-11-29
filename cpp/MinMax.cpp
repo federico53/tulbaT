@@ -261,7 +261,6 @@ pair<int, Move> minimax_alpha_beta_fast(const vector<vector<char>>& board, int d
             vector<vector<char>> new_board = apply_move(board, move); // Applica la mossa per calcolare l'euristica
             char game_over = is_game_over(new_board);
             int score = heuristic_evaluation(new_board, player, game_over); // Valuta il punteggio
-            Logger::info("Depth: " + to_string(depth) + " Move: " + to_string(move.from.first) + " " + to_string(move.from.second) + " to: " + to_string(move.to.first) + " " + to_string(move.to.second) + " Score: " + to_string(score));
             evaluated_moves.push_back({score, move, new_board}); // Salva punteggio, mossa e nuova board
         }
 

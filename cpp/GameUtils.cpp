@@ -165,12 +165,12 @@ bool is_valid_move(Move& move, const vector<vector<char>> &board, const char &co
         if (from_row == to_row) {
             int step = (to_col > from_col) ? 1 : -1;
             for (int col = from_col + step; col != to_col; col += step) {
-                if (board[from_row][col] != 'E' || is_citadel(from_row, col)) return false;
+                if (board[from_row][col] != 'E' || (is_citadel(from_row, col) && !(is_citadel(from_row, from_col)))) return false;
             }
         } else if (from_col == to_col) {
             int step = (to_row > from_row) ? 1 : -1;
             for (int row = from_row + step; row != to_row; row += step) {
-                if (board[row][from_col] != 'E' || is_citadel(row, from_col)) return false;
+                if (board[row][from_col] != 'E' || (is_citadel(row, from_col) && !(is_citadel(from_row, from_col)))) return false;
             }
         } else {
             return false; // Diagonal moves not allowed
