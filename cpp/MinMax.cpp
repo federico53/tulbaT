@@ -443,7 +443,9 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
                 auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
                 std::cout << "Thread of depth " << depth_label << " returned with score: " << result.first << " in " << duration / 1000.0 << " seconds" << std::endl;
                 
-                best_result = result;
+                if (result.first != -100000){
+                    best_result = result;
+                }
             
                 return true;
             } catch (const std::exception& e) {
