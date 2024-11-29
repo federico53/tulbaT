@@ -5,6 +5,8 @@
 #include "headers/EnginePlayer.h"
 #include "headers/HumanPlayer.h"
 #include "headers/MinMax.h"
+#include "headers/Stats.h"
+#include "headers/GameUtils.h"
 
 using namespace std;
 
@@ -13,15 +15,15 @@ using namespace std;
 int main() {
     // Dichiarazione e inizializzazione della matrice 9x9 con valori a piacere
     vector<vector<char>> board = {
-        {'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'},
-        {'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'},
-        {'E', 'E', 'E', 'E', 'E', 'B', 'B', 'E', 'E'},
-        {'E', 'E', 'E', 'E', 'E', 'K', 'E', 'E', 'E'},
-        {'B', 'E', 'E', 'E', 'T', 'B', 'E', 'E', 'E'},
-        {'E', 'E', 'B', 'E', 'B', 'W', 'E', 'E', 'E'},
-        {'E', 'E', 'E', 'E', 'B', 'E', 'E', 'E', 'E'},
-        {'E', 'E', 'E', 'E', 'E', 'E', 'B', 'E', 'E'},
-        {'E', 'E', 'E', 'E', 'E', 'B', 'E', 'E', 'E'}
+        {'E', 'E', 'E', 'E', 'B', 'B', 'E', 'E', 'E'},
+        {'E', 'E', 'B', 'E', 'E', 'E', 'E', 'E', 'E'},
+        {'B', 'E', 'E', 'E', 'W', 'E', 'E', 'E', 'E'},
+        {'E', 'E', 'E', 'E', 'W', 'E', 'B', 'E', 'E'},
+        {'B', 'E', 'E', 'E', 'T', 'E', 'B', 'E', 'B'},
+        {'E', 'E', 'E', 'E', 'W', 'E', 'B', 'E', 'E'},
+        {'E', 'E', 'E', 'E', 'W', 'E', 'E', 'E', 'E'},
+        {'B', 'E', 'K', 'E', 'B', 'E', 'E', 'E', 'E'},
+        {'E', 'W', 'E', 'E', 'B', 'B', 'E', 'E', 'E'}
     };
 
     // Stampa della matrice
@@ -31,6 +33,16 @@ int main() {
         }
         std::cout << std::endl;
     }
+
+    // MINMAX
+
+    int score = 0;
+    Move move;
+
+    std::pair<int, Move> result = minimax_alpha_beta_fast(board, 3, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), 'B', 'B', 100);
+
+    cout << "Best score: " << result.first << endl;
+    cout << "Best move: " << result.second.from.first << " " << result.second.from.second << " to: " << result.second.to.first << " " << result.second.to.second << endl;
 
     auto stats = get_stats(board);
 
