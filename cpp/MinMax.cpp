@@ -3,7 +3,10 @@
 
 using namespace std;
 
-int COUNTER = 0;
+// Weights
+static int ww1 = static_cast<int>((50000*0.35)/8), ww2 = static_cast<int>((50000*0.40)/5), ww3 = static_cast<int>((50000*0.25)/4);
+static int bw1 = static_cast<int>((50000*0.7)/16), bw2 = static_cast<int>((50000*0.1)/500), bw3 = static_cast<int>((50000*0.2)/12);
+
 
 std::map<char, std::map<char, int>> get_stats(const vector<vector<char>>& board) {
     try {
@@ -72,7 +75,7 @@ std::map<char, std::map<char, int>> get_stats(const vector<vector<char>>& board)
                 near_king_black += abs(piece.first - stats['K']['R']) + abs(piece.second - stats['K']['C']);
             }
         }
-        near_king_black = (8 - (near_king_black / black_pieces.size())) * 100;
+        near_king_black = (7 - (near_king_black / black_pieces.size())) * 100;
         around_king_black += black_blockers;
         
 

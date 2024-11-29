@@ -1,5 +1,13 @@
 #include "headers/GameUtils.h"
 
+static const vector<pair<int, int>> citadels = {
+    {0, 3}, {0, 4}, {0, 5}, {1, 4}, {3, 0}, {4,0}, {5,0}, {4,1},
+    {3,8}, {4,8}, {5,8}, {4,7}, {8,3}, {8,4}, {8,5}, {7,4}
+};
+
+static const std::vector<std::pair<int, int>> winning_positions = {
+{0, 1}, {0, 2}, {0, 6}, {0, 7}, {1, 0}, {2, 0}, {6, 0}, {7, 0}, {8, 1}, {8, 2}, {8, 6}, {8, 7}, {1, 8}, {2, 8}, {6, 8}, {7, 8} };
+
 // PARSE MOVE
 
 Move parseMove(const std::string& move) {
@@ -18,10 +26,6 @@ bool is_within_bounds(int row, int col) {
 // POSITION UTILS
 
 bool is_citadel(int row, int col) {
-    const vector<pair<int, int>> citadels = {
-        {0, 3}, {0, 4}, {0, 5}, {1, 4}, {3, 0}, {4,0}, {5,0}, {4,1},
-        {3,8}, {4,8}, {5,8}, {4,7}, {8,3}, {8,4}, {8,5}, {7,4}
-    };
     for(const auto& c : citadels){
         if(c.first == row && c.second == col){
             return true;
@@ -31,8 +35,6 @@ bool is_citadel(int row, int col) {
 }
 
 bool is_winning_position(int row, int col) {
-    const std::vector<std::pair<int, int>> winning_positions = {
-    {0, 1}, {0, 2}, {0, 6}, {0, 7}, {1, 0}, {2, 0}, {6, 0}, {7, 0}, {8, 1}, {8, 2}, {8, 6}, {8, 7}, {1, 8}, {2, 8}, {6, 8}, {7, 8} };
     for(const auto& w : winning_positions){
         if(w.first == row && w.second == col){
             return true;
@@ -236,9 +238,6 @@ char is_game_over(const std::vector<std::vector<char>>& board) {
             }
         }
         
-        vector<pair<int, int>> winning_positions = {
-            {0, 1}, {0, 2}, {0, 6}, {0, 7}, {1, 0}, {2, 0}, {6, 0}, {7, 0}, {8, 1}, {8, 2}, {8, 6}, {8, 7}, {1, 8}, {2, 8}, {6, 8}, {7, 8}
-        };
         for(const auto& w : winning_positions){
             if(w.first == king_position.first && w.second == king_position.second){
                 return 'W';
