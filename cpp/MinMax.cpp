@@ -4,7 +4,7 @@
 using namespace std;
 
 // Weights
-static int ww1 = static_cast<int>((50000*0.35)/8), ww2 = static_cast<int>((50000*0.40)/5), ww3 = static_cast<int>((50000*0.25)/4);
+static int ww1 = static_cast<int>((50000*0.3)/8), ww2 = static_cast<int>((50000*0.5)/5), ww3 = static_cast<int>((50000*0.20)/4);
 static int bw1 = static_cast<int>((50000*0.7)/16), bw2 = static_cast<int>((50000*0.1)/500), bw3 = static_cast<int>((50000*0.2)/12);
 
 
@@ -278,6 +278,12 @@ pair<int, Move> minimax_alpha_beta_fast(const vector<vector<char>>& board, int d
             evaluated_moves.resize(cut_size);
         }
 
+        // // STAMPA DI DEBUG
+        for (const std::tuple<int, Move, vector<vector<char>>> move : evaluated_moves) {
+            Logger::info("Depth: " + to_string(depth) + " Move: " + to_string(get<1>(move).from.first) + " " + to_string(get<1>(move).from.second) + " to: " + to_string(get<1>(move).to.first) + " " + to_string(get<1>(move).to.second) + " Score: " + to_string(get<0>(move)));
+        }
+        // Logger::info("\n");        
+
         // Ora esegui il Minimax con Alpha-Beta sulle migliori mosse
         if (is_max) {
             int max_eval = std::numeric_limits<int>::min();
@@ -442,6 +448,7 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
                 auto end_time = std::chrono::steady_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
                 std::cout << "Thread of depth " << depth_label << " returned with score: " << result.first << " in " << duration / 1000.0 << " seconds" << std::endl;
+                Logger::debug("Thread of depth " + to_string(depth_label) + " returned with score: " + to_string(result.first) + " in " + to_string(duration / 1000.0) + " seconds");
                 
                 if (result.first != -100000){
                     best_result = result;
@@ -495,6 +502,7 @@ pair<int, Move> run_minimax_with_threads(const vector<vector<char>>& board, int 
         check_and_update_result(result_depth_plus_2, depth + 2, start_time_depth_plus_2);
 
     std::cout << "We should have finished, returning best result" << std::endl;
+    Logger::debug("We should have finished, returning best result");
 
     // Restituisce il valore del thread con la profondità maggiore tra quelli che hanno finito
     return best_result;
