@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
         }
 
         // ********************* CUT SIZE SELECTION **********************
-        int cut_size = 10;
+        int cut_size;
         if(argc>=6){ // if the cut_size is passed as parameter
             cut_size = std::stoi(argv[5]);
         }else{ // if the cut_size is not passed as parameter, it is fixed = 10

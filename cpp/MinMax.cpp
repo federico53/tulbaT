@@ -4,8 +4,8 @@
 using namespace std;
 
 // Weights
-static int ww1 = static_cast<int>((50000*0.3)/8), ww2 = static_cast<int>((50000*0.5)/5), ww3 = static_cast<int>((50000*0.20)/4);
-static int bw1 = static_cast<int>((50000*0.7)/16), bw2 = static_cast<int>((50000*0.1)/500), bw3 = static_cast<int>((50000*0.2)/12);
+static int ww1 = static_cast<int>((50000*0.5)/8), ww2 = static_cast<int>((50000*0.3)/5), ww3 = static_cast<int>((50000*0.2)/4);
+static int bw1 = static_cast<int>(-(50000*0.33)/16), bw2 = static_cast<int>(-(50000*0.33)/500), bw3 = static_cast<int>(-(50000*0.33)/12);
 
 
 std::map<char, std::map<char, int>> get_stats(const vector<vector<char>>& board) {
@@ -143,9 +143,9 @@ int heuristic_evaluation(const vector<vector<char>>& board, const char& player, 
         - 8 adj sides points (2 blockers, 1 diagonal)  30% */
 
 
-        // Weights
-        int ww1 = 2185, ww2 = 5000, ww3 = 3125;
-        int bw1 = -1875, bw2 = -10, bw3 = 1250;
+        // // Weights
+        // int ww1 = 2185, ww2 = 5000, ww3 = 3125;
+        // int bw1 = -1875, bw2 = -10, bw3 = 1250;
 
         // Material
         int white_material = stats['W']['P'];
