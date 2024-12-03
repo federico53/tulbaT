@@ -1,24 +1,30 @@
 # Tulbat
-Tulbat project for AI
+Project of Foundamentals of Artificial Intelligence course at University of Bologna.
+The goal of this repository is to implement a player for the Tablut game using heuristic evaluation functions. The agent is implemented in c++ for improved performance and deepening of the search tree.
 
-## **`player_heuristic.py`**
+## **Repository Structure:**
 
-Questo script Python è progettato per giocare a Tablut, utilizzando un approccio basato su euristiche per valutare e selezionare le mosse.
+The repository is organized as follows:
 
-### **Funzionalità principali:**
+- **heuristic_cpp**: contains the source code of the agent implemented in c++.
+- **other**: contains the old files of the project, including the python agent and the neural network.
 
-- **Networking**: Lo script si connette a un server di Tablut tramite socket, consentendo di comunicare con altri giocatori in tempo reale.
+## **Heuristic Agent:**
 
-- **Valutazione delle mosse**: Contiene funzioni per valutare le mosse basate su specifiche euristiche per i pezzi neri e bianchi:
-  - **Per il Nero**: L'euristica si concentra sull'intrappolamento del re, sull'attacco ai pezzi bianchi, sulla cattura dei bianchi e sul blocco del re per impedirgli di raggiungere posizioni di vittoria.
-  - **Per il Bianco**: L'euristica enfatizza la protezione del re e l'evitare la prossimità ai pezzi neri.
+The agent uses the Minimax algorithm with Alpha-Beta pruning to search the game tree. Using a heuristic evaluation function the player is capable to evaluate the game state for every possible board configuration.
 
-- **Validazione delle mosse**: Prima di eseguire una mossa, lo script verifica la sua validità in base alle regole del gioco, assicurandosi che le mosse non atterrino su spazi occupati o in aree non consentite.
+## **How to run the agent:**
 
-- **Generazione delle mosse**: Lo script genera tutte le possibili mosse valide per i pezzi del giocatore corrente, tenendo conto dello stato del campo e delle posizioni dei pezzi.
+To compile the agent, the user must run the following commands in the terminal:
 
-- **Ciclo di gioco**: Mantiene un ciclo continuo per aspettare il turno del giocatore, ricevere aggiornamenti sullo stato del gioco dal server e inviare la mossa migliore selezionata al server.
+```./heuristic_cpp/start.sh```
 
-### **Utilizzo:**
+To run the agent, the user must provide the color (white or black), the time in seconds and the ip address of the server.
 
-Per eseguire lo script, l'utente deve fornire il proprio nome da giocatore e scegliere un colore (bianco o nero) prima di connettersi al server. Una volta connesso, il giocatore parteciperà al gioco effettuando mosse basate sulle valutazioni euristiche.
+```./heuristic_cpp/runmyplayer.sh <color> <time> <ip>```
+
+> **Note:** Before running the agent, the user must start the server.
+
+For example, to run the agent as white with 60 seconds of thinking time and the server at localhost:
+
+```./heuristic_cpp/runmyplayer.sh white 60 127.0.0.1```
