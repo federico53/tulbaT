@@ -1,0 +1,1 @@
+g++ mainHumanOnly.cpp Player.cpp HumanPlayer.cpp GameDriver.cpp GameUtils.cpp Stats.cpp Logger.cpp -o tablutOnlyHuman -ljsoncpp -lstdc++fs

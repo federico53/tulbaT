@@ -1,6 +1,7 @@
 from driver import GameDriver
-from game_utils import generate_all_possible_moves, select_best_move
+from game_utils import minimax_alpha_beta, format_board
 from logger import logger
+from stats import stats_of_the_board
 
 class Player:
     def __init__(self, name, color, server_address):
@@ -24,37 +25,30 @@ class Player:
                 turn = game_state['turn'].lower()
 
                 logger.info(f"Current turn: {turn}")
-                logger.debug(f"Current board state: {board}")
+                logger.debug(f"Current board state: \n{format_board(board)}")
 
                 # Controlla se il gioco è finito
                 if turn in ['whitewin', 'blackwin', 'draw']:
                     logger.info(f"Game over! Result: {turn.upper()}")
-                    print(f"Game over! Result: {turn.upper()}")
                     break
 
                 # Aspetta il turno
                 if turn != self.color:
                     logger.info(f"Waiting for the opponent's turn... (Current turn: {turn})")
-                    print(f"Waiting for the opponent's turn... (Current turn: {turn})")
                     continue
 
-                # Genera tutte le mosse valide
-                valid_moves = generate_all_possible_moves(board, self.color)
-                logger.info(f"Valid moves generated: {len(valid_moves)}")
+                # Printing the board stats
+                logger.debug(f"Stats of the board: {stats_of_the_board(board, self.color)}")
 
-                if not valid_moves:
-                    logger.warning("No valid moves available.")
-                    print("No valid moves available.")
-                    break
-
-                # Seleziona la miglior mossa
-                best_move = select_best_move(valid_moves, board, self.color)
-                logger.info(f"Best move selected: {best_move}")
+                # Find the best move using minmax algorithm
+                    # Mode 1: Minmax with heuristic function
+                    # Mode 2: Minmax with neural network
+                best_score, best_move = minimax_alpha_beta(board, depth=1, mode=2, alpha=float('-inf'), beta=float('inf'), turn=turn, player=self.color)
+                logger.info(f"Best move for black: {best_move} with score: {best_score}")
 
                 # Invia la mossa al server
                 logger.info(f"Sending move: {best_move}")
                 self.driver.send_move(best_move, self.color)
-                print(f"Sending move: {best_move}")
 
             except Exception as e:
                 logger.error(f"An error occurred during the game loop: {e}")
