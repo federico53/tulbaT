@@ -13,18 +13,30 @@ The repository is organized as follows:
 
 The agent uses the Minimax algorithm with Alpha-Beta pruning to search the game tree. Using a heuristic evaluation function the player is capable to evaluate the game state for every possible board configuration.
 
+## **Requirements:**
+
+- g++ compiler
+- jsoncpp v25
+
+
 ## **How to run the agent:**
 
 To compile the agent, the user must run the following commands in the terminal:
 
-```./heuristic_cpp/start.sh```
+```
+./heuristic_cpp/start.sh
+```
 
 To run the agent, the user must provide the color (white or black), the time in seconds and the ip address of the server.
 
-```./heuristic_cpp/runmyplayer.sh <color> <time> <ip>```
+```
+./heuristic_cpp/runmyplayer.sh <color> <time> <ip>
+```
 
 > **Note:** Before running the agent, the user must start the server.
 
 For example, to run the agent as white with 60 seconds of thinking time and the server at localhost:
 
-```./heuristic_cpp/runmyplayer.sh white 60 127.0.0.1```
+```
+./heuristic_cpp/runmyplayer.sh white 60 127.0.0.1
+```
